@@ -31,7 +31,7 @@ export abstract class ViewerContext {
  * A viewer context for an authenticated viewer.
  */
 export abstract class AuthenticatedViewerContext extends ViewerContext {
-  isAuthenticated = true;
+  readonly isAuthenticated = true;
 }
 
 /**
@@ -57,8 +57,8 @@ export class UserViewerContext extends AuthenticatedViewerContext {
 /**
  * A viewer context for a viewer that is not logged in.
  */
-export class UnauthenticatedViewerContext extends AuthenticatedViewerContext {
-  isAuthenticated = false;
+export class UnauthenticatedViewerContext extends ViewerContext {
+  readonly isAuthenticated = false;
 }
 
 /**
