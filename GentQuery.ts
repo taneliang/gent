@@ -24,8 +24,14 @@ export abstract class GentQuery<Model extends BaseGent> {
     this.queryBuilder = this.vc.entityManager.createQueryBuilder(entityClass);
   }
 
-  whereIdsIn(ids: number[]) {
-    this.queryBuilder.where({ id: { $in: ids } });
+  whereId(id: number): this {
+    this.queryBuilder.andWhere({ id });
+    return this;
+  }
+
+  whereIdsIn(ids: number[]): this {
+    this.queryBuilder.andWhere({ id: { $in: ids } });
+    return this;
   }
 
   private async applyGraphViewRestrictions() {
