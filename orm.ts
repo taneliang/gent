@@ -1,18 +1,11 @@
-import { AnyEntity, EntitySchema, MikroORM } from 'mikro-orm';
-import { EntityClass, EntityClassGroup } from 'mikro-orm/dist/typings';
+import { MikroORM, Options } from 'mikro-orm';
 import { BaseGent } from './BaseGent';
 
 let globalOrm: MikroORM | undefined;
 
-export async function initOrm(
-  entities: (EntityClass<AnyEntity> | EntityClassGroup<AnyEntity> | EntitySchema<any>)[],
-  otherOptions: Omit<ConstructorParameters<typeof MikroORM>[0], 'entities'>,
-) {
-  const options: Omit<ConstructorParameters<typeof MikroORM>[0], 'entities'> = {
-    ...otherOptions,
-    // Inject Gent entities
-    entities: [...entities, BaseGent],
-  };
+export const gentEntities = [BaseGent];
+
+export async function initOrm(options: Options) {
   globalOrm = await MikroORM.init(options);
 }
 

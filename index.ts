@@ -1,4 +1,5 @@
 export * from './ViewerContext';
+export { gentEntities } from './orm';
 
 import { initOrm } from './orm';
 
