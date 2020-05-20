@@ -3,21 +3,21 @@ import { QueryBuilder } from 'mikro-orm';
 import { EntityClass, AnyEntity } from 'mikro-orm/dist/typings';
 import { BaseGent } from './BaseGent';
 
-export type GentLoaderGraphViewRestricter<GentLoaderSubclass> = (
-  childLoader: GentLoaderSubclass,
+export type GentQueryGraphViewRestricter<GentQuerySubclass> = (
+  childQuery: GentQuerySubclass,
 ) => Promise<void>;
 
-export abstract class GentLoader<Model extends BaseGent> {
+export abstract class GentQuery<Model extends BaseGent> {
   readonly vc: ViewerContext;
 
   protected readonly queryBuilder: QueryBuilder<Model>;
 
-  private readonly graphViewRestrictor: GentLoaderGraphViewRestricter<this> | undefined;
+  private readonly graphViewRestrictor: GentQueryGraphViewRestricter<this> | undefined;
 
   constructor(
     vc: ViewerContext,
     entityClass: EntityClass<Model>,
-    graphViewRestrictor: GentLoaderGraphViewRestricter<any> | undefined = undefined,
+    graphViewRestrictor: GentQueryGraphViewRestricter<any> | undefined = undefined,
   ) {
     this.vc = vc;
     this.graphViewRestrictor = graphViewRestrictor;
