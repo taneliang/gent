@@ -1,6 +1,5 @@
-import { Entity, PrimaryKey, Property } from 'mikro-orm';
+import { PrimaryKey, Property } from 'mikro-orm';
 
-@Entity()
 export abstract class BaseGent {
   @PrimaryKey()
   id!: number;
