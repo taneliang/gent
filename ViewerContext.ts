@@ -1,6 +1,7 @@
-import { User } from '../models';
 import { EntityManager } from 'mikro-orm';
+import { User } from '../models';
 import { createContextualizedEntityManager } from './orm';
+import { DataloaderCenter } from './LoaderManager';
 
 /**
  * Encapulates all information for a viewer in one request. Commonly
@@ -18,10 +19,13 @@ export abstract class ViewerContext {
    * this will bypass all Gent authorization checks. Use GentQuery/GentMutator
    * if possible.
    */
-  readonly entityManager: Readonly<EntityManager>;
+  readonly entityManager: EntityManager;
+
+  readonly dataloaders: DataloaderCenter;
 
   constructor() {
     this.entityManager = createContextualizedEntityManager();
+    this.dataloaders = new DataloaderCenter();
   }
 
   abstract get isAuthenticated(): boolean;

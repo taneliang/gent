@@ -1,6 +1,6 @@
 import { ViewerContext } from './ViewerContext';
 import { QueryBuilder } from 'mikro-orm';
-import { EntityClass, AnyEntity } from 'mikro-orm/dist/typings';
+import { EntityClass } from 'mikro-orm/dist/typings';
 import { BaseGent } from './BaseGent';
 
 export type GentQueryGraphViewRestricter<GentQuerySubclass> = (
