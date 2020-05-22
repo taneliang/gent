@@ -1,5 +1,5 @@
 import { MikroORM, Options } from 'mikro-orm';
-import { BaseGent } from './BaseGent';
+import { BaseGent } from './entities/BaseGent';
 
 let globalOrm: MikroORM | undefined;
 

@@ -1,7 +1,7 @@
 import Dataloader from 'dataloader';
 import _ from 'lodash';
 import { ViewerContext } from '.';
-import { BaseGent } from './BaseGent';
+import { BaseGent } from './entities/BaseGent';
 import { EntityClass } from 'mikro-orm/dist/typings';
 
 /**

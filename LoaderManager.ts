@@ -1,6 +1,6 @@
 import Dataloader from 'dataloader';
 import { EntityName } from 'mikro-orm';
-import { BaseGent } from './BaseGent';
+import { BaseGent } from './entities/BaseGent';
 import { GentBeltalowda } from './GentLoader';
 
 export type GentDataloader = Dataloader<number, unknown>;
