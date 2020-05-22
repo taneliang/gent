@@ -5,51 +5,72 @@ import { BaseGent } from './BaseGent';
 import { EntityClass } from 'mikro-orm/dist/typings';
 
 /**
- * The internal underlying layer below the user-facing GentLoader
- * that gathers IDs to load, and does the gruntwork of applying authorization
- * checks.
+ * The internal underlying layer below the user-facing GentLoader. It gathers
+ * values to be loaded for one field and loads them in a batch, and does the
+ * gruntwork of applying authorization checks.
  */
-export abstract class GentBeltalowda<Model extends BaseGent> {
+export abstract class GentBeltalowda<Model extends BaseGent, FieldType extends string | number> {
   readonly vc: ViewerContext;
+  readonly fieldNameToFilter: string;
+  readonly mapEntityToKey: (entity: Model) => FieldType;
 
-  private readonly dataloader: Dataloader<number, Model>;
+  private readonly dataloader: Dataloader<FieldType, Model[]>;
 
-  constructor(vc: ViewerContext) {
+  constructor(
+    vc: ViewerContext,
+    fieldNameToFilter: string,
+    mapEntityToKey: (entity: Model) => FieldType,
+  ) {
     this.vc = vc;
+    this.fieldNameToFilter = fieldNameToFilter;
+    this.mapEntityToKey = mapEntityToKey;
     this.dataloader = new Dataloader(this.#batchLoadFunction);
   }
 
   protected abstract get entityClass(): EntityClass<Model>;
 
-  readonly #batchLoadFunction: Dataloader.BatchLoadFn<number, Model> = async (batchIds) => {
+  readonly #batchLoadFunction: Dataloader.BatchLoadFn<FieldType, Model[]> = async (
+    valuesToFetch,
+  ) => {
     this.applyPreflightRules();
 
     const unorderedResults = await this.vc.entityManager
       .createQueryBuilder(this.entityClass)
       .select('*')
-      .where({ id: { $in: batchIds } })
+      .where({ [this.fieldNameToFilter]: { $in: valuesToFetch } })
       .getResult();
 
-    const keyedResults = _.keyBy(unorderedResults, (model) => model.id);
-    const results = batchIds.map((id) => keyedResults[id]);
+    const keyedResults = _.groupBy(unorderedResults, (entity) => this.mapEntityToKey(entity));
+    const results = valuesToFetch.map((value) => keyedResults[value]);
     return results;
   };
 
-  applyPreflightRules() {
-    // TODO: trigger preflight police enforcement
-  }
+  // TODO: trigger preflight police enforcement
+  abstract applyPreflightRules(): void;
 
   applyPostflightRules() {
     // TODO: trigger postflight police enforcement
   }
 
-  async loadOne(id: number): Promise<Model | Error> {
-    // TODO: Check if we need to ensure this.ids is non-empty
-    return this.dataloader.load(id);
+  async loadOneFromOneValue(value: FieldType): Promise<Model | undefined> {
+    const entities = await this.loadManyFromOneValue(value);
+    return entities[0];
   }
 
-  async loadMany(ids: number[]): Promise<(Model | Error)[]> {
-    return this.dataloader.loadMany(ids);
+  async loadManyFromOneValue(value: FieldType): Promise<Model[]> {
+    const entities = await this.dataloader.load(value);
+    return entities;
+  }
+
+  async loadManyWithOneEntityEach(values: FieldType[]): Promise<(Model | Error | undefined)[]> {
+    const manyEntitiesOrError = await this.loadManyWithManyEntitiesEach(values);
+    return manyEntitiesOrError.map((entitiesOrError) =>
+      entitiesOrError instanceof Error ? entitiesOrError : entitiesOrError[0],
+    );
+  }
+
+  async loadManyWithManyEntitiesEach(values: FieldType[]): Promise<(Model[] | Error)[]> {
+    return this.dataloader.loadMany(values);
   }
 }
 
@@ -63,7 +84,7 @@ export type GentLoaderGraphViewRestricter<GentLoaderSubclass> = (
 export abstract class GentLoader<Model extends BaseGent> {
   readonly vc: ViewerContext;
 
-  private ids: number[] = [];
+  protected ids: number[] = [];
   private readonly graphViewRestrictor: GentLoaderGraphViewRestricter<this> | undefined;
 
   constructor(
@@ -92,20 +113,22 @@ export abstract class GentLoader<Model extends BaseGent> {
     await this.graphViewRestrictor(this);
   }
 
-  protected abstract createBeltalowdaProvider(): GentBeltalowda<Model>;
+  protected abstract createIdBeltalowda(): GentBeltalowda<Model, number>;
 
-  async getOne(): Promise<Model | Error> {
+  async getOne(): Promise<Model | undefined> {
+    if (this.ids.length === 0) {
+      return undefined;
+    }
     await this.applyGraphViewRestrictions();
-    // TODO: Check if we need to ensure this.ids is non-empty
     return this.vc.dataloaders
-      .beltalowdaForModel(this.entityClass, this.createBeltalowdaProvider.bind(this))
-      .loadOne(this.ids[0]);
+      .beltalowdaForModel(this.entityClass, 'id', this.createIdBeltalowda.bind(this))
+      .loadOneFromOneValue(this.ids[0]);
   }
 
-  async getAll(): Promise<(Model | Error)[]> {
+  async getAll(): Promise<(Model | Error | undefined)[]> {
     await this.applyGraphViewRestrictions();
     return this.vc.dataloaders
-      .beltalowdaForModel(this.entityClass, this.createBeltalowdaProvider.bind(this))
-      .loadMany(this.ids);
+      .beltalowdaForModel(this.entityClass, 'id', this.createIdBeltalowda.bind(this))
+      .loadManyWithOneEntityEach(this.ids);
   }
 }

@@ -15,21 +15,31 @@ export type GentDataloader = Dataloader<number, unknown>;
  * Internal class, not intended for use outside Gent.
  */
 export class DataloaderCenter {
-  readonly #loaders = new Map<string, unknown>();
+  /**
+   * #loaders[model name][field name to load] -> beltalowda object
+   */
+  readonly #loaders = new Map<string, Map<string, unknown>>();
 
   beltalowdaForModel<
-    L extends GentBeltalowda<M>,
-    M extends BaseGent = L extends GentBeltalowda<infer T> ? T : never
-  >(entityClass: EntityName<M>, loaderProvider: () => L): L {
-    const loaderKey =
+    L extends GentBeltalowda<M, FT>,
+    M extends BaseGent,
+    FT extends string | number = L extends GentBeltalowda<M, infer T> ? T : never
+  >(entityClass: EntityName<M>, fieldNameToFilter: string, loaderProvider: () => L): L {
+    const modelName =
       typeof entityClass === 'string' ? entityClass : entityClass.prototype.constructor.name;
-    const existingLoader = this.#loaders.get(loaderKey);
+    const existingLoadersForModel = this.#loaders.get(modelName);
+    if (!existingLoadersForModel) {
+      this.#loaders.set(modelName, new Map());
+    }
+    const loadersForModel = this.#loaders.get(modelName)!;
+
+    const existingLoader = loadersForModel.get(fieldNameToFilter);
     if (existingLoader) {
       return existingLoader as L;
     }
 
     const newLoader = loaderProvider();
-    this.#loaders.set(loaderKey, newLoader);
+    loadersForModel.set(fieldNameToFilter, newLoader);
     return newLoader;
   }
 }
