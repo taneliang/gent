@@ -1,4 +1,5 @@
 import { GentSchemaValidationError } from './GentSchemaValidationError';
+import { FieldBuilder, FieldSpecification } from './PropertyBuilder/FieldBuilder';
 
 export abstract class GentSchema {
   /**
@@ -19,4 +20,6 @@ export abstract class GentSchema {
   })();
 
   abstract get properties(): { [key: string]: any };
+
+  abstract fields(): [FieldBuilder];
 }
