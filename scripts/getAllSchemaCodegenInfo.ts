@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { GentSchema } from '../GentSchema';
-import { SchemaCodegenInfo } from './SchemaCodegenInfo';
+import { SchemaCodegenInfo } from '../GentGenerator/SchemaCodegenInfo';
 import { GentSchemaValidationError } from '../GentSchemaValidationError';
 
 // Adapted from: https://www.peterbe.com/plog/nodejs-fs-walk-or-glob-or-fast-glob
