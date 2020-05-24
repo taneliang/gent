@@ -19,7 +19,5 @@ export abstract class GentSchema {
     return className.substring(0, className.length - 'Schema'.length);
   })();
 
-  abstract get properties(): { [key: string]: any };
-
-  abstract fields(): [FieldBuilder];
+  abstract fields(): FieldBuilder[];
 }

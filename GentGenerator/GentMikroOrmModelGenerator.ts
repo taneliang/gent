@@ -19,7 +19,7 @@ export class GentMikroOrmModelGenerator extends GentGenerator {
 
     const ourImports = {
       'mikro-orm': ['Entity'],
-      '../gent/entities/BaseGent': ['BaseGent'],
+      '../../gent/entities/BaseGent': ['BaseGent'],
     };
 
     const allImports = this.fieldGenerators
