@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { GentSchema } from '../GentSchema';
 import { SchemaCodegenInfo } from './SchemaCodegenInfo';
+import { GentSchemaValidationError } from '../GentSchemaValidationError';
 
 // Adapted from: https://www.peterbe.com/plog/nodejs-fs-walk-or-glob-or-fast-glob
 function walk(directory: string, filepaths: string[] = []) {
@@ -23,11 +24,14 @@ function getSchemaPaths(): string[] {
   return schemaPaths;
 }
 
-function validateSchema(filePath: string, Schema: typeof GentSchema | undefined) {
+function validateSchema(
+  filePath: string,
+  Schema: typeof GentSchema | undefined,
+): Schema is typeof GentSchema {
   // Ensure Schema exists and is a class
   if (!Schema || !Schema.prototype) {
     // TODO: Use custom Error subclass
-    throw new Error(
+    throw new GentSchemaValidationError(
       `Encountered *Schema.ts file at "${filePath}" that does not have a default exported schema class.`,
     );
   }
@@ -36,47 +40,27 @@ function validateSchema(filePath: string, Schema: typeof GentSchema | undefined)
   // Ensure Schema is a subclass of GentSchema by doing a simple superclass name
   // check.
   if (superclassName !== GentSchema.prototype.constructor.name) {
-    throw new Error(
+    throw new GentSchemaValidationError(
       `Encountered *Schema.ts file at "${filePath}" whose default export is not a subclass of GentSchema.`,
     );
   }
 
-  // Ensure Schema is named *Schema so that we can generate the actual name from
-  // it.
-  const className = Schema.prototype.constructor.name;
-  if (!className.endsWith('Schema') || className === 'Schema') {
-    throw new Error(
-      `Schema class in "${filePath}" should be named <EntityName>Schema, e.g. "${className}Schema".`,
-    );
-  }
-}
-
-type TypeofDefiniteGentSchema = typeof GentSchema & { constructor(): GentSchema };
-
-function extractCodegenInfoFromSchema(
-  filePath: string,
-  DefiniteSchema: TypeofDefiniteGentSchema,
-): SchemaCodegenInfo {
-  const schema = new DefiniteSchema();
-
-  const className = schema.constructor.name;
-  const entityName = className.substring(0, className.length - 'Schema'.length);
-
-  const properties = schema.properties;
-  return {
-    filePath,
-    name: entityName,
-    properties,
-  };
+  return true;
 }
 
 function processSourceFile(filePath: string): SchemaCodegenInfo {
-  const { default: Schema } = require(filePath) as { default?: typeof GentSchema };
+  const { default: Schema } = require(filePath) as {
+    default?: typeof GentSchema & { constructor(): GentSchema };
+  };
 
-  validateSchema(filePath, Schema);
-  const DefiniteSchema = Schema as typeof GentSchema & { constructor(): GentSchema };
+  if (!validateSchema(filePath, Schema)) {
+    throw new GentSchemaValidationError('Unknown error occured when validating schema.');
+  }
 
-  return extractCodegenInfoFromSchema(filePath, DefiniteSchema);
+  return {
+    filePath,
+    schema: new Schema(),
+  };
 }
 
 export function getAllSchemaCodegenInfo(): SchemaCodegenInfo[] {
