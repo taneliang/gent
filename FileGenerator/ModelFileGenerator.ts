@@ -37,7 +37,7 @@ export class ModelFileGenerator extends FileGenerator {
       ...this.fieldGenerators,
       ...this.relationGenerators,
     ].map((generator) => generator.importsRequired());
-    return buildImportLines([...generatorImports, ourImports], builder);
+    return buildImportLines([ourImports, ...generatorImports], builder);
   }
 
   buildFieldLines(builder: CodeBuilder): CodeBuilder {
