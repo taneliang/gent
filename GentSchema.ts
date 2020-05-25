@@ -1,5 +1,6 @@
 import { GentSchemaValidationError } from './GentSchemaValidationError';
 import { FieldBuilder } from './PropertyBuilder/FieldBuilder';
+import { RelationBuilder } from './PropertyBuilder/RelationBuilder';
 
 export abstract class GentSchema {
   /**
@@ -20,4 +21,5 @@ export abstract class GentSchema {
   })();
 
   abstract fields(): FieldBuilder[];
+  abstract relations(): RelationBuilder[];
 }
