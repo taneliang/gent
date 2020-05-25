@@ -5,6 +5,7 @@ import { OneToManyBuilder, ManyToOneBuilder } from '../PropertyBuilder/RelationB
 import { ModelOneToManyRelationGenerator } from '../PropertyBasedGenerator/OneToManyRelationBasedGenerator';
 import { ModelManyToOneRelationGenerator } from '../PropertyBasedGenerator/ManyToOneRelationBasedGenerator';
 import { FileGenerator } from './FileGenerator';
+import { buildImportLines } from '../ImportMap';
 
 export class ModelFileGenerator extends FileGenerator {
   private fieldGenerators = (() =>
@@ -28,27 +29,15 @@ export class ModelFileGenerator extends FileGenerator {
   }
 
   buildImportLines(builder: CodeBuilder): CodeBuilder {
-    function merger(objValue: string[], srcValue: string[]) {
-      return [...(objValue ?? []), ...(srcValue ?? [])];
-    }
-
     const ourImports = {
       'mikro-orm': ['Entity'],
       '../../gent/entities/BaseGent': ['BaseGent'],
     };
-
-    const allImports = [...this.fieldGenerators, ...this.relationGenerators]
-      .map((generator) => generator.importsRequired())
-      .reduce(
-        (previousValue, currentValue) => _.mergeWith(previousValue, currentValue, merger),
-        ourImports,
-      );
-
-    Object.entries(allImports).forEach(([moduleName, imports]) =>
-      builder.addLine(`import { ${_.uniq(imports).sort().join(', ')} } from '${moduleName}';`),
-    );
-
-    return builder;
+    const generatorImports = [
+      ...this.fieldGenerators,
+      ...this.relationGenerators,
+    ].map((generator) => generator.importsRequired());
+    return buildImportLines([...generatorImports, ourImports], builder);
   }
 
   buildFieldLines(builder: CodeBuilder): CodeBuilder {

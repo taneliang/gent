@@ -26,7 +26,7 @@ export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGener
       .addLine(`${name} = new Collection<${type}>(this);`);
   }
 
-  importsRequired(): { [moduleName: string]: string[] } {
+  importsRequired() {
     const { type } = this.specification;
     return {
       'mikro-orm': ['Collection', 'OneToMany'],

@@ -28,7 +28,7 @@ export class ModelManyToOneRelationGenerator extends ManyToOneRelationBasedGener
       .addLine(`${name}${nullUnwrapIndicator}: ${type};`);
   }
 
-  importsRequired(): { [moduleName: string]: string[] } {
+  importsRequired() {
     const { type } = this.specification;
     return {
       'mikro-orm': ['ManyToOne'],

@@ -18,7 +18,7 @@ export class ModelFieldGenerator extends FieldBasedGenerator {
       .addLine(`${name}${nullUnwrapIndicator}: ${type};`);
   }
 
-  importsRequired(): { [moduleName: string]: string[] } {
+  importsRequired() {
     return { 'mikro-orm': ['Property'] };
   }
 }

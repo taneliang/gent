@@ -1,5 +1,6 @@
 import { CodeBuilder } from '../../ts-codegen';
 import { PropertySpecification } from '../PropertyBuilder/PropertyBuilder';
+import { ImportMap } from '../ImportMap';
 
 export abstract class PropertyBasedGenerator<SpecificationType extends PropertySpecification> {
   protected readonly specification: SpecificationType;
@@ -10,5 +11,5 @@ export abstract class PropertyBasedGenerator<SpecificationType extends PropertyS
 
   abstract generateLines(codeBuilder: CodeBuilder): CodeBuilder;
 
-  abstract importsRequired(): { [moduleName: string]: string[] };
+  abstract importsRequired(): ImportMap;
 }
