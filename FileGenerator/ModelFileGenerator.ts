@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import { GentGenerator } from './GentGenerator';
+import { FileGenerator } from './FileGenerator';
 import { ModelFieldGenerator } from '../PropertyBasedGenerator/FieldBasedGenerator';
 
-export class GentMikroOrmModelGenerator extends GentGenerator {
+export class ModelFileGenerator extends FileGenerator {
   private fieldGenerators = (() =>
     this.codegenInfo.schema
       .fields()

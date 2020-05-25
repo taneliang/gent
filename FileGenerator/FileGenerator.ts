@@ -10,7 +10,7 @@ function filePathForComponent(
   return path.join(path.dirname(schemaPath), `${entityName}${componentName}.ts`);
 }
 
-export abstract class GentGenerator {
+export abstract class FileGenerator {
   protected readonly codegenInfo: SchemaCodegenInfo;
   protected readonly codeFile: CodeFile;
 
