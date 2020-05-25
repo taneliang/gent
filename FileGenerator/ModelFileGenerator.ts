@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { FileGenerator } from './FileGenerator';
 import { ModelFieldGenerator } from '../PropertyBasedGenerator/FieldBasedGenerator';
+import { CodeBuilder } from '../../ts-codegen';
 
 export class ModelFileGenerator extends FileGenerator {
   private fieldGenerators = (() =>
@@ -12,7 +13,7 @@ export class ModelFileGenerator extends FileGenerator {
     return '';
   }
 
-  generateImportLines(): string {
+  buildImportLines(builder: CodeBuilder): CodeBuilder {
     function merger(objValue: string[], srcValue: string[]) {
       return [...objValue, ...srcValue];
     }
@@ -29,29 +30,28 @@ export class ModelFileGenerator extends FileGenerator {
         ourImports,
       );
 
-    return Object.entries(allImports)
-      .map(
-        ([moduleName, imports]) =>
-          `import { ${_.uniq(imports).sort().join(', ')} } from '${moduleName}';`,
-      )
-      .join('\n');
+    Object.entries(allImports).forEach(([moduleName, imports]) =>
+      builder.addLine(`import { ${_.uniq(imports).sort().join(', ')} } from '${moduleName}';`),
+    );
+
+    return builder;
+  }
+
+  buildFieldLines(builder: CodeBuilder): CodeBuilder {
+    this.fieldGenerators.forEach((generator) => generator.generateLines(builder).addLine());
+    return builder;
   }
 
   generate(): void {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
-    const fields = schema.fields();
 
     this.codeFile
       .build((b) =>
-        b
-          .addLine(this.generateImportLines())
+        this.buildImportLines(b)
           .addLine()
           .addLine('@Entity()')
-          .addBlock(`export class ${entityName} extends BaseGent`, (b) => {
-            this.fieldGenerators.forEach((generator) => generator.generateLines(b).addLine());
-            return b;
-          })
+          .addBlock(`export class ${entityName} extends BaseGent`, (b) => this.buildFieldLines(b))
           .format(),
       )
       .saveToFile();

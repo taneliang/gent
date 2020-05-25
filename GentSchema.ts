@@ -1,5 +1,5 @@
 import { GentSchemaValidationError } from './GentSchemaValidationError';
-import { FieldBuilder, FieldSpecification } from './PropertyBuilder/FieldBuilder';
+import { FieldBuilder } from './PropertyBuilder/FieldBuilder';
 
 export abstract class GentSchema {
   /**
