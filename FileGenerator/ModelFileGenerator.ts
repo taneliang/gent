@@ -8,12 +8,12 @@ import { FileGenerator } from './FileGenerator';
 import { buildImportLines } from '../ImportMap';
 
 export class ModelFileGenerator extends FileGenerator {
-  private fieldGenerators = (() =>
+  private readonly fieldGenerators = (() =>
     this.codegenInfo.schema
       .fields()
       .map((builder) => new ModelFieldGenerator(builder.toSpecification())))();
 
-  private relationGenerators = (() =>
+  private readonly relationGenerators = (() =>
     this.codegenInfo.schema.relations().map((builder) => {
       const spec = builder.toSpecification();
       if (builder instanceof OneToManyBuilder) {
