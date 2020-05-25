@@ -22,3 +22,38 @@ export class ModelFieldGenerator extends FieldBasedGenerator {
     return { 'mikro-orm': ['Property'] };
   }
 }
+
+export class QueryFieldGenerator extends FieldBasedGenerator {
+  buildStringFieldLines(codeBuilder: CodeBuilder): CodeBuilder {
+    const { name } = this.specification;
+    const methodReadyName = _.upperFirst(name);
+
+    return codeBuilder.addBlock(`where${methodReadyName}(pattern: RegExp | string): this`, (b) =>
+      b.addLine(`this.queryBuilder.andWhere({ ${name}: pattern });`).addLine('return this;'),
+    );
+  }
+
+  buildGenericFieldLines(codeBuilder: CodeBuilder): CodeBuilder {
+    const { name, type } = this.specification;
+    const methodReadyName = _.upperFirst(name);
+
+    return codeBuilder.addBlock(`where${methodReadyName}(value: ${type}): this`, (b) =>
+      b.addLine(`this.queryBuilder.andWhere({ ${name}: value });`).addLine('return this;'),
+    );
+  }
+
+  generateLines(codeBuilder: CodeBuilder): CodeBuilder {
+    const { name, type } = this.specification;
+
+    switch (type) {
+      case 'string':
+        return this.buildStringFieldLines(codeBuilder);
+      default:
+        return this.buildGenericFieldLines(codeBuilder);
+    }
+  }
+
+  importsRequired() {
+    return {};
+  }
+}

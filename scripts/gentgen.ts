@@ -2,6 +2,7 @@ import { getAllSchemaCodegenInfo } from './getAllSchemaCodegenInfo';
 import { ModelFileGenerator } from '../FileGenerator/ModelFileGenerator';
 import { BeltalowdaFileGenerator } from '../FileGenerator/BeltalowdaFileGenerator';
 import { LoaderFileGenerator } from '../FileGenerator/LoaderGenerator';
+import { QueryFileGenerator } from '../FileGenerator/QueryGenerator';
 
 function main() {
   const allCodegenInfo = getAllSchemaCodegenInfo();
@@ -9,7 +10,8 @@ function main() {
     new ModelFileGenerator(codegenInfo).generate();
     new BeltalowdaFileGenerator(codegenInfo).generate();
     new LoaderFileGenerator(codegenInfo).generate();
-    // TODO: GentLoaderGenerator GentQueryGenerator GentMutatorGenerator GentGraphQlGraphEntityGenerator
+    new QueryFileGenerator(codegenInfo).generate();
+    // TODO: MutatorGenerator GraphQlGraphEntityGenerator
     // TODO: police
   }
 }

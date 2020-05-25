@@ -62,7 +62,7 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
           .addLine('return this.vc.dataloaders')
           .addBlock(`.beltalowdaForModel(${type}, '${idReadyInverseRelationName}', () =>`, (b) =>
             b.addLine(
-              `return new AcadYearBeltalowda(this.vc, '${idReadyInverseRelationName}', (model) => model.${inverseRelationName}.id);`,
+              `return new ${type}Beltalowda(this.vc, '${idReadyInverseRelationName}', (model) => model.${inverseRelationName}.id);`,
             ),
           )
           .addLine(')')
@@ -76,6 +76,29 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
       [`../${type}/${type}`]: [type],
       [`../${type}/${type}Loader`]: [`${type}Loader`],
       [`../${type}/${type}Beltalowda`]: [`${type}Beltalowda`],
+    };
+  }
+}
+
+export class QueryOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
+  generateLines(codeBuilder: CodeBuilder): CodeBuilder {
+    const { name, type, inverseRelationName } = this.specification;
+    const methodReadyName = _.upperFirst(name);
+    const methodReadyInverseRelationName = _.upperFirst(inverseRelationName);
+
+    return codeBuilder.addBlock(`query${methodReadyName}(): ${type}Query`, (b) =>
+      b
+        .addBlock(`return new ${type}Query(this.vc, async (childQuery) =>`, (b) =>
+          b.addLine(`childQuery.where${methodReadyInverseRelationName}IdsIn(await this.getIds());`),
+        )
+        .addLine(');'),
+    );
+  }
+
+  importsRequired() {
+    const { type } = this.specification;
+    return {
+      [`../${type}/${type}Query`]: [`${type}Query`],
     };
   }
 }

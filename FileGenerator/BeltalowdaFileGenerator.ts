@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { CodeBuilder } from '../../ts-codegen';
 import { FileGenerator } from './FileGenerator';
 import { buildImportLines } from '../ImportMap';

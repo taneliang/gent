@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { CodeBuilder } from '../../ts-codegen';
 import { OneToManyBuilder, ManyToOneBuilder } from '../PropertyBuilder/RelationBuilder';
 import { LoaderOneToManyRelationGenerator } from '../PropertyBasedGenerator/OneToManyRelationBasedGenerator';
