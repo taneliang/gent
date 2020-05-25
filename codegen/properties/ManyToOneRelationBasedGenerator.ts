@@ -1,8 +1,8 @@
 import { ManyToOneOptions } from 'mikro-orm';
 import _ from 'lodash';
-import { CodeBuilder } from '../../ts-codegen';
+import { CodeBuilder } from '../../../ts-codegen';
 import { PropertyBasedGenerator } from './PropertyBasedGenerator';
-import { ManyToOneSpecification } from '../PropertyBuilder/RelationBuilder';
+import { ManyToOneSpecification } from '../../schema/properties/RelationBuilder';
 
 export abstract class ManyToOneRelationBasedGenerator extends PropertyBasedGenerator<
   ManyToOneSpecification

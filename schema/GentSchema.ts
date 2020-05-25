@@ -1,6 +1,6 @@
 import { GentSchemaValidationError } from './GentSchemaValidationError';
-import { FieldBuilder } from './PropertyBuilder/FieldBuilder';
-import { RelationBuilder } from './PropertyBuilder/RelationBuilder';
+import { FieldBuilder } from './properties/FieldBuilder';
+import { RelationBuilder } from './properties/RelationBuilder';
 
 export abstract class GentSchema {
   /**

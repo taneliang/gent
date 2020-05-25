@@ -1,9 +1,9 @@
 import { MikroORM, Options } from 'mikro-orm';
-import { BaseGent } from './entities/BaseGent';
+import * as entities from './entities/';
 
 let globalOrm: MikroORM | undefined;
 
-export const gentEntities = [BaseGent];
+export const gentEntities = Object.values(entities);
 
 export async function initOrm(options: Options) {
   globalOrm = await MikroORM.init(options);

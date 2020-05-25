@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { GentSchema } from '../GentSchema';
-import { SchemaCodegenInfo } from '../FileGenerator/SchemaCodegenInfo';
-import { GentSchemaValidationError } from '../GentSchemaValidationError';
+import { GentSchema } from '../schema/GentSchema';
+import { SchemaCodegenInfo } from '../codegen/files/SchemaCodegenInfo';
+import { GentSchemaValidationError } from '../schema/GentSchemaValidationError';
 
 // Adapted from: https://www.peterbe.com/plog/nodejs-fs-walk-or-glob-or-fast-glob
 function walk(directory: string, filepaths: string[] = []) {

@@ -1,36 +1,39 @@
-import { CodeBuilder } from '../../ts-codegen';
-import { ModelFieldGenerator } from '../PropertyBasedGenerator/FieldBasedGenerator';
-import { OneToManyBuilder, ManyToOneBuilder } from '../PropertyBuilder/RelationBuilder';
-import { ModelOneToManyRelationGenerator } from '../PropertyBasedGenerator/OneToManyRelationBasedGenerator';
-import { ModelManyToOneRelationGenerator } from '../PropertyBasedGenerator/ManyToOneRelationBasedGenerator';
+import _ from 'lodash';
+import { CodeBuilder } from '../../../ts-codegen';
 import { FileGenerator } from './FileGenerator';
+import { QueryFieldGenerator } from '../properties/FieldBasedGenerator';
+import { OneToManyBuilder, ManyToOneBuilder } from '../..';
+import { QueryOneToManyRelationGenerator } from '../properties/OneToManyRelationBasedGenerator';
+import { QueryManyToOneRelationGenerator } from '../properties/ManyToOneRelationBasedGenerator';
 import { buildImportLines } from '../ImportMap';
 
-export class ModelFileGenerator extends FileGenerator {
+export class QueryFileGenerator extends FileGenerator {
   private readonly fieldGenerators = (() =>
     this.codegenInfo.schema
       .fields()
-      .map((builder) => new ModelFieldGenerator(builder.toSpecification())))();
+      .map((builder) => new QueryFieldGenerator(builder.toSpecification())))();
 
   private readonly relationGenerators = (() =>
     this.codegenInfo.schema.relations().map((builder) => {
       const spec = builder.toSpecification();
       if (builder instanceof OneToManyBuilder) {
-        return new ModelOneToManyRelationGenerator(spec);
+        return new QueryOneToManyRelationGenerator(spec);
       } else if (builder instanceof ManyToOneBuilder) {
-        return new ModelManyToOneRelationGenerator(spec);
+        return new QueryManyToOneRelationGenerator(spec);
       }
       throw new Error(`Unsupported relation builder type "${builder.constructor.name}".`);
     }))();
 
   generatedFileNameSuffix(): string {
-    return '';
+    return 'Query';
   }
 
   buildImportLines(builder: CodeBuilder): CodeBuilder {
+    const { schema } = this.codegenInfo;
+    const entityName = schema.entityName;
     const ourImports = {
-      'mikro-orm': ['Entity'],
-      '../../gent/entities/BaseGent': ['BaseGent'],
+      '../../gent': ['GentQuery', 'GentQueryGraphViewRestricter', 'ViewerContext'],
+      [`./${entityName}`]: [entityName],
     };
     const generatorImports = [
       ...this.fieldGenerators,
@@ -57,8 +60,14 @@ export class ModelFileGenerator extends FileGenerator {
       .build((b) =>
         this.buildImportLines(b)
           .addLine()
-          .addLine('@Entity()')
-          .addBlock(`export class ${entityName} extends BaseGent`, (b) => {
+          .addBlock(`export class ${entityName}Query extends GentQuery<${entityName}>`, (b) => {
+            b.addLine(`protected entityClass = ${entityName};`)
+              .addLine()
+              .addBlock(
+                `constructor(vc: ViewerContext, graphViewRestrictor: GentQueryGraphViewRestricter<${entityName}Query> | undefined = undefined)`,
+                (b) => b.addLine(`super(vc, ${entityName}, graphViewRestrictor);`),
+              )
+              .addLine();
             this.buildFieldLines(b);
             this.buildRelationLines(b);
             return b;

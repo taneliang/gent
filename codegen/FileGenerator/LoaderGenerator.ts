@@ -1,7 +1,7 @@
-import { CodeBuilder } from '../../ts-codegen';
-import { OneToManyBuilder, ManyToOneBuilder } from '../PropertyBuilder/RelationBuilder';
-import { LoaderOneToManyRelationGenerator } from '../PropertyBasedGenerator/OneToManyRelationBasedGenerator';
-import { LoaderManyToOneRelationGenerator } from '../PropertyBasedGenerator/ManyToOneRelationBasedGenerator';
+import { CodeBuilder } from '../../../ts-codegen';
+import { OneToManyBuilder, ManyToOneBuilder } from '../../schema/properties/RelationBuilder';
+import { LoaderOneToManyRelationGenerator } from '../properties/OneToManyRelationBasedGenerator';
+import { LoaderManyToOneRelationGenerator } from '../properties/ManyToOneRelationBasedGenerator';
 import { FileGenerator } from './FileGenerator';
 import { buildImportLines } from '../ImportMap';
 
@@ -25,8 +25,7 @@ export class LoaderFileGenerator extends FileGenerator {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
-      '../../gent': ['ViewerContext'],
-      '../../gent/GentLoader': ['GentLoader', 'GentLoaderGraphViewRestricter'],
+      '../../gent': ['GentLoader', 'GentLoaderGraphViewRestricter', 'ViewerContext'],
       [`./${entityName}`]: [entityName],
       [`./${entityName}Beltalowda`]: [`${entityName}Beltalowda`],
     };

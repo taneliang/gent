@@ -1,5 +1,5 @@
-import { CodeBuilder } from '../../ts-codegen';
-import { PropertySpecification } from '../PropertyBuilder/PropertyBuilder';
+import { CodeBuilder } from '../../../ts-codegen';
+import { PropertySpecification } from '../../schema/properties/PropertyBuilder';
 import { ImportMap } from '../ImportMap';
 
 export abstract class PropertyBasedGenerator<SpecificationType extends PropertySpecification> {

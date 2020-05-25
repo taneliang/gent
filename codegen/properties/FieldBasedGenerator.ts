@@ -1,14 +1,14 @@
 import _ from 'lodash';
 import { PropertyOptions } from 'mikro-orm';
-import { FieldSpecification } from '../PropertyBuilder/FieldBuilder';
+import { FieldSpecification } from '../../schema/properties/FieldBuilder';
 import { PropertyBasedGenerator } from './PropertyBasedGenerator';
-import { CodeBuilder } from '../../ts-codegen';
+import { CodeBuilder } from '../../../ts-codegen';
 
 export abstract class FieldBasedGenerator extends PropertyBasedGenerator<FieldSpecification> {}
 
 export class ModelFieldGenerator extends FieldBasedGenerator {
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const { name, type, nullable, unique } = this.specification;
+    const { name, type } = this.specification;
     const propertyOptions: PropertyOptions = _.pick(this.specification, ['nullable', 'unique']);
 
     const optionsString = _.isEmpty(propertyOptions) ? '' : JSON.stringify(propertyOptions);
@@ -43,7 +43,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
   }
 
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const { name, type } = this.specification;
+    const { type } = this.specification;
 
     switch (type) {
       case 'string':

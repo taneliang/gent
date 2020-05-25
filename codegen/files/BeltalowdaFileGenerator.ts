@@ -1,4 +1,4 @@
-import { CodeBuilder } from '../../ts-codegen';
+import { CodeBuilder } from '../../../ts-codegen';
 import { FileGenerator } from './FileGenerator';
 import { buildImportLines } from '../ImportMap';
 
@@ -11,7 +11,7 @@ export class BeltalowdaFileGenerator extends FileGenerator {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
-      '../../gent/GentLoader': ['GentBeltalowda'],
+      '../../gent': ['GentBeltalowda'],
       [`./${entityName}`]: [entityName],
     };
     return buildImportLines([ourImports], builder);

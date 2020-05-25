@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { CodeBuilder } from '../ts-codegen';
+import { CodeBuilder } from '../../ts-codegen';
 
 export type ImportMap = { [moduleName: string]: string[] };
 

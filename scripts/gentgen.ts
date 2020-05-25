@@ -1,8 +1,8 @@
 import { getAllSchemaCodegenInfo } from './getAllSchemaCodegenInfo';
-import { ModelFileGenerator } from '../FileGenerator/ModelFileGenerator';
-import { BeltalowdaFileGenerator } from '../FileGenerator/BeltalowdaFileGenerator';
-import { LoaderFileGenerator } from '../FileGenerator/LoaderGenerator';
-import { QueryFileGenerator } from '../FileGenerator/QueryGenerator';
+import { ModelFileGenerator } from '../codegen/files/ModelFileGenerator';
+import { BeltalowdaFileGenerator } from '../codegen/files/BeltalowdaFileGenerator';
+import { LoaderFileGenerator } from '../codegen/files/LoaderGenerator';
+import { QueryFileGenerator } from '../codegen/files/QueryGenerator';
 
 function main() {
   const allCodegenInfo = getAllSchemaCodegenInfo();
