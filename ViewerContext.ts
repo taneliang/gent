@@ -1,5 +1,5 @@
 import { EntityManager } from 'mikro-orm';
-import { User } from '../models';
+import { User } from '../gents/models';
 import { createContextualizedEntityManager } from './orm';
 import { DataloaderCenter } from './LoaderManager';
 
