@@ -1,4 +1,5 @@
 export * from './entities';
+export * from './police';
 export * from './schema';
 export * from './GentBeltalowda';
 export * from './GentLoader';

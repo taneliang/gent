@@ -1,104 +1,221 @@
-import { PoliceReuseError } from './PoliceReuseError';
-import { PoliceNoDecisionError } from './PoliceNoDecisionError';
+import {
+  GentQuery,
+  BaseGent,
+  ViewerContext,
+  DangerouslyOmnipotentViewerContext,
+  AuthenticatedViewerContext,
+} from '..';
+
+export type PoliceEnforceableAction = 'create' | 'read' | 'update' | 'delete';
 
 /**
- * A function that enforces an access control policy.
+ * A decision is exactly one of the following:
  *
- * @returns true if agent should be allowed to perform the action
- * @returns null if the policy is not applicable to the situation
- * @throws If agent should be denied from performing the action
+ * 1. `allow-unrestricted`: Allow viewer to proceed.
+ * 2. `allow-restricted`: Allow viewer to proceed with a restricted view of the data.
+ * 3. `deny`: Deny the viewer with a reason.
  */
-type EnforcementStep = () => true | null | Promise<true | null>;
+export type PoliceDecision<QueryType extends GentQuery<Model>, Model extends BaseGent> =
+  | { type: 'allow-unrestricted' }
+  | { type: 'allow-restricted'; restrictedQuery: QueryType }
+  | { type: 'deny'; reason: string };
+
+export class PoliceNoDecisionError extends Error {
+  constructor() {
+    super(
+      'The police did not decide on a course of action. If this is intentional, use denyAll to add a catch-all deny rule.',
+    );
+  }
+}
 
 /**
- * Enforces role based access control policies.
+ * Police is a tool to describe and enforce access control rules for a
+ * particular entity.
  *
- * One time use only; an instance of police cannot be used to enforce more than
- * once.
+ * Police authorizes a viewer context's actions, specifically
+ * allow/restrict/deny create/read/update/delete of an entity.
  *
- * For more, see: https://en.wikipedia.org/wiki/Role-based_access_control
+ * Police access control rules achieve 2 goals:
+ *
+ * 1. Perform authorization checks before a query is run .
+ * 2. Provide a modified query that can only touch authorized parts of the
+ *    data.
+ *
+ * Police is designed to be used in GentSchema to describe access control rules
+ * for a particular entity. Gent will then call Police to enforce them in
+ * GentQuery, GentBeltalowda (to authorize GentLoader loads), and GentMutator
+ * subclasses.
  */
-export class Police<R, A> {
-  #steps: EnforcementStep[] = [];
-
-  /** Whether this police has been used. */
-  #enforced = false;
+export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> {
+  readonly vc: ViewerContext;
+  readonly action: PoliceEnforceableAction;
+  readonly query: QueryType;
 
   /**
-   * Instruct police to allow the agent to proceed if `agentRole` can perform
-   * `agentAction`, with `args` if provided.
+   * **WARNING:** This must be set only once so that you don't accidentally
+   * override an earlier step's decision!
    */
-  allow({ if: agentRole, can: agentAction }: { if: R; can: A }, args?: Record<string, any>): this {
-    this.#steps.push(() => {
-      // TODO: Check permissions
-      return true;
-    });
-    return this;
+  #decision: PoliceDecision<QueryType, Model> | undefined;
+
+  get decision(): PoliceDecision<QueryType, Model> | undefined {
+    return this.#decision;
+  }
+
+  private get decisionMade(): boolean {
+    return !!this.#decision;
   }
 
   /**
-   * Instruct police to disallow the agent to proceed if `value` is falsy.
+   * Constructs a new Police instance that will decide if `vc` can perform
+   * `action`.
    *
-   * @param value Potentially-falsy value to check.
-   * @param error Error that will be thrown if `value` is falsy.
+   * Note: If you're using Gent, you probably want to use the Police instance
+   * provided by `GentSchema.accessControlRules` instead.
+   *
+   * @param vc The VC representing the actor.
+   * @param action The action type to be enforced.
    */
-  denyIfFalsy(value: unknown | undefined, error: Error): this {
-    this.#steps.push(() => {
-      if (value) {
-        return null;
-      }
-      throw error;
-    });
+  constructor(vc: ViewerContext, action: PoliceEnforceableAction, query: QueryType) {
+    this.vc = vc;
+    this.action = action;
+    this.query = query;
+  }
+
+  // Action-specific rules
+
+  onCreate(actionSpecificRules: (police: this) => this): this {
+    if (this.decisionMade) return this;
+
+    if (this.action === 'create') {
+      return actionSpecificRules(this);
+    }
+    return this;
+  }
+
+  onRead(actionSpecificRules: (police: this) => this): this {
+    if (this.decisionMade) return this;
+
+    if (this.action === 'read') {
+      return actionSpecificRules(this);
+    }
+    return this;
+  }
+
+  // TODO:
+  // .onUpdate
+  // .onDelete
+  // .onCreateUpdate
+  // .onCreateUpdateDelete
+  // .onUpdateDelete
+
+  onCreateUpdateDelete(actionSpecificRules: (police: this) => this): this {
+    if (this.decisionMade) return this;
+
+    if (['create', 'update', 'delete'].includes(this.action)) {
+      return actionSpecificRules(this);
+    }
+    return this;
+  }
+
+  // Decision steps
+
+  /**
+   * Instruct police to allow the viewer to proceed if `value` is truthy.
+   */
+  allowIf(value: boolean): this {
+    if (this.decisionMade) return this;
+
+    if (value) {
+      this.#decision = {
+        type: 'allow-unrestricted',
+      };
+    }
     return this;
   }
 
   /**
-   * Instruct police to disallow the agent to proceed. Intended as a catch-all
+   * Allows omnipotent viewer contexts to do everything.
+   */
+  allowIfOmnipotent(): this {
+    return this.allowIf(this.vc instanceof DangerouslyOmnipotentViewerContext);
+  }
+
+  /**
+   * Instruct police to allow the viewer to proceed. Intended as a catch-all
    * case.
-   *
-   * @param error Error that will be thrown immediately.
-   */
-  denyAll(error: Error): this {
-    this.#steps.push(() => {
-      throw error;
-    });
-    return this;
-  }
-
-  /**
-   * Instruct police to allow the agent to proceed. Intended as a catch-all
-   * case.
-   *
-   * @param error Error that will be thrown immediately.
    */
   allowAll(): this {
-    this.#steps.push(() => true);
+    return this.allowIf(true);
+  }
+
+  /**
+   * Instruct police to prevent the viewer from proceeding if `value` is
+   * truthy.
+   */
+  denyIf(value: boolean, reason: string): this {
+    if (this.decisionMade) return this;
+
+    if (value) {
+      this.#decision = {
+        type: 'deny',
+        reason,
+      };
+    }
     return this;
   }
 
   /**
-   * Evaluates the accumulated list of enforcement steps.
+   * Instruct police to prevent the viewer from proceeding if it is
+   * not authenticated.
+   */
+  denyIfUnauthenticated(): this {
+    return this.denyIf(!(this.vc instanceof AuthenticatedViewerContext), 'Not logged in.');
+  }
+
+  /**
+   * Instruct police to prevent the viewer from proceeding. Intended as a
+   * catch-all case.
+   */
+  denyAll(reason: string): this {
+    return this.denyIf(true, reason);
+  }
+
+  // TODO:
+  // .denyIfViewerDoesNotHaveRole
+  // .denyIfViewerDoesNotHaveScope
+  // .denyIfViewerDoesNotHaveAllScopes
+  // .denyIfViewerDoesNotHaveAnyScope
+
+  /**
+   * Restricts the viewer's query to an authorized part of the subgraph.
+   * @param queryBuilder Creates a new restricted query.
+   */
+  allowWithRestrictedGraphView(
+    queryBuilder: (vc: ViewerContext, query: QueryType) => QueryType,
+  ): this {
+    if (this.decisionMade) return this;
+
+    this.#decision = {
+      type: 'allow-restricted',
+      restrictedQuery: queryBuilder(this.vc, this.query),
+    };
+    return this;
+  }
+
+  // Decision state enforcement
+
+  /**
+   * Enforces that the police has made a decision during its execution.
    *
-   * If any step resolves to true (i.e. allow access), the remaining steps will
-   * not be executed.
+   * If no decision has been reached, this method will throw
+   * `PoliceNoDecisionError`.
    *
-   * The list of steps provided must be complete, i.e. when evaluating the
-   * steps, at least one must return true or at least one must throw an error.
-   *
-   * @throws {PoliceReuseError}
    * @throws {PoliceNoDecisionError}
    */
-  async enforce(): Promise<void> {
-    if (this.#enforced) {
-      throw new PoliceReuseError();
+  throwIfNoDecision(): this {
+    if (!this.decisionMade) {
+      throw new PoliceNoDecisionError();
     }
-    this.#enforced = true;
-
-    for (const step of this.#steps) {
-      if (await step()) {
-        return;
-      }
-    }
-    throw new PoliceNoDecisionError();
+    return this;
   }
 }

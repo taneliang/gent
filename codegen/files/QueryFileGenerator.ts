@@ -32,8 +32,9 @@ export class QueryFileGenerator extends FileGenerator {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
-      '../../gent': ['GentQuery', 'GentQueryGraphViewRestricter', 'ViewerContext'],
+      '../../gent': ['GentQuery', 'GentQueryGraphViewRestricter', 'Police', 'ViewerContext'],
       [`./${entityName}`]: [entityName],
+      [`./${entityName}Schema`]: ['default'],
     };
     const generatorImports = [
       ...this.fieldGenerators,
@@ -66,6 +67,20 @@ export class QueryFileGenerator extends FileGenerator {
               .addBlock(
                 `constructor(vc: ViewerContext, graphViewRestrictor: GentQueryGraphViewRestricter<${entityName}Query> | undefined = undefined)`,
                 (b) => b.addLine(`super(vc, ${entityName}, graphViewRestrictor);`),
+              )
+              .addLine()
+              .addBlock('applyAccessControlRules()', (b) =>
+                b
+                  .addLine(`const police = new Police<this, ${entityName}>(this.vc, 'read', this)`)
+                  .addLine('.allowIfOmnipotent();')
+                  .addLine(`new ${entityName}Schema().accessControlRules(police);`)
+                  .addLine('police.throwIfNoDecision();')
+                  .addBlock("if (police.decision?.type === 'deny')", (b) =>
+                    b.addLine(
+                      // TODO: Use a custom Error subclass
+                      `throw new Error(\`Not allowed to query ${entityName}. Reason: "\${police.decision.reason}"\`);`,
+                    ),
+                  ),
               )
               .addLine();
             this.buildFieldLines(b);

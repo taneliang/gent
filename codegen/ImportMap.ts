@@ -1,7 +1,8 @@
+import path from 'path';
 import _ from 'lodash';
 import { CodeBuilder } from '../../ts-codegen';
 
-export type ImportMap = { [moduleName: string]: string[] };
+export type ImportMap = { [modulePath: string]: string[] };
 
 export function mergeImportMaps(maps: ImportMap[]): ImportMap {
   function merger(objValue: string[], srcValue: string[]) {
@@ -15,8 +16,22 @@ export function mergeImportMaps(maps: ImportMap[]): ImportMap {
 
 export function buildImportLines(importMaps: ImportMap[], codeBuilder: CodeBuilder): CodeBuilder {
   const importMap = mergeImportMaps(importMaps);
-  Object.entries(importMap).forEach(([moduleName, imports]) =>
-    codeBuilder.addLine(`import { ${_.uniq(imports).sort().join(', ')} } from '${moduleName}';`),
-  );
+  Object.entries(importMap).forEach(([modulePath, imports]) => {
+    const importStatementComponents = [];
+
+    if (imports.includes('default')) {
+      importStatementComponents.push(path.basename(modulePath));
+    }
+
+    const otherImports = _.without(_.uniq(imports), 'default').sort();
+    if (otherImports.length > 0) {
+      importStatementComponents.push(`{ ${otherImports.join(', ')} }`);
+    }
+
+    if (importStatementComponents.length === 0) {
+      return;
+    }
+    codeBuilder.addLine(`import ${importStatementComponents.join(', ')} from '${modulePath}';`);
+  });
   return codeBuilder;
 }

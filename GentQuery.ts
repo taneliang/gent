@@ -12,7 +12,7 @@ export abstract class GentQuery<Model extends BaseGent> {
 
   protected readonly queryBuilder: QueryBuilder<Model>;
 
-  private readonly graphViewRestrictor: GentQueryGraphViewRestricter<this> | undefined;
+  private readonly graphViewRestrictor: GentQueryGraphViewRestricter<GentQuery<Model>> | undefined;
 
   constructor(
     vc: ViewerContext,
@@ -21,8 +21,11 @@ export abstract class GentQuery<Model extends BaseGent> {
   ) {
     this.vc = vc;
     this.graphViewRestrictor = graphViewRestrictor;
-    this.queryBuilder = this.vc.entityManager.createQueryBuilder(entityClass);
+    this.queryBuilder = this.vc.entityManager.createQueryBuilder(entityClass).select('*');
+    this.applyAccessControlRules();
   }
+
+  abstract applyAccessControlRules(): void;
 
   whereId(id: number): this {
     this.queryBuilder.andWhere({ id });
@@ -49,11 +52,11 @@ export abstract class GentQuery<Model extends BaseGent> {
 
   async getOne(): Promise<Model | null> {
     await this.applyGraphViewRestrictions();
-    return this.queryBuilder.clone().select('*').getSingleResult();
+    return this.queryBuilder.clone().getSingleResult();
   }
 
   async getAll(): Promise<Model[]> {
     await this.applyGraphViewRestrictions();
-    return this.queryBuilder.clone().select('*').getResult();
+    return this.queryBuilder.clone().getResult();
   }
 }
