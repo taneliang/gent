@@ -1,6 +1,5 @@
-import { RoleBasedAccessController } from "./RoleBasedAccessController";
-import { AccessControlPoliceReuseError } from "./AccessControlPoliceReuseError";
-import { AccessControlPoliceNoDecisionError } from "./AccessControlPoliceNoDecisionError";
+import { PoliceReuseError } from './PoliceReuseError';
+import { PoliceNoDecisionError } from './PoliceNoDecisionError';
 
 /**
  * A function that enforces an access control policy.
@@ -9,7 +8,7 @@ import { AccessControlPoliceNoDecisionError } from "./AccessControlPoliceNoDecis
  * @returns null if the policy is not applicable to the situation
  * @throws If agent should be denied from performing the action
  */
-type EnforcementStep = () => Lazy<true | null>;
+type EnforcementStep = () => true | null | Promise<true | null>;
 
 /**
  * Enforces role based access control policies.
@@ -19,27 +18,20 @@ type EnforcementStep = () => Lazy<true | null>;
  *
  * For more, see: https://en.wikipedia.org/wiki/Role-based_access_control
  */
-export class AccessControlPolice<R, A> {
-  /** Access controller that stores the policies to enforce. */
-  #accessController: RoleBasedAccessController<R, A>;
-
+export class Police<R, A> {
   #steps: EnforcementStep[] = [];
 
   /** Whether this police has been used. */
   #enforced = false;
-
-  constructor(accessController: RoleBasedAccessController<R, A>) {
-    this.#accessController = accessController;
-  }
 
   /**
    * Instruct police to allow the agent to proceed if `agentRole` can perform
    * `agentAction`, with `args` if provided.
    */
   allow({ if: agentRole, can: agentAction }: { if: R; can: A }, args?: Record<string, any>): this {
-    this.#steps.push(async () => {
-      const result = await this.#accessController.verify({ if: agentRole, can: agentAction }, args);
-      return result ? true : null;
+    this.#steps.push(() => {
+      // TODO: Check permissions
+      return true;
     });
     return this;
   }
@@ -74,7 +66,8 @@ export class AccessControlPolice<R, A> {
   }
 
   /**
-   * Instruct police to allow the agent to proceed. Intended as a catch-all case.
+   * Instruct police to allow the agent to proceed. Intended as a catch-all
+   * case.
    *
    * @param error Error that will be thrown immediately.
    */
@@ -92,12 +85,12 @@ export class AccessControlPolice<R, A> {
    * The list of steps provided must be complete, i.e. when evaluating the
    * steps, at least one must return true or at least one must throw an error.
    *
-   * @throws {AccessControlPoliceReuseError}
-   * @throws {AccessControlPoliceNoDecisionError}
+   * @throws {PoliceReuseError}
+   * @throws {PoliceNoDecisionError}
    */
   async enforce(): Promise<void> {
     if (this.#enforced) {
-      throw new AccessControlPoliceReuseError();
+      throw new PoliceReuseError();
     }
     this.#enforced = true;
 
@@ -106,6 +99,6 @@ export class AccessControlPolice<R, A> {
         return;
       }
     }
-    throw new AccessControlPoliceNoDecisionError();
+    throw new PoliceNoDecisionError();
   }
 }
