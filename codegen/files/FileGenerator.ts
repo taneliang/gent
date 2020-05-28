@@ -1,6 +1,6 @@
 import path from 'path';
 import { SchemaCodegenInfo } from './SchemaCodegenInfo';
-import { CodeFile } from '../../../ts-codegen';
+import { CodeFile } from '@elg/tscodegen';
 
 function filePathForComponent(
   entityName: string,

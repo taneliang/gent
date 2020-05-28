@@ -1,6 +1,6 @@
 import path from 'path';
 import _ from 'lodash';
-import { CodeBuilder } from '../../ts-codegen';
+import { CodeBuilder } from '@elg/tscodegen';
 
 export type ImportMap = { [modulePath: string]: string[] };
 

@@ -1,4 +1,4 @@
-import { CodeBuilder } from '../../../ts-codegen';
+import { CodeBuilder } from '@elg/tscodegen';
 import { PropertySpecification } from '../../schema/properties/PropertyBuilder';
 import { ImportMap } from '../ImportMap';
 

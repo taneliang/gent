@@ -1,4 +1,4 @@
-import { CodeBuilder } from '../../../ts-codegen';
+import { CodeBuilder } from '@elg/tscodegen';
 import { FileGenerator } from './FileGenerator';
 import { buildImportLines } from '../ImportMap';
 

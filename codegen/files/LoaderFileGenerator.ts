@@ -1,4 +1,4 @@
-import { CodeBuilder } from '../../../ts-codegen';
+import { CodeBuilder } from '@elg/tscodegen';
 import { OneToManyBuilder, ManyToOneBuilder } from '../../schema/properties/RelationBuilder';
 import { LoaderOneToManyRelationGenerator } from '../properties/OneToManyRelationBasedGenerator';
 import { LoaderManyToOneRelationGenerator } from '../properties/ManyToOneRelationBasedGenerator';

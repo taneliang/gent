@@ -1,6 +1,6 @@
 import { OneToManyOptions } from 'mikro-orm';
 import _ from 'lodash';
-import { CodeBuilder } from '../../../ts-codegen';
+import { CodeBuilder } from '@elg/tscodegen';
 import { PropertyBasedGenerator } from './PropertyBasedGenerator';
 import { OneToManySpecification } from '../../schema/properties/RelationBuilder';
 
