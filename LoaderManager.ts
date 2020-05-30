@@ -20,11 +20,11 @@ export class DataloaderCenter {
    */
   readonly #loaders = new Map<string, Map<string, unknown>>();
 
-  beltalowdaForModel<
-    L extends GentBeltalowda<M, FT>,
-    M extends BaseGent,
-    FT extends string | number = L extends GentBeltalowda<M, infer T> ? T : never
-  >(entityClass: EntityName<M>, fieldNameToFilter: string, loaderProvider: () => L): L {
+  beltalowdaForModel<M extends BaseGent, FT extends string | number>(
+    entityClass: EntityName<M>,
+    fieldNameToFilter: string,
+    loaderProvider: () => GentBeltalowda<M, FT>,
+  ): GentBeltalowda<M, FT> {
     const modelName =
       typeof entityClass === 'string' ? entityClass : entityClass.prototype.constructor.name;
     const existingLoadersForModel = this.#loaders.get(modelName);
@@ -35,7 +35,7 @@ export class DataloaderCenter {
 
     const existingLoader = loadersForModel.get(fieldNameToFilter);
     if (existingLoader) {
-      return existingLoader as L;
+      return existingLoader as GentBeltalowda<M, FT>;
     }
 
     const newLoader = loaderProvider();

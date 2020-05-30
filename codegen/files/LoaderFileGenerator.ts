@@ -25,9 +25,13 @@ export class LoaderFileGenerator extends FileGenerator {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
-      '../../gent': ['GentLoader', 'GentLoaderGraphViewRestricter', 'ViewerContext'],
+      '../../gent': [
+        'GentBeltalowda',
+        'GentLoader',
+        'GentLoaderGraphViewRestricter',
+        'ViewerContext',
+      ],
       [`./${entityName}`]: [entityName],
-      [`./${entityName}Beltalowda`]: [`${entityName}Beltalowda`],
     };
     const generatorImports = [...this.relationGenerators].map((generator) =>
       generator.importsRequired(),
@@ -58,7 +62,7 @@ export class LoaderFileGenerator extends FileGenerator {
               .addLine()
               .addBlock('protected createIdBeltalowda()', (b) =>
                 b.addLine(
-                  `return new ${entityName}Beltalowda(this.vc, 'id', (model) => model.id);`,
+                  `return new GentBeltalowda(this.vc, ${entityName}, 'id', (model) => model.id);`,
                 ),
               )
               .addLine();

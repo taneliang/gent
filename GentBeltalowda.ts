@@ -9,8 +9,9 @@ import { EntityClass } from 'mikro-orm/dist/typings';
  * values to be loaded for one field and loads them in a batch, and does the
  * gruntwork of applying authorization checks.
  */
-export abstract class GentBeltalowda<Model extends BaseGent, FieldType extends string | number> {
+export class GentBeltalowda<Model extends BaseGent, FieldType extends string | number> {
   readonly vc: ViewerContext;
+  readonly entityClass: EntityClass<Model>;
   readonly fieldNameToFilter: string;
   readonly mapEntityToKey: (entity: Model) => FieldType;
 
@@ -18,21 +19,21 @@ export abstract class GentBeltalowda<Model extends BaseGent, FieldType extends s
 
   constructor(
     vc: ViewerContext,
+    entityClass: EntityClass<Model>,
     fieldNameToFilter: string,
     mapEntityToKey: (entity: Model) => FieldType,
   ) {
     this.vc = vc;
+    this.entityClass = entityClass;
     this.fieldNameToFilter = fieldNameToFilter;
     this.mapEntityToKey = mapEntityToKey;
     this.dataloader = new Dataloader(this.#batchLoadFunction);
   }
 
-  protected abstract get entityClass(): EntityClass<Model>;
-
   readonly #batchLoadFunction: Dataloader.BatchLoadFn<FieldType, Model[]> = async (
     valuesToFetch,
   ) => {
-    this.applyPreflightRules();
+    // this.applyPreflightRules();
 
     const unorderedResults = await this.vc.entityManager
       .createQueryBuilder(this.entityClass)
@@ -45,13 +46,8 @@ export abstract class GentBeltalowda<Model extends BaseGent, FieldType extends s
     return results;
   };
 
-  // TODO: trigger preflight police enforcement
-
-  abstract applyPreflightRules(): void;
-
-  applyPostflightRules() {
-    // TODO: trigger postflight police enforcement
-  }
+  // protected abstract getBatchQueryResults(valuesToFetch: readonly FieldType[]): Promise<Model[]>;
+  // abstract applyAccessControlRules(): void;
 
   async loadOneFromOneValue(value: FieldType): Promise<Model | undefined> {
     const entities = await this.loadManyFromOneValue(value);
