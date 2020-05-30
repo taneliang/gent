@@ -74,7 +74,7 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
 
     return codeBuilder
       .addBlock(`where${methodReadyName}IdsIn(ids: number[]): this`, (b) =>
-        b.addLine(`this.queryBuilder.where({ ${name}: { $in: ids }});`).addLine('return this;'),
+        b.addLine(`this.queryBuilder.whereIn('${idReadyName}', ids);`).addLine('return this;'),
       )
       .addLine()
       .addBlock(`query${methodReadyName}(): ${type}Query`, (b) =>
@@ -87,17 +87,23 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
       .addLine()
       .addBlock(`async get${methodReadyName}Ids(): Promise<number[]>`, (b) =>
         b
-          .addLine('const relatedEntitiesWithIds = await this.queryBuilder')
+          .addLine('const finalQb = this.queryBuilder')
           .addLine('.clone()')
-          .addLine(`.select(['id', '${idReadyName}'], true)`)
-          .addLine('.getResult();')
-          .addLine(`return relatedEntitiesWithIds.flatMap((gent) => gent.${name}.id);`),
+          .addLine('.clearSelect()')
+          .addLine(`.select('id', '${idReadyName}');`)
+          .addLine(`const results: EntityData<${this.parentEntityType}>[] = await finalQb;`)
+          .addLine('const relatedEntitiesWithIds = results.map((result) =>')
+          .addLine('this.vc.entityManager.map(this.entityClass, result),')
+          .addLine(');')
+          .addLine(`return uniq(relatedEntitiesWithIds.flatMap((gent) => gent.${name}.id));`),
       );
   }
 
   importsRequired() {
     const { type } = this.specification;
     return {
+      'mikro-orm': ['EntityData'],
+      lodash: ['uniq'],
       [`../${type}/${type}Query`]: [`${type}Query`],
     };
   }

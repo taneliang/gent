@@ -10,18 +10,23 @@ export class ModelFileGenerator extends FileGenerator {
   private readonly fieldGenerators = (() =>
     this.codegenInfo.schema
       .fields()
-      .map((builder) => new ModelFieldGenerator(builder.toSpecification())))();
+      .map(
+        (builder) =>
+          new ModelFieldGenerator(this.codegenInfo.schema.entityName, builder.toSpecification()),
+      ))();
 
-  private readonly relationGenerators = (() =>
-    this.codegenInfo.schema.relations().map((builder) => {
+  private readonly relationGenerators = (() => {
+    const { schema } = this.codegenInfo;
+    return schema.relations().map((builder) => {
       const spec = builder.toSpecification();
       if (builder instanceof OneToManyBuilder) {
-        return new ModelOneToManyRelationGenerator(spec);
+        return new ModelOneToManyRelationGenerator(schema.entityName, spec);
       } else if (builder instanceof ManyToOneBuilder) {
-        return new ModelManyToOneRelationGenerator(spec);
+        return new ModelManyToOneRelationGenerator(schema.entityName, spec);
       }
       throw new Error(`Unsupported relation builder type "${builder.constructor.name}".`);
-    }))();
+    });
+  })();
 
   generatedFileNameSuffix(): string {
     return '';

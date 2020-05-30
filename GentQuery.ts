@@ -1,5 +1,6 @@
 import { ViewerContext } from './ViewerContext';
-import { QueryBuilder } from 'mikro-orm';
+import { QueryBuilder } from 'knex';
+import { EntityData } from 'mikro-orm';
 import { EntityClass } from 'mikro-orm/dist/typings';
 import { BaseGent } from './entities/BaseGent';
 
@@ -10,6 +11,7 @@ export type GentQueryGraphViewRestricter<GentQuerySubclass> = (
 export abstract class GentQuery<Model extends BaseGent> {
   readonly vc: ViewerContext;
 
+  protected entityClass: EntityClass<Model>;
   protected readonly queryBuilder: QueryBuilder<Model>;
 
   private readonly graphViewRestrictor: GentQueryGraphViewRestricter<GentQuery<Model>> | undefined;
@@ -20,20 +22,24 @@ export abstract class GentQuery<Model extends BaseGent> {
     graphViewRestrictor: GentQueryGraphViewRestricter<any> | undefined = undefined,
   ) {
     this.vc = vc;
+    this.entityClass = entityClass;
     this.graphViewRestrictor = graphViewRestrictor;
-    this.queryBuilder = this.vc.entityManager.createQueryBuilder(entityClass).select('*');
+    this.queryBuilder = this.vc.entityManager
+      .createQueryBuilder(entityClass)
+      .select('*')
+      .getKnexQuery();
     this.applyAccessControlRules();
   }
 
   abstract applyAccessControlRules(): void;
 
   whereId(id: number): this {
-    this.queryBuilder.andWhere({ id });
+    this.queryBuilder.where('id', id);
     return this;
   }
 
   whereIdsIn(ids: number[]): this {
-    this.queryBuilder.andWhere({ id: { $in: ids } });
+    this.queryBuilder.whereIn('id', ids);
     return this;
   }
 
@@ -46,17 +52,27 @@ export abstract class GentQuery<Model extends BaseGent> {
 
   async getIds(): Promise<number[]> {
     await this.applyGraphViewRestrictions();
-    const gentsWithIds = await this.queryBuilder.clone().select('id', true).getResult();
-    return gentsWithIds.map((gent) => gent.id);
+    const finalQb = this.queryBuilder.clone().clearSelect().select('id');
+    const results: EntityData<Model>[] = await finalQb;
+    const resultEntities = results.map((result) =>
+      this.vc.entityManager.map(this.entityClass, result),
+    );
+    return resultEntities.map((gent) => gent.id);
   }
 
-  async getOne(): Promise<Model | null> {
+  async getOne(): Promise<Model | undefined> {
     await this.applyGraphViewRestrictions();
-    return this.queryBuilder.clone().getSingleResult();
+    const finalQb = this.queryBuilder.clone().first();
+    const result: EntityData<Model> | undefined = await finalQb;
+    return result ? this.vc.entityManager.map(this.entityClass, result) : undefined;
   }
 
   async getAll(): Promise<Model[]> {
     await this.applyGraphViewRestrictions();
-    return this.queryBuilder.clone().getResult();
+    const results: EntityData<Model>[] = await this.queryBuilder;
+    const resultEntities = results.map((result) =>
+      this.vc.entityManager.map(this.entityClass, result),
+    );
+    return resultEntities;
   }
 }

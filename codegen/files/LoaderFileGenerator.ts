@@ -6,16 +6,18 @@ import { FileGenerator } from './FileGenerator';
 import { buildImportLines } from '../ImportMap';
 
 export class LoaderFileGenerator extends FileGenerator {
-  private readonly relationGenerators = (() =>
-    this.codegenInfo.schema.relations().map((builder) => {
+  private readonly relationGenerators = (() => {
+    const { schema } = this.codegenInfo;
+    return schema.relations().map((builder) => {
       const spec = builder.toSpecification();
       if (builder instanceof OneToManyBuilder) {
-        return new LoaderOneToManyRelationGenerator(spec);
+        return new LoaderOneToManyRelationGenerator(schema.entityName, spec);
       } else if (builder instanceof ManyToOneBuilder) {
-        return new LoaderManyToOneRelationGenerator(spec);
+        return new LoaderManyToOneRelationGenerator(schema.entityName, spec);
       }
       throw new Error(`Unsupported relation builder type "${builder.constructor.name}".`);
-    }))();
+    });
+  })();
 
   generatedFileNameSuffix(): string {
     return 'Loader';
