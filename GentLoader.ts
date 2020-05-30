@@ -54,6 +54,10 @@ export abstract class GentLoader<Model extends BaseGent> {
       .loadOneFromOneValue(this.ids[0]);
   }
 
+  /**
+   * Note: If no IDs were set on this loader (e.g. if you simply create a new
+   * loader and call `getAll`), this will return an empty array.
+   */
   async getAll(): Promise<(Model | Error | undefined)[]> {
     await this.applyGraphViewRestrictions();
     return this.vc.dataloaders

@@ -34,6 +34,7 @@ export class LoaderFileGenerator extends FileGenerator {
         'ViewerContext',
       ],
       [`./${entityName}`]: [entityName],
+      [`./${entityName}Query`]: [`${entityName}Query`],
     };
     const generatorImports = [...this.relationGenerators].map((generator) =>
       generator.importsRequired(),
@@ -63,9 +64,13 @@ export class LoaderFileGenerator extends FileGenerator {
               )
               .addLine()
               .addBlock('protected createIdBeltalowda()', (b) =>
-                b.addLine(
-                  `return new GentBeltalowda(this.vc, ${entityName}, 'id', (model) => model.id);`,
-                ),
+                b
+                  .addLine('return new GentBeltalowda(')
+                  .addLine('this.vc,')
+                  .addLine(`() => new ${entityName}Query(this.vc),`)
+                  .addLine("'id',")
+                  .addLine('(model) => model.id,')
+                  .addLine(');'),
               )
               .addLine();
             this.buildRelationLines(b);

@@ -61,9 +61,13 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
         b
           .addLine('return this.vc.dataloaders')
           .addBlock(`.beltalowdaForModel(${type}, '${idReadyInverseRelationName}', () =>`, (b) =>
-            b.addLine(
-              `return new GentBeltalowda(this.vc, ${type}, '${idReadyInverseRelationName}', (model) => model.${inverseRelationName}.id);`,
-            ),
+            b
+              .addLine('return new GentBeltalowda(')
+              .addLine('this.vc,')
+              .addLine(`() => new ${type}Query(this.vc),`)
+              .addLine(`'${idReadyInverseRelationName}',`)
+              .addLine(`(model) => model.${inverseRelationName}.id,`)
+              .addLine(');'),
           )
           .addLine(')')
           .addLine('.loadManyWithManyEntitiesEach(this.ids);'),
@@ -75,6 +79,7 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
     return {
       [`../${type}/${type}`]: [type],
       [`../${type}/${type}Loader`]: [`${type}Loader`],
+      [`../${type}/${type}Query`]: [`${type}Query`],
     };
   }
 }

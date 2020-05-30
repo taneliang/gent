@@ -36,6 +36,11 @@ export abstract class GentQuery<Model extends BaseGent> {
 
   abstract applyAccessControlRules(): void;
 
+  buildKnexQueryBuilder(builder: (qb: QueryBuilder<Model>) => void) {
+    builder(this.queryBuilder);
+    return this;
+  }
+
   whereId(id: number): this {
     this.queryBuilder.where('id', id);
     return this;
