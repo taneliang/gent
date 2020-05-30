@@ -91,7 +91,11 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
           .addLine('.clone()')
           .addLine('.clearSelect()')
           .addLine(`.select('id', '${idReadyName}');`)
-          .addLine(`const results: EntityData<${this.parentEntityType}>[] = await finalQb;`)
+          .addLine(
+            `const results: EntityData<${this.parentEntityType}>[] = await this.vc.entityManager`,
+          )
+          .addLine(".getConnection('read')")
+          .addLine('.execute(finalQb as any);')
           .addLine('const relatedEntitiesWithIds = results.map((result) =>')
           .addLine('this.vc.entityManager.map(this.entityClass, result),')
           .addLine(');')

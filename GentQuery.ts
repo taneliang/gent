@@ -56,7 +56,9 @@ export abstract class GentQuery<Model extends BaseGent> {
   async getIds(): Promise<number[]> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder.clone().clearSelect().select('id');
-    const results: EntityData<Model>[] = await finalQb;
+    const results: EntityData<Model>[] = await this.vc.entityManager
+      .getConnection('read')
+      .execute(finalQb as any);
     const resultEntities = results.map((result) =>
       this.vc.entityManager.map(this.entityClass, result),
     );
@@ -66,13 +68,18 @@ export abstract class GentQuery<Model extends BaseGent> {
   async getOne(): Promise<Model | undefined> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder.clone().first();
-    const result: EntityData<Model> | undefined = await finalQb;
+    const result: EntityData<Model> | undefined = await this.vc.entityManager
+      .getConnection('read')
+      .execute(finalQb as any);
     return result ? this.vc.entityManager.map(this.entityClass, result) : undefined;
   }
 
   async getAll(): Promise<Model[]> {
     await this.applyGraphViewRestrictions();
-    const results: EntityData<Model>[] = await this.queryBuilder;
+    const finalQb = this.queryBuilder;
+    const results: EntityData<Model>[] = await this.vc.entityManager
+      .getConnection('read')
+      .execute(finalQb as any);
     const resultEntities = results.map((result) =>
       this.vc.entityManager.map(this.entityClass, result),
     );
