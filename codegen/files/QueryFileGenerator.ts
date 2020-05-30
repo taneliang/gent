@@ -61,6 +61,7 @@ export class QueryFileGenerator extends FileGenerator {
   generate(): void {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
+    // TODO: Consider using MikroORM's naming strategy instead
     const tableReadyEntityName = _.snakeCase(entityName);
 
     this.codeFile
@@ -102,17 +103,12 @@ export class QueryFileGenerator extends FileGenerator {
                   )
                   .addBlock("else if (police.decision?.type === 'allow-restricted')", (b) =>
                     b
-                      .addLine(`const alias = '${tableReadyEntityName}_authorized_inline_view'`)
-                      .addLine('this.queryBuilder')
-                      .addLine('.with(')
-                      .addLine('alias,')
+                      .addLine('this.queryBuilder.with(')
+                      .addLine(`'${tableReadyEntityName}',`)
                       .addLine(
                         'this.queryBuilder.client.raw(police.decision.restrictedQuery.queryBuilder.toQuery()),',
                       )
-                      .addLine(')')
-                      .addLine('.clearSelect()')
-                      .addLine('.select()')
-                      .addLine('.from(alias);'),
+                      .addLine(');'),
                   ),
               )
               .addLine();
