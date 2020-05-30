@@ -73,7 +73,7 @@ export class QueryFileGenerator extends FileGenerator {
                 b
                   .addLine(`const police = new Police<this, ${entityName}>(this.vc, 'read', this)`)
                   .addLine('.allowIfOmnipotent();')
-                  .addLine(`new ${entityName}Schema().accessControlRules(police);`)
+                  .addLine(`${entityName}Schema.accessControlRules(police);`)
                   .addLine('police.throwIfNoDecision();')
                   .addBlock("if (police.decision?.type === 'deny')", (b) =>
                     b.addLine(

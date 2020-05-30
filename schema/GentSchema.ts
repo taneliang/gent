@@ -25,7 +25,7 @@ export abstract class GentSchema {
   abstract fields(): FieldBuilder[];
   abstract relations(): RelationBuilder[];
 
-  accessControlRules(police: Police<any, BaseGent>) {
+  static accessControlRules(police: Police<any, BaseGent>) {
     police.allowAll();
   }
 }
