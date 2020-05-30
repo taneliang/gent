@@ -20,6 +20,7 @@ export abstract class GentQuery<Model extends BaseGent> {
     vc: ViewerContext,
     entityClass: EntityClass<Model>,
     graphViewRestrictor: GentQueryGraphViewRestricter<any> | undefined = undefined,
+    shouldApplyAccessControlRules = true,
   ) {
     this.vc = vc;
     this.entityClass = entityClass;
@@ -28,7 +29,9 @@ export abstract class GentQuery<Model extends BaseGent> {
       .createQueryBuilder(entityClass)
       .select('*')
       .getKnexQuery();
-    this.applyAccessControlRules();
+    if (shouldApplyAccessControlRules) {
+      this.applyAccessControlRules();
+    }
   }
 
   abstract applyAccessControlRules(): void;

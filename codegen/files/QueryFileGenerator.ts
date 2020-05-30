@@ -61,6 +61,7 @@ export class QueryFileGenerator extends FileGenerator {
   generate(): void {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
+    const tableReadyEntityName = _.snakeCase(entityName);
 
     this.codeFile
       .build((b) =>
@@ -70,21 +71,48 @@ export class QueryFileGenerator extends FileGenerator {
             b.addLine(`protected entityClass = ${entityName};`)
               .addLine()
               .addBlock(
-                `constructor(vc: ViewerContext, graphViewRestrictor: GentQueryGraphViewRestricter<${entityName}Query> | undefined = undefined)`,
-                (b) => b.addLine(`super(vc, ${entityName}, graphViewRestrictor);`),
+                `constructor(
+                vc: ViewerContext,
+                graphViewRestrictor: GentQueryGraphViewRestricter<${entityName}Query> | undefined = undefined,
+                shouldApplyAccessControlRules = true,
+                )`,
+                (b) =>
+                  b.addLine(
+                    `super(vc, ${entityName}, graphViewRestrictor, shouldApplyAccessControlRules);`,
+                  ),
               )
               .addLine()
               .addBlock('applyAccessControlRules()', (b) =>
                 b
-                  .addLine(`const police = new Police<this, ${entityName}>(this.vc, 'read', this)`)
+                  .addLine(
+                    `const authorizedSubviewQuery = new ${entityName}Query(this.vc, undefined, false);`,
+                  )
+                  .addLine(
+                    `const police = new Police<${entityName}Query, ${entityName}>(this.vc, 'read', authorizedSubviewQuery)`,
+                  )
                   .addLine('.allowIfOmnipotent();')
                   .addLine(`${entityName}Schema.accessControlRules(police);`)
                   .addLine('police.throwIfNoDecision();')
+                  .addLine()
                   .addBlock("if (police.decision?.type === 'deny')", (b) =>
                     b.addLine(
                       // TODO: Use a custom Error subclass
                       `throw new Error(\`Not allowed to query ${entityName}. Reason: "\${police.decision.reason}"\`);`,
                     ),
+                  )
+                  .addBlock("else if (police.decision?.type === 'allow-restricted')", (b) =>
+                    b
+                      .addLine(`const alias = '${tableReadyEntityName}_authorized_inline_view'`)
+                      .addLine('this.queryBuilder')
+                      .addLine('.with(')
+                      .addLine('alias,')
+                      .addLine(
+                        'this.queryBuilder.client.raw(police.decision.restrictedQuery.queryBuilder.toQuery()),',
+                      )
+                      .addLine(')')
+                      .addLine('.clearSelect()')
+                      .addLine('.select()')
+                      .addLine('.from(alias);'),
                   ),
               )
               .addLine();
