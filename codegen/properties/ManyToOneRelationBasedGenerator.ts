@@ -2,7 +2,7 @@ import { ManyToOneOptions } from 'mikro-orm';
 import _ from 'lodash';
 import { CodeBuilder } from '@elg/tscodegen';
 import { PropertyBasedGenerator } from './PropertyBasedGenerator';
-import { ManyToOneSpecification } from '../../schema/properties/RelationBuilder';
+import { ManyToOneSpecification } from '../../schema/properties/EdgeSpecification';
 
 export abstract class ManyToOneRelationBasedGenerator extends PropertyBasedGenerator<
   ManyToOneSpecification
@@ -10,16 +10,20 @@ export abstract class ManyToOneRelationBasedGenerator extends PropertyBasedGener
 
 export class ModelManyToOneRelationGenerator extends ManyToOneRelationBasedGenerator {
   generateOptionsString(): string {
-    const { inverseRelationName } = this.specification;
+    const {
+      fromMany: { inverseName },
+    } = this.specification;
     const propertyOptions: ManyToOneOptions<any> = {
       ..._.pick(this.specification, ['nullable', 'unique']),
-      inversedBy: inverseRelationName,
+      inversedBy: inverseName,
     };
     return _.isEmpty(propertyOptions) ? '' : JSON.stringify(propertyOptions);
   }
 
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const { name, type, nullable } = this.specification;
+    const {
+      toOne: { name, type, nullable },
+    } = this.specification;
 
     const nullUnwrapIndicator = nullable ? '?' : '!';
 
@@ -29,7 +33,9 @@ export class ModelManyToOneRelationGenerator extends ManyToOneRelationBasedGener
   }
 
   importsRequired() {
-    const { type } = this.specification;
+    const {
+      toOne: { type },
+    } = this.specification;
     return {
       'mikro-orm': ['ManyToOne'],
       [`../${type}/${type}`]: [type],
@@ -39,7 +45,9 @@ export class ModelManyToOneRelationGenerator extends ManyToOneRelationBasedGener
 
 export class LoaderManyToOneRelationGenerator extends ManyToOneRelationBasedGenerator {
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const { name, type } = this.specification;
+    const {
+      toOne: { name, type },
+    } = this.specification;
     const methodReadyName = _.upperFirst(name);
 
     return codeBuilder.addBlock(`load${methodReadyName}(): ${type}Loader`, (b) =>
@@ -59,7 +67,9 @@ export class LoaderManyToOneRelationGenerator extends ManyToOneRelationBasedGene
   }
 
   importsRequired() {
-    const { type } = this.specification;
+    const {
+      toOne: { type },
+    } = this.specification;
     return {
       [`../${type}/${type}Loader`]: [`${type}Loader`],
     };
@@ -68,7 +78,9 @@ export class LoaderManyToOneRelationGenerator extends ManyToOneRelationBasedGene
 
 export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGenerator {
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const { name, type } = this.specification;
+    const {
+      toOne: { name, type },
+    } = this.specification;
     const methodReadyName = _.upperFirst(name);
     const idReadyName = `${_.snakeCase(name)}_id`;
 
@@ -104,7 +116,9 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
   }
 
   importsRequired() {
-    const { type } = this.specification;
+    const {
+      toOne: { type },
+    } = this.specification;
     return {
       'mikro-orm': ['EntityData'],
       lodash: ['uniq'],

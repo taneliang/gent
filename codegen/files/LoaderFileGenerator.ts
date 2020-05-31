@@ -1,21 +1,20 @@
 import { CodeBuilder } from '@elg/tscodegen';
-import { OneToManyBuilder, ManyToOneBuilder } from '../../schema/properties/RelationBuilder';
 import { LoaderOneToManyRelationGenerator } from '../properties/OneToManyRelationBasedGenerator';
 import { LoaderManyToOneRelationGenerator } from '../properties/ManyToOneRelationBasedGenerator';
 import { FileGenerator } from './FileGenerator';
 import { buildImportLines } from '../ImportMap';
+import { isOneToManySpecification, isManyToOneSpecification } from '../../schema';
 
 export class LoaderFileGenerator extends FileGenerator {
   private readonly relationGenerators = (() => {
     const { schema } = this.codegenInfo;
-    return schema.relations().map((builder) => {
-      const spec = builder.toSpecification();
-      if (builder instanceof OneToManyBuilder) {
+    return schema.edges.map((spec) => {
+      if (isOneToManySpecification(spec)) {
         return new LoaderOneToManyRelationGenerator(schema.entityName, spec);
-      } else if (builder instanceof ManyToOneBuilder) {
+      } else if (isManyToOneSpecification(spec)) {
         return new LoaderManyToOneRelationGenerator(schema.entityName, spec);
       }
-      throw new Error(`Unsupported relation builder type "${builder.constructor.name}".`);
+      throw new Error(`Unsupported edge specification "${JSON.stringify(spec)}".`);
     });
   })();
 

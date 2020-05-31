@@ -1,6 +1,6 @@
 import { GentSchemaValidationError } from './GentSchemaValidationError';
 import { FieldSpecification } from './properties/FieldBuilder';
-import { RelationBuilder } from './properties/RelationBuilder';
+import { EdgeSpecification } from './properties/EdgeSpecification';
 import { BaseGent } from '../entities';
 import { Police } from '../police/Police';
 
@@ -23,7 +23,7 @@ export abstract class GentSchema {
   })();
 
   abstract get fields(): FieldSpecification[];
-  abstract relations(): RelationBuilder[];
+  abstract get edges(): EdgeSpecification[];
 
   static accessControlRules(police: Police<any, BaseGent>) {
     police.allowAll();

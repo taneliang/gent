@@ -2,10 +2,10 @@ import _ from 'lodash';
 import { CodeBuilder } from '@elg/tscodegen';
 import { FileGenerator } from './FileGenerator';
 import { QueryFieldGenerator } from '../properties/FieldBasedGenerator';
-import { OneToManyBuilder, ManyToOneBuilder } from '../..';
 import { QueryOneToManyRelationGenerator } from '../properties/OneToManyRelationBasedGenerator';
 import { QueryManyToOneRelationGenerator } from '../properties/ManyToOneRelationBasedGenerator';
 import { buildImportLines } from '../ImportMap';
+import { isOneToManySpecification, isManyToOneSpecification } from '../../schema';
 
 export class QueryFileGenerator extends FileGenerator {
   private readonly fieldGenerators = (() =>
@@ -15,14 +15,13 @@ export class QueryFileGenerator extends FileGenerator {
 
   private readonly relationGenerators = (() => {
     const { schema } = this.codegenInfo;
-    return schema.relations().map((builder) => {
-      const spec = builder.toSpecification();
-      if (builder instanceof OneToManyBuilder) {
+    return schema.edges.map((spec) => {
+      if (isOneToManySpecification(spec)) {
         return new QueryOneToManyRelationGenerator(schema.entityName, spec);
-      } else if (builder instanceof ManyToOneBuilder) {
+      } else if (isManyToOneSpecification(spec)) {
         return new QueryManyToOneRelationGenerator(schema.entityName, spec);
       }
-      throw new Error(`Unsupported relation builder type "${builder.constructor.name}".`);
+      throw new Error(`Unsupported edge specification "${JSON.stringify(spec)}".`);
     });
   })();
 

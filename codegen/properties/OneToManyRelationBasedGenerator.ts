@@ -2,7 +2,7 @@ import { OneToManyOptions } from 'mikro-orm';
 import _ from 'lodash';
 import { CodeBuilder } from '@elg/tscodegen';
 import { PropertyBasedGenerator } from './PropertyBasedGenerator';
-import { OneToManySpecification } from '../../schema/properties/RelationBuilder';
+import { OneToManySpecification } from '../../schema/properties/EdgeSpecification';
 
 abstract class OneToManyRelationBasedGenerator extends PropertyBasedGenerator<
   OneToManySpecification
@@ -10,7 +10,7 @@ abstract class OneToManyRelationBasedGenerator extends PropertyBasedGenerator<
 
 export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
   generateOptionsString(): string {
-    const propertyOptions: OneToManyOptions<any> = _.pick(this.specification, [
+    const propertyOptions: OneToManyOptions<any> = _.pick(this.specification.toMany, [
       'nullable',
       'unique',
     ]);
@@ -18,16 +18,21 @@ export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGener
   }
 
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const { name, type, inverseRelationName } = this.specification;
+    const {
+      fromOne: { inverseName },
+      toMany: { name, type },
+    } = this.specification;
     return codeBuilder
       .addLine(
-        `@OneToMany(() => ${type}, (e) => e.${inverseRelationName}, ${this.generateOptionsString()})`,
+        `@OneToMany(() => ${type}, (e) => e.${inverseName}, ${this.generateOptionsString()})`,
       )
       .addLine(`${name} = new Collection<${type}>(this);`);
   }
 
   importsRequired() {
-    const { type } = this.specification;
+    const {
+      toMany: { type },
+    } = this.specification;
     return {
       'mikro-orm': ['Collection', 'OneToMany'],
       [`../${type}/${type}`]: [type],
@@ -37,9 +42,12 @@ export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGener
 
 export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const { name, type, inverseRelationName } = this.specification;
+    const {
+      fromOne: { inverseName },
+      toMany: { name, type },
+    } = this.specification;
     const methodReadyName = _.upperFirst(name);
-    const idReadyInverseRelationName = `${_.snakeCase(inverseRelationName)}_id`;
+    const idReadyInverseName = `${_.snakeCase(inverseName)}_id`;
 
     return codeBuilder
       .addBlock(`load${methodReadyName}(): ${type}Loader`, (b) =>
@@ -60,13 +68,13 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
       .addBlock(`async get${methodReadyName}(): Promise<(${type}[] | Error)[]>`, (b) =>
         b
           .addLine('return this.vc.dataloaders')
-          .addBlock(`.beltalowdaForModel(${type}, '${idReadyInverseRelationName}', () =>`, (b) =>
+          .addBlock(`.beltalowdaForModel(${type}, '${idReadyInverseName}', () =>`, (b) =>
             b
               .addLine('return new GentBeltalowda(')
               .addLine('this.vc,')
               .addLine(`() => new ${type}Query(this.vc),`)
-              .addLine(`'${idReadyInverseRelationName}',`)
-              .addLine(`(model) => model.${inverseRelationName}.id,`)
+              .addLine(`'${idReadyInverseName}',`)
+              .addLine(`(model) => model.${inverseName}.id,`)
               .addLine(');'),
           )
           .addLine(')')
@@ -75,7 +83,9 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
   }
 
   importsRequired() {
-    const { type } = this.specification;
+    const {
+      toMany: { type },
+    } = this.specification;
     return {
       [`../${type}/${type}`]: [type],
       [`../${type}/${type}Loader`]: [`${type}Loader`],
@@ -86,21 +96,26 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
 
 export class QueryOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const { name, type, inverseRelationName } = this.specification;
+    const {
+      fromOne: { inverseName },
+      toMany: { name, type },
+    } = this.specification;
     const methodReadyName = _.upperFirst(name);
-    const methodReadyInverseRelationName = _.upperFirst(inverseRelationName);
+    const methodReadyInverseName = _.upperFirst(inverseName);
 
     return codeBuilder.addBlock(`query${methodReadyName}(): ${type}Query`, (b) =>
       b
         .addBlock(`return new ${type}Query(this.vc, async (childQuery) =>`, (b) =>
-          b.addLine(`childQuery.where${methodReadyInverseRelationName}IdsIn(await this.getIds());`),
+          b.addLine(`childQuery.where${methodReadyInverseName}IdsIn(await this.getIds());`),
         )
         .addLine(');'),
     );
   }
 
   importsRequired() {
-    const { type } = this.specification;
+    const {
+      toMany: { type },
+    } = this.specification;
     return {
       [`../${type}/${type}Query`]: [`${type}Query`],
     };
