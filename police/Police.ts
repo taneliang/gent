@@ -6,7 +6,8 @@ import {
   AuthenticatedViewerContext,
 } from '..';
 
-export type PoliceEnforceableAction = 'create' | 'read' | 'update' | 'delete';
+export const policeEnforceableActions = ['create', 'read', 'update', 'delete'] as const;
+export type PoliceEnforceableAction = typeof policeEnforceableActions[number];
 
 /**
  * A decision is exactly one of the following:
@@ -185,6 +186,7 @@ export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> 
   // .denyIfViewerDoesNotHaveAllScopes
   // .denyIfViewerDoesNotHaveAnyScope
 
+  // TODO: Allow conditional restricting: allowWithRestrictedGraphViewIf
   /**
    * Restricts the viewer's query to an authorized part of the subgraph.
    * @param queryBuilder Creates a new restricted query.

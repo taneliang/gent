@@ -29,3 +29,11 @@ export function getGlobalEntityManager() {
 export function createContextualizedEntityManager() {
   return initializedGlobalOrm().em.fork();
 }
+
+export async function closeGlobalOrmConnection(
+  force: boolean | undefined = undefined,
+): Promise<void> {
+  if (globalOrm) {
+    return globalOrm.close(force);
+  }
+}
