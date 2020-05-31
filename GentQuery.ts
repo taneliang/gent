@@ -3,6 +3,7 @@ import { QueryBuilder } from 'knex';
 import { EntityData } from 'mikro-orm';
 import { EntityClass } from 'mikro-orm/dist/typings';
 import { BaseGent } from './entities/BaseGent';
+import { GentMutator } from './GentMutator';
 
 export type GentQueryGraphViewRestricter<GentQuerySubclass> = (
   childQuery: GentQuerySubclass,
@@ -12,7 +13,11 @@ export abstract class GentQuery<Model extends BaseGent> {
   readonly vc: ViewerContext;
 
   protected entityClass: EntityClass<Model>;
-  protected readonly queryBuilder: QueryBuilder<Model>;
+
+  /**
+   * @package
+   */
+  readonly queryBuilder: QueryBuilder<Model>;
 
   private readonly graphViewRestrictor: GentQueryGraphViewRestricter<GentQuery<Model>> | undefined;
 
@@ -35,6 +40,8 @@ export abstract class GentQuery<Model extends BaseGent> {
   }
 
   abstract applyAccessControlRules(): void;
+  // TODO:
+  // abstract mutate(): GentMutator<Model>;
 
   buildKnexQueryBuilder(builder: (qb: QueryBuilder<Model>) => void) {
     builder(this.queryBuilder);

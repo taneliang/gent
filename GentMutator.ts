@@ -9,7 +9,7 @@ export type MutationAction = typeof mutationActions[number];
 export type GentMutatorGraphViewRestricter<GentMutatorSubclass> = (
   childMutator: GentMutatorSubclass,
   knexQueryBuilder: KnexQueryBuilder,
-) => Promise<void>;
+) => void | Promise<void>;
 
 export abstract class GentMutator<Model extends BaseGent> {
   readonly vc: ViewerContext;
