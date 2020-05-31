@@ -1,4 +1,4 @@
-import { PropertySpecification } from './PropertyBuilder';
+import { PropertySpecification } from './PropertySpecification';
 
 export type ManyToOneSpecification = {
   fromMany: {

@@ -2,7 +2,7 @@ import { OneToManyOptions } from 'mikro-orm';
 import _ from 'lodash';
 import { CodeBuilder } from '@elg/tscodegen';
 import { PropertyBasedGenerator } from './PropertyBasedGenerator';
-import { OneToManySpecification } from '../../schema/properties/EdgeSpecification';
+import { OneToManySpecification } from '../..';
 
 abstract class OneToManyRelationBasedGenerator extends PropertyBasedGenerator<
   OneToManySpecification

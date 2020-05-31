@@ -1,8 +1,10 @@
-import { GentSchemaValidationError } from './GentSchemaValidationError';
-import { FieldSpecification } from './properties/FieldBuilder';
-import { EdgeSpecification } from './properties/EdgeSpecification';
-import { BaseGent } from '../entities';
-import { Police } from '../police/Police';
+import {
+  BaseGent,
+  EdgeSpecification,
+  FieldSpecification,
+  GentSchemaValidationError,
+  Police,
+} from '..';
 
 export abstract class GentSchema {
   /**

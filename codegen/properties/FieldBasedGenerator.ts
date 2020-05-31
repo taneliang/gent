@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { PropertyOptions } from 'mikro-orm';
-import { FieldSpecification } from '../../schema/properties/FieldBuilder';
 import { PropertyBasedGenerator } from './PropertyBasedGenerator';
 import { CodeBuilder } from '@elg/tscodegen';
+import { FieldSpecification } from '../..';
 
 export abstract class FieldBasedGenerator extends PropertyBasedGenerator<FieldSpecification> {}
 
