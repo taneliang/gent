@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`buildImportLines should add lines for each module 1`] = `
+"import { one } from 'a';
+import { two } from 'b';
+"
+`;
+
+exports[`buildImportLines should handle default+destructure module import 1`] = `
+"import a, { one, two } from 'a';
+import b, { three } from 'b';
+"
+`;
+
+exports[`buildImportLines should handle default-only module import 1`] = `
+"import camelCaseModule from 'camelCaseModule';
+import PascalCaseModule from 'PascalCaseModule';
+import pathModule from '../../pathModule';
+import kebabCaseModule from 'kebab-case-module';
+import snakeCaseModule from 'snake_case_module';
+import weirdMixedSeparatorModule from 'weird_mixed-separatorModule';
+import dotSeparatedModule from 'dot.separated.module';
+import scopedPackage from '@elg/scoped-package';
+import  from '.';
+"
+`;
+
+exports[`buildImportLines should handle destructure-only module import 1`] = `
+"import { one, two } from 'a';
+import { two } from 'b';
+"
+`;
+
+exports[`buildImportLines should handle empty module import 1`] = `
+"import 'a';
+import 'b';
+"
+`;
+
+exports[`buildImportLines should merge and deduplicate multiple import maps 1`] = `
+"import a from 'a';
+import b, { two } from 'b';
+import { one, zero } from 'c';
+import { minusOne } from './../../moreCharacters';
+import 'd';
+import 'e';
+"
+`;
