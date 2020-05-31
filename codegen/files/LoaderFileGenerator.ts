@@ -26,12 +26,7 @@ export class LoaderFileGenerator extends FileGenerator {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
-      '../../gent': [
-        'GentBeltalowda',
-        'GentLoader',
-        'GentLoaderGraphViewRestricter',
-        'ViewerContext',
-      ],
+      '../../gent': ['Beltalowda', 'GentLoader', 'GentLoaderGraphViewRestricter', 'ViewerContext'],
       [`./${entityName}`]: [entityName],
       [`./${entityName}Query`]: [`${entityName}Query`],
     };
@@ -64,7 +59,7 @@ export class LoaderFileGenerator extends FileGenerator {
               .addLine()
               .addBlock('protected createIdBeltalowda()', (b) =>
                 b
-                  .addLine('return new GentBeltalowda(')
+                  .addLine('return new Beltalowda(')
                   .addLine('this.vc,')
                   .addLine(`() => new ${entityName}Query(this.vc),`)
                   .addLine("'id',")

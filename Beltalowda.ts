@@ -8,7 +8,7 @@ import { GentQuery } from './GentQuery';
  * The internal underlying layer below the user-facing GentLoader. It gathers
  * values to be loaded for one field and loads them in a batch.
  */
-export class GentBeltalowda<Model extends BaseGent, FieldType extends string | number> {
+export class Beltalowda<Model extends BaseGent, FieldType extends string | number> {
   readonly vc: ViewerContext;
   readonly queryConstructor: () => GentQuery<Model>;
   readonly fieldNameToFilter: string;

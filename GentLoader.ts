@@ -1,7 +1,7 @@
 import { ViewerContext } from '.';
 import { BaseGent } from './entities/BaseGent';
 import { EntityClass } from 'mikro-orm/dist/typings';
-import { GentBeltalowda } from './GentBeltalowda';
+import { Beltalowda } from './Beltalowda';
 
 export type GentLoaderGraphViewRestricter<GentLoaderSubclass> = (
   childLoader: GentLoaderSubclass,
@@ -42,14 +42,14 @@ export abstract class GentLoader<Model extends BaseGent> {
     await this.graphViewRestrictor(this);
   }
 
-  protected abstract createIdBeltalowda(): GentBeltalowda<Model, number>;
+  protected abstract createIdBeltalowda(): Beltalowda<Model, number>;
 
   async getOne(): Promise<Model | undefined> {
     if (this.ids.length === 0) {
       return undefined;
     }
     await this.applyGraphViewRestrictions();
-    return this.vc.dataloaders
+    return this.vc.beltalowdas
       .beltalowdaForModel(this.entityClass, 'id', this.createIdBeltalowda.bind(this))
       .loadOneFromOneValue(this.ids[0]);
   }
@@ -60,7 +60,7 @@ export abstract class GentLoader<Model extends BaseGent> {
    */
   async getAll(): Promise<(Model | Error | undefined)[]> {
     await this.applyGraphViewRestrictions();
-    return this.vc.dataloaders
+    return this.vc.beltalowdas
       .beltalowdaForModel(this.entityClass, 'id', this.createIdBeltalowda.bind(this))
       .loadManyWithOneEntityEach(this.ids);
   }

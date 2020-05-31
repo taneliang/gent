@@ -67,10 +67,10 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
       .addLine()
       .addBlock(`async get${methodReadyName}(): Promise<(${type}[] | Error)[]>`, (b) =>
         b
-          .addLine('return this.vc.dataloaders')
+          .addLine('return this.vc.beltalowdas')
           .addBlock(`.beltalowdaForModel(${type}, '${idReadyInverseName}', () =>`, (b) =>
             b
-              .addLine('return new GentBeltalowda(')
+              .addLine('return new Beltalowda(')
               .addLine('this.vc,')
               .addLine(`() => new ${type}Query(this.vc),`)
               .addLine(`'${idReadyInverseName}',`)

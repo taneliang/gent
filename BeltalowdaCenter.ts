@@ -1,20 +1,18 @@
-import Dataloader from 'dataloader';
 import { EntityName } from 'mikro-orm';
 import { BaseGent } from './entities/BaseGent';
-import { GentBeltalowda } from './GentBeltalowda';
-
-export type GentDataloader = Dataloader<number, unknown>;
+import { Beltalowda } from './Beltalowda';
 
 /**
- * Maintains a map of queries to Dataloaders. Allows GentLoader instances to
- * batch queries with identical SQL.
+ * Maintains a map of models and fields to Beltalowda instances. Allows
+ * separate GentLoader instances to batch similar queries without knowing about
+ * each other.
  *
  * Should be scoped to a single ViewerContext so that cached values are not
  * inadvertently shared.
  *
- * Internal class, not intended for use outside Gent.
+ * Internal class, not intended for use outside Gent and Gent-generated code.
  */
-export class DataloaderCenter {
+export class BeltalowdaCenter {
   /**
    * #loaders[model name][field name to load] -> beltalowda object
    */
@@ -23,8 +21,8 @@ export class DataloaderCenter {
   beltalowdaForModel<M extends BaseGent, FT extends string | number>(
     entityClass: EntityName<M>,
     fieldNameToFilter: string,
-    loaderProvider: () => GentBeltalowda<M, FT>,
-  ): GentBeltalowda<M, FT> {
+    loaderProvider: () => Beltalowda<M, FT>,
+  ): Beltalowda<M, FT> {
     const modelName =
       typeof entityClass === 'string' ? entityClass : entityClass.prototype.constructor.name;
     const existingLoadersForModel = this.#loaders.get(modelName);
@@ -35,7 +33,7 @@ export class DataloaderCenter {
 
     const existingLoader = loadersForModel.get(fieldNameToFilter);
     if (existingLoader) {
-      return existingLoader as GentBeltalowda<M, FT>;
+      return existingLoader as Beltalowda<M, FT>;
     }
 
     const newLoader = loaderProvider();

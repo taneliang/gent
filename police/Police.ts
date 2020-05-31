@@ -43,8 +43,7 @@ export class PoliceNoDecisionError extends Error {
  *
  * Police is designed to be used in GentSchema to describe access control rules
  * for a particular entity. Gent will then call Police to enforce them in
- * GentQuery, GentBeltalowda (to authorize GentLoader loads), and GentMutator
- * subclasses.
+ * GentQuery and GentMutator subclasses.
  */
 export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> {
   readonly vc: ViewerContext;

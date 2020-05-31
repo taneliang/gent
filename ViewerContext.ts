@@ -1,7 +1,7 @@
 import { EntityManager } from 'mikro-orm';
 import { User } from '../gents/models';
 import { createContextualizedEntityManager } from './orm';
-import { DataloaderCenter } from './LoaderManager';
+import { BeltalowdaCenter } from './BeltalowdaCenter';
 
 /**
  * Encapulates all information for a viewer in one request. Commonly
@@ -21,11 +21,11 @@ export abstract class ViewerContext {
    */
   readonly entityManager: EntityManager;
 
-  readonly dataloaders: DataloaderCenter;
+  readonly beltalowdas: BeltalowdaCenter;
 
   constructor() {
     this.entityManager = createContextualizedEntityManager();
-    this.dataloaders = new DataloaderCenter();
+    this.beltalowdas = new BeltalowdaCenter();
   }
 
   abstract get isAuthenticated(): boolean;
