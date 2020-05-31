@@ -1,5 +1,5 @@
 import { GentSchemaValidationError } from './GentSchemaValidationError';
-import { FieldBuilder } from './properties/FieldBuilder';
+import { FieldSpecification } from './properties/FieldBuilder';
 import { RelationBuilder } from './properties/RelationBuilder';
 import { BaseGent } from '../entities';
 import { Police } from '../police/Police';
@@ -22,7 +22,7 @@ export abstract class GentSchema {
     return className.substring(0, className.length - 'Schema'.length);
   })();
 
-  abstract fields(): FieldBuilder[];
+  abstract get fields(): FieldSpecification[];
   abstract relations(): RelationBuilder[];
 
   static accessControlRules(police: Police<any, BaseGent>) {

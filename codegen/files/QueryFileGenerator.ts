@@ -9,12 +9,9 @@ import { buildImportLines } from '../ImportMap';
 
 export class QueryFileGenerator extends FileGenerator {
   private readonly fieldGenerators = (() =>
-    this.codegenInfo.schema
-      .fields()
-      .map(
-        (builder) =>
-          new QueryFieldGenerator(this.codegenInfo.schema.entityName, builder.toSpecification()),
-      ))();
+    this.codegenInfo.schema.fields.map(
+      (spec) => new QueryFieldGenerator(this.codegenInfo.schema.entityName, spec),
+    ))();
 
   private readonly relationGenerators = (() => {
     const { schema } = this.codegenInfo;
