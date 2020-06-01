@@ -1,5 +1,4 @@
 import { EntityManager } from 'mikro-orm';
-import { User } from '../gents/models';
 import { createContextualizedEntityManager } from './orm';
 import { BeltalowdaCenter } from './BeltalowdaCenter';
 
@@ -36,26 +35,6 @@ export abstract class ViewerContext {
  */
 export abstract class AuthenticatedViewerContext extends ViewerContext {
   readonly isAuthenticated = true;
-}
-
-/**
- * A viewer context for a logged in user.
- */
-export class UserViewerContext extends AuthenticatedViewerContext {
-  readonly #user: User;
-  readonly #roles: string[];
-  readonly #scopes: string[];
-
-  constructor(user: User, roles: string[], scopes: string[]) {
-    super();
-    this.#user = user;
-    this.#roles = roles;
-    this.#scopes = scopes;
-  }
-
-  get user(): User {
-    return this.#user;
-  }
 }
 
 /**
