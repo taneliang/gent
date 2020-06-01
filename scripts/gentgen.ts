@@ -2,6 +2,7 @@ import { getAllSchemaCodegenInfo } from './getAllSchemaCodegenInfo';
 import { ModelFileGenerator } from '../codegen/files/ModelFileGenerator';
 import { LoaderFileGenerator } from '../codegen/files/LoaderFileGenerator';
 import { QueryFileGenerator } from '../codegen/files/QueryFileGenerator';
+import { MutatorFileGenerator } from '../codegen/files/MutatorFileGenerator';
 
 function main() {
   const allCodegenInfo = getAllSchemaCodegenInfo();
@@ -9,8 +10,8 @@ function main() {
     new ModelFileGenerator(codegenInfo).generate();
     new LoaderFileGenerator(codegenInfo).generate();
     new QueryFileGenerator(codegenInfo).generate();
-    // TODO: MutatorGenerator GraphQlGraphEntityGenerator
-    // TODO: police
+    new MutatorFileGenerator(codegenInfo).generate();
+    // TODO: GraphQlGraphEntityGenerator
   }
 }
 
