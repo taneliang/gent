@@ -29,6 +29,16 @@ export class MutatorFileGenerator extends FileGenerator {
     return buildImportLines([ourImports], builder);
   }
 
+  buildConstructor(builder: CodeBuilder): CodeBuilder {
+    const { schema } = this.codegenInfo;
+    const entityName = schema.entityName;
+
+    return builder.addBlock(
+      `constructor(vc: ViewerContext, graphViewRestrictor: GentMutatorGraphViewRestricter<${entityName}Mutator> | undefined = undefined)`,
+      (b) => b.addLine(`super(vc, ${entityName}, graphViewRestrictor);`),
+    );
+  }
+
   buildFromEntities(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
@@ -95,15 +105,9 @@ export class MutatorFileGenerator extends FileGenerator {
         this.buildImportLines(b)
           .addLine()
           .addBlock(`export class ${entityName}Mutator extends GentMutator<${entityName}>`, (b) => {
-            b.addLine(`protected entityClass = ${entityName};`)
-              .addLine()
-              .addBlock(
-                `constructor(vc: ViewerContext, graphViewRestrictor: GentMutatorGraphViewRestricter<${entityName}Mutator> | undefined = undefined)`,
-                (b) => b.addLine(`super(vc, ${entityName}, graphViewRestrictor);`),
-              )
-              .addLine();
-            this.buildFromEntities(b);
-            b.addLine();
+            b.addLine(`protected entityClass = ${entityName};`).addLine();
+            this.buildConstructor(b).addLine();
+            this.buildFromEntities(b).addLine();
             this.buildApplyAccessControlRules(b);
             return b;
           })

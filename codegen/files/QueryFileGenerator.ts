@@ -47,6 +47,57 @@ export class QueryFileGenerator extends FileGenerator {
     return buildImportLines([ourImports, ...generatorImports], builder);
   }
 
+  buildConstructor(builder: CodeBuilder): CodeBuilder {
+    const { schema } = this.codegenInfo;
+    const entityName = schema.entityName;
+
+    return builder.addBlock(
+      `constructor(
+      vc: ViewerContext,
+      graphViewRestrictor: GentQueryGraphViewRestricter<${entityName}Query> | undefined = undefined,
+      shouldApplyAccessControlRules = true,
+      )`,
+      (b) =>
+        b.addLine(`super(vc, ${entityName}, graphViewRestrictor, shouldApplyAccessControlRules);`),
+    );
+  }
+
+  buildApplyAccessControlRules(builder: CodeBuilder): CodeBuilder {
+    const { schema } = this.codegenInfo;
+    const entityName = schema.entityName;
+    // TODO: Consider using MikroORM's naming strategy instead
+    const tableReadyEntityName = _.snakeCase(entityName);
+
+    return builder.addBlock('applyAccessControlRules()', (b) =>
+      b
+        .addLine(
+          `const authorizedSubviewQuery = new ${entityName}Query(this.vc, undefined, false);`,
+        )
+        .addLine(
+          `const police = new Police<${entityName}Query, ${entityName}>(this.vc, 'read', authorizedSubviewQuery)`,
+        )
+        .addLine('.allowIfOmnipotent();')
+        .addLine(`${entityName}Schema.accessControlRules(police);`)
+        .addLine('police.throwIfNoDecision();')
+        .addLine()
+        .addBlock("if (police.decision?.type === 'deny')", (b) =>
+          b.addLine(
+            // TODO: Use a custom Error subclass
+            `throw new Error(\`Not allowed to query ${entityName}. Reason: "\${police.decision.reason}"\`);`,
+          ),
+        )
+        .addBlock("else if (police.decision?.type === 'allow-restricted')", (b) =>
+          b
+            .addLine('this.queryBuilder.with(')
+            .addLine(`'${tableReadyEntityName}',`)
+            .addLine(
+              'this.queryBuilder.client.raw(police.decision.restrictedQuery.queryBuilder.toQuery()),',
+            )
+            .addLine(');'),
+        ),
+    );
+  }
+
   buildFieldLines(builder: CodeBuilder): CodeBuilder {
     this.fieldGenerators.forEach((generator) => generator.generateLines(builder).addLine());
     return builder;
@@ -60,57 +111,15 @@ export class QueryFileGenerator extends FileGenerator {
   generate(): void {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
-    // TODO: Consider using MikroORM's naming strategy instead
-    const tableReadyEntityName = _.snakeCase(entityName);
 
     this.codeFile
       .build((b) =>
         this.buildImportLines(b)
           .addLine()
           .addBlock(`export class ${entityName}Query extends GentQuery<${entityName}>`, (b) => {
-            b.addLine(`protected entityClass = ${entityName};`)
-              .addLine()
-              .addBlock(
-                `constructor(
-                vc: ViewerContext,
-                graphViewRestrictor: GentQueryGraphViewRestricter<${entityName}Query> | undefined = undefined,
-                shouldApplyAccessControlRules = true,
-                )`,
-                (b) =>
-                  b.addLine(
-                    `super(vc, ${entityName}, graphViewRestrictor, shouldApplyAccessControlRules);`,
-                  ),
-              )
-              .addLine()
-              .addBlock('applyAccessControlRules()', (b) =>
-                b
-                  .addLine(
-                    `const authorizedSubviewQuery = new ${entityName}Query(this.vc, undefined, false);`,
-                  )
-                  .addLine(
-                    `const police = new Police<${entityName}Query, ${entityName}>(this.vc, 'read', authorizedSubviewQuery)`,
-                  )
-                  .addLine('.allowIfOmnipotent();')
-                  .addLine(`${entityName}Schema.accessControlRules(police);`)
-                  .addLine('police.throwIfNoDecision();')
-                  .addLine()
-                  .addBlock("if (police.decision?.type === 'deny')", (b) =>
-                    b.addLine(
-                      // TODO: Use a custom Error subclass
-                      `throw new Error(\`Not allowed to query ${entityName}. Reason: "\${police.decision.reason}"\`);`,
-                    ),
-                  )
-                  .addBlock("else if (police.decision?.type === 'allow-restricted')", (b) =>
-                    b
-                      .addLine('this.queryBuilder.with(')
-                      .addLine(`'${tableReadyEntityName}',`)
-                      .addLine(
-                        'this.queryBuilder.client.raw(police.decision.restrictedQuery.queryBuilder.toQuery()),',
-                      )
-                      .addLine(');'),
-                  ),
-              )
-              .addLine();
+            b.addLine(`protected entityClass = ${entityName};`).addLine();
+            this.buildConstructor(b).addLine();
+            this.buildApplyAccessControlRules(b).addLine();
             this.buildFieldLines(b);
             this.buildRelationLines(b);
             return b;

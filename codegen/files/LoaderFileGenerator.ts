@@ -39,6 +39,31 @@ export class LoaderFileGenerator extends FileGenerator {
     return buildImportLines([ourImports, ...generatorImports], builder);
   }
 
+  buildConstructor(builder: CodeBuilder): CodeBuilder {
+    const { schema } = this.codegenInfo;
+    const entityName = schema.entityName;
+
+    return builder.addBlock(
+      `constructor(vc: ViewerContext, graphViewRestrictor: GentLoaderGraphViewRestricter<${entityName}Loader> | undefined = undefined)`,
+      (b) => b.addLine('super(vc, graphViewRestrictor);'),
+    );
+  }
+
+  buildCreateIdBeltalowda(builder: CodeBuilder): CodeBuilder {
+    const { schema } = this.codegenInfo;
+    const entityName = schema.entityName;
+
+    return builder.addBlock('protected createIdBeltalowda()', (b) =>
+      b
+        .addLine('return new Beltalowda(')
+        .addLine('this.vc,')
+        .addLine(`() => new ${entityName}Query(this.vc),`)
+        .addLine("'id',")
+        .addLine('(model) => model.id,')
+        .addLine(');'),
+    );
+  }
+
   buildRelationLines(builder: CodeBuilder): CodeBuilder {
     this.relationGenerators.forEach((generator) => generator.generateLines(builder).addLine());
     return builder;
@@ -53,23 +78,9 @@ export class LoaderFileGenerator extends FileGenerator {
         this.buildImportLines(b)
           .addLine()
           .addBlock(`export class ${entityName}Loader extends GentLoader<${entityName}>`, (b) => {
-            b.addLine(`protected entityClass = ${entityName};`)
-              .addLine()
-              .addBlock(
-                `constructor(vc: ViewerContext, graphViewRestrictor: GentLoaderGraphViewRestricter<${entityName}Loader> | undefined = undefined)`,
-                (b) => b.addLine('super(vc, graphViewRestrictor);'),
-              )
-              .addLine()
-              .addBlock('protected createIdBeltalowda()', (b) =>
-                b
-                  .addLine('return new Beltalowda(')
-                  .addLine('this.vc,')
-                  .addLine(`() => new ${entityName}Query(this.vc),`)
-                  .addLine("'id',")
-                  .addLine('(model) => model.id,')
-                  .addLine(');'),
-              )
-              .addLine();
+            b.addLine(`protected entityClass = ${entityName};`).addLine();
+            this.buildConstructor(b).addLine();
+            this.buildCreateIdBeltalowda(b).addLine();
             this.buildRelationLines(b);
             return b;
           })
