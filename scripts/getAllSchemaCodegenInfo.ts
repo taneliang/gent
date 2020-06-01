@@ -63,6 +63,10 @@ function processSourceFile(filePath: string): SchemaCodegenInfo {
   };
 }
 
+/**
+ * Walks through a directory and returns the codegen info for all schemas
+ * contained within it.
+ */
 export function getAllSchemaCodegenInfo(): SchemaCodegenInfo[] {
   const schemaPaths = getSchemaPaths();
   return schemaPaths.map((schemaPath) => processSourceFile(schemaPath));

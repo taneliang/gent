@@ -4,8 +4,14 @@ import { PropertyBasedGenerator } from './PropertyBasedGenerator';
 import { CodeBuilder } from '@elg/tscodegen';
 import { FieldSpecification } from '../..';
 
+/**
+ * A base generator class for a particular entity field.
+ */
 export abstract class FieldBasedGenerator extends PropertyBasedGenerator<FieldSpecification> {}
 
+/**
+ * Generates code for a field property in a database entity class.
+ */
 export class ModelFieldGenerator extends FieldBasedGenerator {
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
     const { name, type } = this.specification;
@@ -23,6 +29,9 @@ export class ModelFieldGenerator extends FieldBasedGenerator {
   }
 }
 
+/**
+ * Generates code for a field in a *Query class.
+ */
 export class QueryFieldGenerator extends FieldBasedGenerator {
   buildStringFieldLines(codeBuilder: CodeBuilder): CodeBuilder {
     const { name } = this.specification;

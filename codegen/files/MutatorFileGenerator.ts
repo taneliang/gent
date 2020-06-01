@@ -2,6 +2,9 @@ import { CodeBuilder } from '@elg/tscodegen';
 import { FileGenerator } from './FileGenerator';
 import { buildImportLines } from '../ImportMap';
 
+/**
+ * Generator of *Mutator classes.
+ */
 export class MutatorFileGenerator extends FileGenerator {
   generatedFileNameSuffix(): string {
     return 'Mutator';

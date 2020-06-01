@@ -6,6 +6,9 @@ import { FileGenerator } from './FileGenerator';
 import { buildImportLines } from '../ImportMap';
 import { isOneToManySpecification, isManyToOneSpecification } from '../../schema';
 
+/**
+ * Generator of the file containing the database entity class, e.g. `User.ts`.
+ */
 export class ModelFileGenerator extends FileGenerator {
   private readonly fieldGenerators = (() =>
     this.codegenInfo.schema.fields.map(

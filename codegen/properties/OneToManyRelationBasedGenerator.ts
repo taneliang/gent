@@ -4,10 +4,16 @@ import { CodeBuilder } from '@elg/tscodegen';
 import { PropertyBasedGenerator } from './PropertyBasedGenerator';
 import { OneToManySpecification } from '../..';
 
+/**
+ * A base generator class for a one to many edge.
+ */
 abstract class OneToManyRelationBasedGenerator extends PropertyBasedGenerator<
   OneToManySpecification
 > {}
 
+/**
+ * Generates code for a one to many property in a database entity class.
+ */
 export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
   generateOptionsString(): string {
     const propertyOptions: OneToManyOptions<any> = _.pick(this.specification.toMany, [
@@ -40,6 +46,9 @@ export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGener
   }
 }
 
+/**
+ * Generates code for a one to many edge in a *Loader class.
+ */
 export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
     const {
@@ -94,6 +103,9 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
   }
 }
 
+/**
+ * Generates code for a one to many edge in a *Query class.
+ */
 export class QueryOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
     const {

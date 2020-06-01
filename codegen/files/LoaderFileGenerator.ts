@@ -5,6 +5,9 @@ import { FileGenerator } from './FileGenerator';
 import { buildImportLines } from '../ImportMap';
 import { isOneToManySpecification, isManyToOneSpecification } from '../../schema';
 
+/**
+ * Generator of *Loader classes.
+ */
 export class LoaderFileGenerator extends FileGenerator {
   private readonly relationGenerators = (() => {
     const { schema } = this.codegenInfo;

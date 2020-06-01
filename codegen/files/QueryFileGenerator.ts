@@ -7,6 +7,9 @@ import { QueryManyToOneRelationGenerator } from '../properties/ManyToOneRelation
 import { buildImportLines } from '../ImportMap';
 import { isOneToManySpecification, isManyToOneSpecification } from '../../schema';
 
+/**
+ * Generator of *Query classes.
+ */
 export class QueryFileGenerator extends FileGenerator {
   private readonly fieldGenerators = (() =>
     this.codegenInfo.schema.fields.map(
