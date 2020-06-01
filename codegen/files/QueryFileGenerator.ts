@@ -38,6 +38,7 @@ export class QueryFileGenerator extends FileGenerator {
     const ourImports = {
       '../../gent': ['GentQuery', 'GentQueryGraphViewRestricter', 'Police', 'ViewerContext'],
       [`./${entityName}`]: [entityName],
+      [`./${entityName}Mutator`]: [`${entityName}Mutator`],
       [`./${entityName}Schema`]: ['default'],
     };
     const generatorImports = [
@@ -68,7 +69,7 @@ export class QueryFileGenerator extends FileGenerator {
     // TODO: Consider using MikroORM's naming strategy instead
     const tableReadyEntityName = _.snakeCase(entityName);
 
-    return builder.addBlock('applyAccessControlRules()', (b) =>
+    return builder.addBlock('protected applyAccessControlRules()', (b) =>
       b
         .addLine(
           `const authorizedSubviewQuery = new ${entityName}Query(this.vc, undefined, false);`,
@@ -98,6 +99,20 @@ export class QueryFileGenerator extends FileGenerator {
     );
   }
 
+  buildMutate(builder: CodeBuilder): CodeBuilder {
+    const { schema } = this.codegenInfo;
+    const entityName = schema.entityName;
+
+    return builder.addBlock(`mutate(): ${entityName}Mutator`, (b) =>
+      b
+        .addBlock(
+          `return new ${entityName}Mutator(this.vc, async (_childMutator, knexQueryBuilder) =>`,
+          (b) => b.addLine("knexQueryBuilder.whereIn('id', await this.getIds());"),
+        )
+        .addLine(');'),
+    );
+  }
+
   buildFieldLines(builder: CodeBuilder): CodeBuilder {
     this.fieldGenerators.forEach((generator) => generator.generateLines(builder).addLine());
     return builder;
@@ -120,6 +135,7 @@ export class QueryFileGenerator extends FileGenerator {
             b.addLine(`protected entityClass = ${entityName};`).addLine();
             this.buildConstructor(b).addLine();
             this.buildApplyAccessControlRules(b).addLine();
+            this.buildMutate(b).addLine();
             this.buildFieldLines(b);
             this.buildRelationLines(b);
             return b;

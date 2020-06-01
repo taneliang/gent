@@ -67,7 +67,7 @@ export class MutatorFileGenerator extends FileGenerator {
     const entityName = schema.entityName;
 
     return builder.addBlock(
-      'applyAccessControlRules(action: MutationAction, knexQueryBuilder: QueryBuilder)',
+      'protected applyAccessControlRules(action: MutationAction, knexQueryBuilder: QueryBuilder)',
       (b) =>
         b
           .addLine(

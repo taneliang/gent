@@ -67,10 +67,12 @@ export abstract class GentQuery<Model extends BaseGent> {
   /**
    * Applies access control rules defined in the entity's schema to this query.
    */
-  abstract applyAccessControlRules(): void;
+  protected abstract applyAccessControlRules(): void;
 
-  // TODO:
-  // abstract mutate(): GentMutator<Model>;
+  /**
+   * Returns a mutator that will mutate the results of this query.
+   */
+  abstract mutate(): GentMutator<Model>;
 
   /**
    * Build the query using the underlying Knex query builder.

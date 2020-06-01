@@ -58,7 +58,7 @@ export abstract class GentMutator<Model extends BaseGent> {
    * Applies access control rules defined in the entity's schema to this
    * mutation.
    */
-  abstract applyAccessControlRules(
+  protected abstract applyAccessControlRules(
     action: MutationAction,
     knexQueryBuilder: KnexQueryBuilder,
   ): void;
