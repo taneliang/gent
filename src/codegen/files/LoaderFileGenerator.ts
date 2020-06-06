@@ -34,7 +34,7 @@ export class LoaderFileGenerator extends FileGenerator {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
-      "../../gent": [
+      "@elg/gent": [
         "Beltalowda",
         "GentLoader",
         "GentLoaderGraphViewRestricter",

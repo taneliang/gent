@@ -15,7 +15,7 @@ export class MutatorFileGenerator extends FileGenerator {
     const entityName = schema.entityName;
     const ourImports = {
       knex: ["QueryBuilder"],
-      "../../gent": [
+      "@elg/gent": [
         "GentMutator",
         "GentMutatorGraphViewRestricter",
         "MutationAction",

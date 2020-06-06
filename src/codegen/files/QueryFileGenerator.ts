@@ -42,7 +42,7 @@ export class QueryFileGenerator extends FileGenerator {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
-      "../../gent": [
+      "@elg/gent": [
         "GentQuery",
         "GentQueryGraphViewRestricter",
         "Police",
