@@ -1,8 +1,8 @@
-import Dataloader from 'dataloader';
-import _ from 'lodash';
-import { ViewerContext } from '.';
-import { BaseGent } from './entities/BaseGent';
-import { GentQuery } from './GentQuery';
+import Dataloader from "dataloader";
+import _ from "lodash";
+import { ViewerContext } from ".";
+import { BaseGent } from "./entities/BaseGent";
+import { GentQuery } from "./GentQuery";
 
 /**
  * The internal underlying layer below the user-facing `GentLoader`. It gathers
@@ -16,7 +16,10 @@ import { GentQuery } from './GentQuery';
 // interplanatary human civilization, performing unsafe tasks like mining for
 // the inner planets. The name is fitting for this class as it does GentLoader's
 // dirty work. See: https://expanse.fandom.com/wiki/Beltalowda
-export class Beltalowda<Model extends BaseGent, FieldType extends string | number> {
+export class Beltalowda<
+  Model extends BaseGent,
+  FieldType extends string | number
+> {
   readonly vc: ViewerContext;
   readonly queryConstructor: () => GentQuery<Model>;
   readonly fieldNameToFilter: string;
@@ -28,7 +31,7 @@ export class Beltalowda<Model extends BaseGent, FieldType extends string | numbe
     vc: ViewerContext,
     queryConstructor: () => GentQuery<Model>,
     fieldNameToFilter: string,
-    mapEntityToKey: (entity: Model) => FieldType,
+    mapEntityToKey: (entity: Model) => FieldType
   ) {
     this.vc = vc;
     this.queryConstructor = queryConstructor;
@@ -37,13 +40,18 @@ export class Beltalowda<Model extends BaseGent, FieldType extends string | numbe
     this.dataloader = new Dataloader(this.#batchLoadFunction);
   }
 
-  readonly #batchLoadFunction: Dataloader.BatchLoadFn<FieldType, Model[]> = async (
-    valuesToFetch,
-  ) => {
+  readonly #batchLoadFunction: Dataloader.BatchLoadFn<
+    FieldType,
+    Model[]
+  > = async (valuesToFetch) => {
     const unorderedResults = await this.queryConstructor()
-      .buildKnexQueryBuilder((qb) => qb.whereIn(this.fieldNameToFilter, valuesToFetch))
+      .buildKnexQueryBuilder((qb) =>
+        qb.whereIn(this.fieldNameToFilter, valuesToFetch)
+      )
       .getAll();
-    const keyedResults = _.groupBy(unorderedResults, (entity) => this.mapEntityToKey(entity));
+    const keyedResults = _.groupBy(unorderedResults, (entity) =>
+      this.mapEntityToKey(entity)
+    );
     const results = valuesToFetch.map((value) => keyedResults[value]);
     return results;
   };
@@ -77,10 +85,12 @@ export class Beltalowda<Model extends BaseGent, FieldType extends string | numbe
    * Example: for a beltalowda for the ID field, you can use this method to
    * fetch entities given a list of IDs.
    */
-  async loadManyWithOneEntityEach(values: FieldType[]): Promise<(Model | Error | undefined)[]> {
+  async loadManyWithOneEntityEach(
+    values: FieldType[]
+  ): Promise<(Model | Error | undefined)[]> {
     const manyEntitiesOrError = await this.loadManyWithManyEntitiesEach(values);
     return manyEntitiesOrError.map((entitiesOrError) =>
-      entitiesOrError instanceof Error ? entitiesOrError : entitiesOrError[0],
+      entitiesOrError instanceof Error ? entitiesOrError : entitiesOrError[0]
     );
   }
 
@@ -91,7 +101,9 @@ export class Beltalowda<Model extends BaseGent, FieldType extends string | numbe
    * Example: for a beltalowda for a category field, you can use this method to
    * fetch the entities with each category in a list of categories.
    */
-  async loadManyWithManyEntitiesEach(values: FieldType[]): Promise<(Model[] | Error)[]> {
+  async loadManyWithManyEntitiesEach(
+    values: FieldType[]
+  ): Promise<(Model[] | Error)[]> {
     const loadedResults = await this.dataloader.loadMany(values);
     return loadedResults.map((result) => result ?? []);
   }

@@ -1,4 +1,4 @@
-import { GentSchema } from '../../schema/GentSchema';
+import { GentSchema } from "../../schema/GentSchema";
 
 /**
  * A type containing codegen information for a schema.

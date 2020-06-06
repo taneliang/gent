@@ -1,6 +1,6 @@
-import path from 'path';
-import { SchemaCodegenInfo } from './SchemaCodegenInfo';
-import { CodeFile } from '@elg/tscodegen';
+import path from "path";
+import { SchemaCodegenInfo } from "./SchemaCodegenInfo";
+import { CodeFile } from "@elg/tscodegen";
 
 /**
  * From an entity's schema file path, returns a file path for the source file
@@ -13,9 +13,12 @@ import { CodeFile } from '@elg/tscodegen';
 function filePathForComponent(
   entityName: string,
   schemaPath: string,
-  componentName: string,
+  componentName: string
 ): string {
-  return path.join(path.dirname(schemaPath), `${entityName}${componentName}.ts`);
+  return path.join(
+    path.dirname(schemaPath),
+    `${entityName}${componentName}.ts`
+  );
 }
 
 /**
@@ -31,7 +34,7 @@ export abstract class FileGenerator {
     const { schema, filePath } = codegenInfo;
     const entityName = schema.entityName;
     this.codeFile = new CodeFile(
-      filePathForComponent(entityName, filePath, this.generatedFileNameSuffix()),
+      filePathForComponent(entityName, filePath, this.generatedFileNameSuffix())
     );
   }
 

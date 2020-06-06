@@ -4,7 +4,7 @@ import {
   FieldSpecification,
   GentSchemaValidationError,
   Police,
-} from '..';
+} from "..";
 
 export abstract class GentSchema {
   /**
@@ -16,12 +16,12 @@ export abstract class GentSchema {
    */
   readonly entityName = (() => {
     const className = this.constructor.name;
-    if (!className.endsWith('Schema') || className === 'Schema') {
+    if (!className.endsWith("Schema") || className === "Schema") {
       throw new GentSchemaValidationError(
-        `The name of the "${className}" schema should be in the form <EntityName>Schema, e.g. "${className}Schema".`,
+        `The name of the "${className}" schema should be in the form <EntityName>Schema, e.g. "${className}Schema".`
       );
     }
-    return className.substring(0, className.length - 'Schema'.length);
+    return className.substring(0, className.length - "Schema".length);
   })();
 
   abstract get fields(): FieldSpecification[];

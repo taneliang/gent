@@ -1,5 +1,5 @@
-import { CodeBuilder } from '@elg/tscodegen';
-import { ImportMap } from '../ImportMap';
+import { CodeBuilder } from "@elg/tscodegen";
+import { ImportMap } from "../ImportMap";
 
 /**
  * A base class that generates code for a property.

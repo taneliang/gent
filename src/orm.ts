@@ -1,5 +1,5 @@
-import { MikroORM, Options } from 'mikro-orm';
-import * as entities from './entities/';
+import { MikroORM, Options } from "mikro-orm";
+import * as entities from "./entities/";
 
 let globalOrm: MikroORM | undefined;
 
@@ -11,7 +11,9 @@ export async function initOrm(options: Options) {
 
 class OrmNotInitializedError extends Error {
   constructor() {
-    super('ORM not initialized! Ensure that `initOrm` was called and the promise resolved.');
+    super(
+      "ORM not initialized! Ensure that `initOrm` was called and the promise resolved."
+    );
   }
 }
 
@@ -31,7 +33,7 @@ export function createContextualizedEntityManager() {
 }
 
 export async function closeGlobalOrmConnection(
-  force: boolean | undefined = undefined,
+  force: boolean | undefined = undefined
 ): Promise<void> {
   if (globalOrm) {
     return globalOrm.close(force);

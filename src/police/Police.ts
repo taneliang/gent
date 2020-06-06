@@ -4,9 +4,14 @@ import {
   ViewerContext,
   DangerouslyOmnipotentViewerContext,
   AuthenticatedViewerContext,
-} from '..';
+} from "..";
 
-export const policeEnforceableActions = ['create', 'read', 'update', 'delete'] as const;
+export const policeEnforceableActions = [
+  "create",
+  "read",
+  "update",
+  "delete",
+] as const;
 export type PoliceEnforceableAction = typeof policeEnforceableActions[number];
 
 /**
@@ -16,15 +21,18 @@ export type PoliceEnforceableAction = typeof policeEnforceableActions[number];
  * 2. `allow-restricted`: Allow viewer to proceed with a restricted view of the data.
  * 3. `deny`: Deny the viewer with a reason.
  */
-export type PoliceDecision<QueryType extends GentQuery<Model>, Model extends BaseGent> =
-  | { type: 'allow-unrestricted' }
-  | { type: 'allow-restricted'; restrictedQuery: QueryType }
-  | { type: 'deny'; reason: string };
+export type PoliceDecision<
+  QueryType extends GentQuery<Model>,
+  Model extends BaseGent
+> =
+  | { type: "allow-unrestricted" }
+  | { type: "allow-restricted"; restrictedQuery: QueryType }
+  | { type: "deny"; reason: string };
 
 export class PoliceNoDecisionError extends Error {
   constructor() {
     super(
-      'The police did not decide on a course of action. If this is intentional, use denyAll to add a catch-all deny rule.',
+      "The police did not decide on a course of action. If this is intentional, use denyAll to add a catch-all deny rule."
     );
   }
 }
@@ -46,7 +54,10 @@ export class PoliceNoDecisionError extends Error {
  * for a particular entity. Gent will then call Police to enforce them in
  * GentQuery and GentMutator subclasses.
  */
-export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> {
+export class Police<
+  QueryType extends GentQuery<Model>,
+  Model extends BaseGent
+> {
   readonly vc: ViewerContext;
   readonly action: PoliceEnforceableAction;
   readonly query: QueryType;
@@ -75,7 +86,11 @@ export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> 
    * @param vc The VC representing the actor.
    * @param action The action type to be enforced.
    */
-  constructor(vc: ViewerContext, action: PoliceEnforceableAction, query: QueryType) {
+  constructor(
+    vc: ViewerContext,
+    action: PoliceEnforceableAction,
+    query: QueryType
+  ) {
     this.vc = vc;
     this.action = action;
     this.query = query;
@@ -86,7 +101,7 @@ export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> 
   onCreate(actionSpecificRules: (police: this) => this): this {
     if (this.decisionMade) return this;
 
-    if (this.action === 'create') {
+    if (this.action === "create") {
       return actionSpecificRules(this);
     }
     return this;
@@ -95,7 +110,7 @@ export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> 
   onRead(actionSpecificRules: (police: this) => this): this {
     if (this.decisionMade) return this;
 
-    if (this.action === 'read') {
+    if (this.action === "read") {
       return actionSpecificRules(this);
     }
     return this;
@@ -111,7 +126,7 @@ export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> 
   onCreateUpdateDelete(actionSpecificRules: (police: this) => this): this {
     if (this.decisionMade) return this;
 
-    if (['create', 'update', 'delete'].includes(this.action)) {
+    if (["create", "update", "delete"].includes(this.action)) {
       return actionSpecificRules(this);
     }
     return this;
@@ -127,7 +142,7 @@ export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> 
 
     if (value) {
       this.#decision = {
-        type: 'allow-unrestricted',
+        type: "allow-unrestricted",
       };
     }
     return this;
@@ -157,7 +172,7 @@ export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> 
 
     if (value) {
       this.#decision = {
-        type: 'deny',
+        type: "deny",
         reason,
       };
     }
@@ -169,7 +184,10 @@ export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> 
    * not authenticated.
    */
   denyIfUnauthenticated(): this {
-    return this.denyIf(!(this.vc instanceof AuthenticatedViewerContext), 'Not logged in.');
+    return this.denyIf(
+      !(this.vc instanceof AuthenticatedViewerContext),
+      "Not logged in."
+    );
   }
 
   /**
@@ -192,12 +210,12 @@ export class Police<QueryType extends GentQuery<Model>, Model extends BaseGent> 
    * @param queryBuilder Creates a new restricted query.
    */
   allowWithRestrictedGraphView(
-    queryBuilder: (vc: ViewerContext, query: QueryType) => QueryType,
+    queryBuilder: (vc: ViewerContext, query: QueryType) => QueryType
   ): this {
     if (this.decisionMade) return this;
 
     this.#decision = {
-      type: 'allow-restricted',
+      type: "allow-restricted",
       restrictedQuery: queryBuilder(this.vc, this.query),
     };
     return this;

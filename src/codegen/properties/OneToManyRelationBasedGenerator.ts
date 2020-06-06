@@ -1,8 +1,8 @@
-import { OneToManyOptions } from 'mikro-orm';
-import _ from 'lodash';
-import { CodeBuilder } from '@elg/tscodegen';
-import { PropertyBasedGenerator } from './PropertyBasedGenerator';
-import { OneToManySpecification } from '../..';
+import { OneToManyOptions } from "mikro-orm";
+import _ from "lodash";
+import { CodeBuilder } from "@elg/tscodegen";
+import { PropertyBasedGenerator } from "./PropertyBasedGenerator";
+import { OneToManySpecification } from "../..";
 
 /**
  * A base generator class for a one to many edge.
@@ -16,11 +16,11 @@ abstract class OneToManyRelationBasedGenerator extends PropertyBasedGenerator<
  */
 export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
   generateOptionsString(): string {
-    const propertyOptions: OneToManyOptions<any> = _.pick(this.specification.toMany, [
-      'nullable',
-      'unique',
-    ]);
-    return _.isEmpty(propertyOptions) ? '' : JSON.stringify(propertyOptions);
+    const propertyOptions: OneToManyOptions<any> = _.pick(
+      this.specification.toMany,
+      ["nullable", "unique"]
+    );
+    return _.isEmpty(propertyOptions) ? "" : JSON.stringify(propertyOptions);
   }
 
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
@@ -30,7 +30,7 @@ export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGener
     } = this.specification;
     return codeBuilder
       .addLine(
-        `@OneToMany(() => ${type}, (e) => e.${inverseName}, ${this.generateOptionsString()})`,
+        `@OneToMany(() => ${type}, (e) => e.${inverseName}, ${this.generateOptionsString()})`
       )
       .addLine(`${name} = new Collection<${type}>(this);`);
   }
@@ -40,7 +40,7 @@ export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGener
       toMany: { type },
     } = this.specification;
     return {
-      'mikro-orm': ['Collection', 'OneToMany'],
+      "mikro-orm": ["Collection", "OneToMany"],
       [`../${type}/${type}`]: [type],
     };
   }
@@ -61,33 +61,43 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
     return codeBuilder
       .addBlock(`load${methodReadyName}(): ${type}Loader`, (b) =>
         b
-          .addBlock(`return new ${type}Loader(this.vc, async (childLoader) =>`, (b) =>
-            b
-              .addLine(`const entitiesOrErrors = await this.get${methodReadyName}();`)
-              .addLine('const entityIds = entitiesOrErrors')
-              .addLine('// TODO: Handle errors better')
-              .addLine('.filter((entitiesOrError) => entitiesOrError instanceof Array)')
-              .addLine(`.flatMap((entities) => entities as ${type}[])`)
-              .addLine('.map((entity) => entity.id);')
-              .addLine('childLoader.onlyIds(entityIds);'),
+          .addBlock(
+            `return new ${type}Loader(this.vc, async (childLoader) =>`,
+            (b) =>
+              b
+                .addLine(
+                  `const entitiesOrErrors = await this.get${methodReadyName}();`
+                )
+                .addLine("const entityIds = entitiesOrErrors")
+                .addLine("// TODO: Handle errors better")
+                .addLine(
+                  ".filter((entitiesOrError) => entitiesOrError instanceof Array)"
+                )
+                .addLine(`.flatMap((entities) => entities as ${type}[])`)
+                .addLine(".map((entity) => entity.id);")
+                .addLine("childLoader.onlyIds(entityIds);")
           )
-          .addLine(');'),
+          .addLine(");")
       )
       .addLine()
-      .addBlock(`async get${methodReadyName}(): Promise<(${type}[] | Error)[]>`, (b) =>
-        b
-          .addLine('return this.vc.beltalowdas')
-          .addBlock(`.beltalowdaForModel(${type}, '${idReadyInverseName}', () =>`, (b) =>
-            b
-              .addLine('return new Beltalowda(')
-              .addLine('this.vc,')
-              .addLine(`() => new ${type}Query(this.vc),`)
-              .addLine(`'${idReadyInverseName}',`)
-              .addLine(`(model) => model.${inverseName}.id,`)
-              .addLine(');'),
-          )
-          .addLine(')')
-          .addLine('.loadManyWithManyEntitiesEach(this.ids);'),
+      .addBlock(
+        `async get${methodReadyName}(): Promise<(${type}[] | Error)[]>`,
+        (b) =>
+          b
+            .addLine("return this.vc.beltalowdas")
+            .addBlock(
+              `.beltalowdaForModel(${type}, '${idReadyInverseName}', () =>`,
+              (b) =>
+                b
+                  .addLine("return new Beltalowda(")
+                  .addLine("this.vc,")
+                  .addLine(`() => new ${type}Query(this.vc),`)
+                  .addLine(`'${idReadyInverseName}',`)
+                  .addLine(`(model) => model.${inverseName}.id,`)
+                  .addLine(");")
+            )
+            .addLine(")")
+            .addLine(".loadManyWithManyEntitiesEach(this.ids);")
       );
   }
 
@@ -115,12 +125,18 @@ export class QueryOneToManyRelationGenerator extends OneToManyRelationBasedGener
     const methodReadyName = _.upperFirst(name);
     const methodReadyInverseName = _.upperFirst(inverseName);
 
-    return codeBuilder.addBlock(`query${methodReadyName}(): ${type}Query`, (b) =>
-      b
-        .addBlock(`return new ${type}Query(this.vc, async (childQuery) =>`, (b) =>
-          b.addLine(`childQuery.where${methodReadyInverseName}IdsIn(await this.getIds());`),
-        )
-        .addLine(');'),
+    return codeBuilder.addBlock(
+      `query${methodReadyName}(): ${type}Query`,
+      (b) =>
+        b
+          .addBlock(
+            `return new ${type}Query(this.vc, async (childQuery) =>`,
+            (b) =>
+              b.addLine(
+                `childQuery.where${methodReadyInverseName}IdsIn(await this.getIds());`
+              )
+          )
+          .addLine(");")
     );
   }
 

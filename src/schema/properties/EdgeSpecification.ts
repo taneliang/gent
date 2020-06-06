@@ -1,4 +1,4 @@
-import { PropertySpecification } from './PropertySpecification';
+import { PropertySpecification } from "./PropertySpecification";
 
 export type ManyToOneSpecification = {
   fromMany: {
@@ -34,15 +34,19 @@ export type EdgeSpecification = ManyToOneSpecification | OneToManySpecification;
 // | ManyToManySpecification;
 
 export function isManyToOneSpecification(
-  edgeSpec: EdgeSpecification,
+  edgeSpec: EdgeSpecification
 ): edgeSpec is ManyToOneSpecification {
-  return edgeSpec.hasOwnProperty('fromMany') && edgeSpec.hasOwnProperty('toOne');
+  return (
+    edgeSpec.hasOwnProperty("fromMany") && edgeSpec.hasOwnProperty("toOne")
+  );
 }
 
 export function isOneToManySpecification(
-  edgeSpec: EdgeSpecification,
+  edgeSpec: EdgeSpecification
 ): edgeSpec is OneToManySpecification {
-  return edgeSpec.hasOwnProperty('fromOne') && edgeSpec.hasOwnProperty('toMany');
+  return (
+    edgeSpec.hasOwnProperty("fromOne") && edgeSpec.hasOwnProperty("toMany")
+  );
 }
 
 // export function isOneToOneSpecification(edgeSpec: EdgeSpecification): edgeSpec is OneToOneSpecification {

@@ -1,9 +1,12 @@
-import { CodeBuilder } from '@elg/tscodegen';
-import { LoaderOneToManyRelationGenerator } from '../properties/OneToManyRelationBasedGenerator';
-import { LoaderManyToOneRelationGenerator } from '../properties/ManyToOneRelationBasedGenerator';
-import { FileGenerator } from './FileGenerator';
-import { buildImportLines } from '../ImportMap';
-import { isOneToManySpecification, isManyToOneSpecification } from '../../schema';
+import { CodeBuilder } from "@elg/tscodegen";
+import { LoaderOneToManyRelationGenerator } from "../properties/OneToManyRelationBasedGenerator";
+import { LoaderManyToOneRelationGenerator } from "../properties/ManyToOneRelationBasedGenerator";
+import { FileGenerator } from "./FileGenerator";
+import { buildImportLines } from "../ImportMap";
+import {
+  isOneToManySpecification,
+  isManyToOneSpecification,
+} from "../../schema";
 
 /**
  * Generator of *Loader classes.
@@ -17,24 +20,31 @@ export class LoaderFileGenerator extends FileGenerator {
       } else if (isManyToOneSpecification(spec)) {
         return new LoaderManyToOneRelationGenerator(schema.entityName, spec);
       }
-      throw new Error(`Unsupported edge specification "${JSON.stringify(spec)}".`);
+      throw new Error(
+        `Unsupported edge specification "${JSON.stringify(spec)}".`
+      );
     });
   })();
 
   generatedFileNameSuffix(): string {
-    return 'Loader';
+    return "Loader";
   }
 
   buildImportLines(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
-      '../../gent': ['Beltalowda', 'GentLoader', 'GentLoaderGraphViewRestricter', 'ViewerContext'],
+      "../../gent": [
+        "Beltalowda",
+        "GentLoader",
+        "GentLoaderGraphViewRestricter",
+        "ViewerContext",
+      ],
       [`./${entityName}`]: [entityName],
       [`./${entityName}Query`]: [`${entityName}Query`],
     };
     const generatorImports = [...this.relationGenerators].map((generator) =>
-      generator.importsRequired(),
+      generator.importsRequired()
     );
     return buildImportLines([ourImports, ...generatorImports], builder);
   }
@@ -45,7 +55,7 @@ export class LoaderFileGenerator extends FileGenerator {
 
     return builder.addBlock(
       `constructor(vc: ViewerContext, graphViewRestrictor: GentLoaderGraphViewRestricter<${entityName}Loader> | undefined = undefined)`,
-      (b) => b.addLine('super(vc, graphViewRestrictor);'),
+      (b) => b.addLine("super(vc, graphViewRestrictor);")
     );
   }
 
@@ -53,19 +63,21 @@ export class LoaderFileGenerator extends FileGenerator {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
 
-    return builder.addBlock('protected createIdBeltalowda()', (b) =>
+    return builder.addBlock("protected createIdBeltalowda()", (b) =>
       b
-        .addLine('return new Beltalowda(')
-        .addLine('this.vc,')
+        .addLine("return new Beltalowda(")
+        .addLine("this.vc,")
         .addLine(`() => new ${entityName}Query(this.vc),`)
         .addLine("'id',")
-        .addLine('(model) => model.id,')
-        .addLine(');'),
+        .addLine("(model) => model.id,")
+        .addLine(");")
     );
   }
 
   buildRelationLines(builder: CodeBuilder): CodeBuilder {
-    this.relationGenerators.forEach((generator) => generator.generateLines(builder).addLine());
+    this.relationGenerators.forEach((generator) =>
+      generator.generateLines(builder).addLine()
+    );
     return builder;
   }
 
@@ -77,14 +89,17 @@ export class LoaderFileGenerator extends FileGenerator {
       .build((b) =>
         this.buildImportLines(b)
           .addLine()
-          .addBlock(`export class ${entityName}Loader extends GentLoader<${entityName}>`, (b) => {
-            b.addLine(`protected entityClass = ${entityName};`).addLine();
-            this.buildConstructor(b).addLine();
-            this.buildCreateIdBeltalowda(b).addLine();
-            this.buildRelationLines(b);
-            return b;
-          })
-          .format(),
+          .addBlock(
+            `export class ${entityName}Loader extends GentLoader<${entityName}>`,
+            (b) => {
+              b.addLine(`protected entityClass = ${entityName};`).addLine();
+              this.buildConstructor(b).addLine();
+              this.buildCreateIdBeltalowda(b).addLine();
+              this.buildRelationLines(b);
+              return b;
+            }
+          )
+          .format()
       )
       .saveToFile();
   }

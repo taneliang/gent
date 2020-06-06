@@ -1,13 +1,15 @@
-import _ from 'lodash';
-import { PropertyOptions } from 'mikro-orm';
-import { PropertyBasedGenerator } from './PropertyBasedGenerator';
-import { CodeBuilder } from '@elg/tscodegen';
-import { FieldSpecification } from '../..';
+import _ from "lodash";
+import { PropertyOptions } from "mikro-orm";
+import { PropertyBasedGenerator } from "./PropertyBasedGenerator";
+import { CodeBuilder } from "@elg/tscodegen";
+import { FieldSpecification } from "../..";
 
 /**
  * A base generator class for a particular entity field.
  */
-export abstract class FieldBasedGenerator extends PropertyBasedGenerator<FieldSpecification> {}
+export abstract class FieldBasedGenerator extends PropertyBasedGenerator<
+  FieldSpecification
+> {}
 
 /**
  * Generates code for a field property in a database entity class.
@@ -15,17 +17,22 @@ export abstract class FieldBasedGenerator extends PropertyBasedGenerator<FieldSp
 export class ModelFieldGenerator extends FieldBasedGenerator {
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
     const { name, type } = this.specification;
-    const propertyOptions: PropertyOptions = _.pick(this.specification, ['nullable', 'unique']);
+    const propertyOptions: PropertyOptions = _.pick(this.specification, [
+      "nullable",
+      "unique",
+    ]);
 
-    const optionsString = _.isEmpty(propertyOptions) ? '' : JSON.stringify(propertyOptions);
-    const nullUnwrapIndicator = propertyOptions.nullable ? '?' : '!';
+    const optionsString = _.isEmpty(propertyOptions)
+      ? ""
+      : JSON.stringify(propertyOptions);
+    const nullUnwrapIndicator = propertyOptions.nullable ? "?" : "!";
     return codeBuilder
       .addLine(`@Property(${optionsString})`)
       .addLine(`${name}${nullUnwrapIndicator}: ${type};`);
   }
 
   importsRequired() {
-    return { 'mikro-orm': ['Property'] };
+    return { "mikro-orm": ["Property"] };
   }
 }
 
@@ -46,10 +53,14 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     // where*DoesNotHavePrefix
     // where*DoesNotHaveSuffix
 
-    return codeBuilder.addBlock(`where${methodReadyName}Like(pattern: string): this`, (b) =>
-      b
-        .addLine(`this.queryBuilder.where('${idReadyName}', 'LIKE', pattern);`)
-        .addLine('return this;'),
+    return codeBuilder.addBlock(
+      `where${methodReadyName}Like(pattern: string): this`,
+      (b) =>
+        b
+          .addLine(
+            `this.queryBuilder.where('${idReadyName}', 'LIKE', pattern);`
+          )
+          .addLine("return this;")
     );
   }
 
@@ -69,8 +80,12 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     // where*IsLessThan
     // where*IsLessThanOrEqual
 
-    return codeBuilder.addBlock(`where${methodReadyName}Eq(value: ${type}): this`, (b) =>
-      b.addLine(`this.queryBuilder.where('${idReadyName}', value);`).addLine('return this;'),
+    return codeBuilder.addBlock(
+      `where${methodReadyName}Eq(value: ${type}): this`,
+      (b) =>
+        b
+          .addLine(`this.queryBuilder.where('${idReadyName}', value);`)
+          .addLine("return this;")
     );
   }
 
@@ -78,7 +93,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     const { type } = this.specification;
 
     switch (type) {
-      case 'string':
+      case "string":
         return this.buildStringFieldLines(codeBuilder);
       default:
         return this.buildGenericFieldLines(codeBuilder);

@@ -1,3 +1,3 @@
-import { PropertySpecification } from './PropertySpecification';
+import { PropertySpecification } from "./PropertySpecification";
 
-export interface FieldSpecification extends PropertySpecification {}
+export type FieldSpecification = PropertySpecification;

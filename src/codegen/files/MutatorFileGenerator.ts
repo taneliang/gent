@@ -1,30 +1,30 @@
-import { CodeBuilder } from '@elg/tscodegen';
-import { FileGenerator } from './FileGenerator';
-import { buildImportLines } from '../ImportMap';
+import { CodeBuilder } from "@elg/tscodegen";
+import { FileGenerator } from "./FileGenerator";
+import { buildImportLines } from "../ImportMap";
 
 /**
  * Generator of *Mutator classes.
  */
 export class MutatorFileGenerator extends FileGenerator {
   generatedFileNameSuffix(): string {
-    return 'Mutator';
+    return "Mutator";
   }
 
   buildImportLines(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
-      knex: ['QueryBuilder'],
-      '../../gent': [
-        'GentMutator',
-        'GentMutatorGraphViewRestricter',
-        'MutationAction',
-        'Police',
-        'ViewerContext',
+      knex: ["QueryBuilder"],
+      "../../gent": [
+        "GentMutator",
+        "GentMutatorGraphViewRestricter",
+        "MutationAction",
+        "Police",
+        "ViewerContext",
       ],
       [`./${entityName}`]: [entityName],
       [`./${entityName}Query`]: [`${entityName}Query`],
-      [`./${entityName}Schema`]: ['default'],
+      [`./${entityName}Schema`]: ["default"],
     };
     return buildImportLines([ourImports], builder);
   }
@@ -35,7 +35,7 @@ export class MutatorFileGenerator extends FileGenerator {
 
     return builder.addBlock(
       `constructor(vc: ViewerContext, graphViewRestrictor: GentMutatorGraphViewRestricter<${entityName}Mutator> | undefined = undefined)`,
-      (b) => b.addLine(`super(vc, ${entityName}, graphViewRestrictor);`),
+      (b) => b.addLine(`super(vc, ${entityName}, graphViewRestrictor);`)
     );
   }
 
@@ -51,14 +51,16 @@ export class MutatorFileGenerator extends FileGenerator {
         // the db. Yes, awaiting a query builder sends a query to the db. I'm
         // sure it's a feature... right?
         b
-          .addBlock('return new this(vc, (_childMutator, knexQueryBuilder) =>', (b) =>
-            b
-              .addLine('knexQueryBuilder.whereIn(')
-              .addLine("'id',")
-              .addLine('entities.map((entity) => entity.id),')
-              .addLine(');'),
+          .addBlock(
+            "return new this(vc, (_childMutator, knexQueryBuilder) =>",
+            (b) =>
+              b
+                .addLine("knexQueryBuilder.whereIn(")
+                .addLine("'id',")
+                .addLine("entities.map((entity) => entity.id),")
+                .addLine(");")
           )
-          .addLine(');'),
+          .addLine(");")
     );
   }
 
@@ -67,32 +69,38 @@ export class MutatorFileGenerator extends FileGenerator {
     const entityName = schema.entityName;
 
     return builder.addBlock(
-      'protected applyAccessControlRules(action: MutationAction, knexQueryBuilder: QueryBuilder)',
+      "protected applyAccessControlRules(action: MutationAction, knexQueryBuilder: QueryBuilder)",
       (b) =>
         b
           .addLine(
-            `const authorizedSubviewQuery = new ${entityName}Query(this.vc, undefined, false);`,
+            `const authorizedSubviewQuery = new ${entityName}Query(this.vc, undefined, false);`
           )
-          .addLine(`const police = new Police<${entityName}Query, ${entityName}>(`)
-          .addLine('this.vc,')
-          .addLine('action,')
-          .addLine('authorizedSubviewQuery,')
-          .addLine(').allowIfOmnipotent();')
+          .addLine(
+            `const police = new Police<${entityName}Query, ${entityName}>(`
+          )
+          .addLine("this.vc,")
+          .addLine("action,")
+          .addLine("authorizedSubviewQuery,")
+          .addLine(").allowIfOmnipotent();")
           .addLine(`${entityName}Schema.accessControlRules(police);`)
-          .addLine('police.throwIfNoDecision();')
+          .addLine("police.throwIfNoDecision();")
           .addLine()
           .addBlock("if (police.decision?.type === 'deny')", (b) =>
             b.addLine(
-              `throw new Error(\`Not allowed to query ${entityName}. Reason: "\${police.decision.reason}"\`);`,
-            ),
+              `throw new Error(\`Not allowed to query ${entityName}. Reason: "\${police.decision.reason}"\`);`
+            )
           )
-          .addBlock("else if (police.decision?.type === 'allow-restricted')", (b) =>
-            b
-              .addLine('knexQueryBuilder.whereIn(')
-              .addLine("'id',")
-              .addLine("police.decision.restrictedQuery.queryBuilder.clearSelect().select('id'),")
-              .addLine(');'),
-          ),
+          .addBlock(
+            "else if (police.decision?.type === 'allow-restricted')",
+            (b) =>
+              b
+                .addLine("knexQueryBuilder.whereIn(")
+                .addLine("'id',")
+                .addLine(
+                  "police.decision.restrictedQuery.queryBuilder.clearSelect().select('id'),"
+                )
+                .addLine(");")
+          )
     );
   }
 
@@ -104,14 +112,17 @@ export class MutatorFileGenerator extends FileGenerator {
       .build((b) =>
         this.buildImportLines(b)
           .addLine()
-          .addBlock(`export class ${entityName}Mutator extends GentMutator<${entityName}>`, (b) => {
-            b.addLine(`protected entityClass = ${entityName};`).addLine();
-            this.buildConstructor(b).addLine();
-            this.buildFromEntities(b).addLine();
-            this.buildApplyAccessControlRules(b);
-            return b;
-          })
-          .format(),
+          .addBlock(
+            `export class ${entityName}Mutator extends GentMutator<${entityName}>`,
+            (b) => {
+              b.addLine(`protected entityClass = ${entityName};`).addLine();
+              this.buildConstructor(b).addLine();
+              this.buildFromEntities(b).addLine();
+              this.buildApplyAccessControlRules(b);
+              return b;
+            }
+          )
+          .format()
       )
       .saveToFile();
   }

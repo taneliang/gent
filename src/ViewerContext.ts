@@ -1,6 +1,6 @@
-import { EntityManager } from 'mikro-orm';
-import { createContextualizedEntityManager } from './orm';
-import { BeltalowdaCenter } from './BeltalowdaCenter';
+import { EntityManager } from "mikro-orm";
+import { createContextualizedEntityManager } from "./orm";
+import { BeltalowdaCenter } from "./BeltalowdaCenter";
 
 /**
  * Encapulates all information for a viewer in one request. Commonly

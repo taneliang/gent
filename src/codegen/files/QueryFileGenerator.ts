@@ -1,11 +1,14 @@
-import _ from 'lodash';
-import { CodeBuilder } from '@elg/tscodegen';
-import { FileGenerator } from './FileGenerator';
-import { QueryFieldGenerator } from '../properties/FieldBasedGenerator';
-import { QueryOneToManyRelationGenerator } from '../properties/OneToManyRelationBasedGenerator';
-import { QueryManyToOneRelationGenerator } from '../properties/ManyToOneRelationBasedGenerator';
-import { buildImportLines } from '../ImportMap';
-import { isOneToManySpecification, isManyToOneSpecification } from '../../schema';
+import _ from "lodash";
+import { CodeBuilder } from "@elg/tscodegen";
+import { FileGenerator } from "./FileGenerator";
+import { QueryFieldGenerator } from "../properties/FieldBasedGenerator";
+import { QueryOneToManyRelationGenerator } from "../properties/OneToManyRelationBasedGenerator";
+import { QueryManyToOneRelationGenerator } from "../properties/ManyToOneRelationBasedGenerator";
+import { buildImportLines } from "../ImportMap";
+import {
+  isOneToManySpecification,
+  isManyToOneSpecification,
+} from "../../schema";
 
 /**
  * Generator of *Query classes.
@@ -13,7 +16,8 @@ import { isOneToManySpecification, isManyToOneSpecification } from '../../schema
 export class QueryFileGenerator extends FileGenerator {
   private readonly fieldGenerators = (() =>
     this.codegenInfo.schema.fields.map(
-      (spec) => new QueryFieldGenerator(this.codegenInfo.schema.entityName, spec),
+      (spec) =>
+        new QueryFieldGenerator(this.codegenInfo.schema.entityName, spec)
     ))();
 
   private readonly relationGenerators = (() => {
@@ -24,22 +28,29 @@ export class QueryFileGenerator extends FileGenerator {
       } else if (isManyToOneSpecification(spec)) {
         return new QueryManyToOneRelationGenerator(schema.entityName, spec);
       }
-      throw new Error(`Unsupported edge specification "${JSON.stringify(spec)}".`);
+      throw new Error(
+        `Unsupported edge specification "${JSON.stringify(spec)}".`
+      );
     });
   })();
 
   generatedFileNameSuffix(): string {
-    return 'Query';
+    return "Query";
   }
 
   buildImportLines(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
-      '../../gent': ['GentQuery', 'GentQueryGraphViewRestricter', 'Police', 'ViewerContext'],
+      "../../gent": [
+        "GentQuery",
+        "GentQueryGraphViewRestricter",
+        "Police",
+        "ViewerContext",
+      ],
       [`./${entityName}`]: [entityName],
       [`./${entityName}Mutator`]: [`${entityName}Mutator`],
-      [`./${entityName}Schema`]: ['default'],
+      [`./${entityName}Schema`]: ["default"],
     };
     const generatorImports = [
       ...this.fieldGenerators,
@@ -59,7 +70,9 @@ export class QueryFileGenerator extends FileGenerator {
       shouldApplyAccessControlRules = true,
       )`,
       (b) =>
-        b.addLine(`super(vc, ${entityName}, graphViewRestrictor, shouldApplyAccessControlRules);`),
+        b.addLine(
+          `super(vc, ${entityName}, graphViewRestrictor, shouldApplyAccessControlRules);`
+        )
     );
   }
 
@@ -69,33 +82,35 @@ export class QueryFileGenerator extends FileGenerator {
     // TODO: Consider using MikroORM's naming strategy instead
     const tableReadyEntityName = _.snakeCase(entityName);
 
-    return builder.addBlock('protected applyAccessControlRules()', (b) =>
+    return builder.addBlock("protected applyAccessControlRules()", (b) =>
       b
         .addLine(
-          `const authorizedSubviewQuery = new ${entityName}Query(this.vc, undefined, false);`,
+          `const authorizedSubviewQuery = new ${entityName}Query(this.vc, undefined, false);`
         )
         .addLine(
-          `const police = new Police<${entityName}Query, ${entityName}>(this.vc, 'read', authorizedSubviewQuery)`,
+          `const police = new Police<${entityName}Query, ${entityName}>(this.vc, 'read', authorizedSubviewQuery)`
         )
-        .addLine('.allowIfOmnipotent();')
+        .addLine(".allowIfOmnipotent();")
         .addLine(`${entityName}Schema.accessControlRules(police);`)
-        .addLine('police.throwIfNoDecision();')
+        .addLine("police.throwIfNoDecision();")
         .addLine()
         .addBlock("if (police.decision?.type === 'deny')", (b) =>
           b.addLine(
             // TODO: Use a custom Error subclass
-            `throw new Error(\`Not allowed to query ${entityName}. Reason: "\${police.decision.reason}"\`);`,
-          ),
+            `throw new Error(\`Not allowed to query ${entityName}. Reason: "\${police.decision.reason}"\`);`
+          )
         )
-        .addBlock("else if (police.decision?.type === 'allow-restricted')", (b) =>
-          b
-            .addLine('this.queryBuilder.with(')
-            .addLine(`'${tableReadyEntityName}',`)
-            .addLine(
-              'this.queryBuilder.client.raw(police.decision.restrictedQuery.queryBuilder.toQuery()),',
-            )
-            .addLine(');'),
-        ),
+        .addBlock(
+          "else if (police.decision?.type === 'allow-restricted')",
+          (b) =>
+            b
+              .addLine("this.queryBuilder.with(")
+              .addLine(`'${tableReadyEntityName}',`)
+              .addLine(
+                "this.queryBuilder.client.raw(police.decision.restrictedQuery.queryBuilder.toQuery()),"
+              )
+              .addLine(");")
+        )
     );
   }
 
@@ -107,19 +122,24 @@ export class QueryFileGenerator extends FileGenerator {
       b
         .addBlock(
           `return new ${entityName}Mutator(this.vc, async (_childMutator, knexQueryBuilder) =>`,
-          (b) => b.addLine("knexQueryBuilder.whereIn('id', await this.getIds());"),
+          (b) =>
+            b.addLine("knexQueryBuilder.whereIn('id', await this.getIds());")
         )
-        .addLine(');'),
+        .addLine(");")
     );
   }
 
   buildFieldLines(builder: CodeBuilder): CodeBuilder {
-    this.fieldGenerators.forEach((generator) => generator.generateLines(builder).addLine());
+    this.fieldGenerators.forEach((generator) =>
+      generator.generateLines(builder).addLine()
+    );
     return builder;
   }
 
   buildRelationLines(builder: CodeBuilder): CodeBuilder {
-    this.relationGenerators.forEach((generator) => generator.generateLines(builder).addLine());
+    this.relationGenerators.forEach((generator) =>
+      generator.generateLines(builder).addLine()
+    );
     return builder;
   }
 
@@ -131,16 +151,19 @@ export class QueryFileGenerator extends FileGenerator {
       .build((b) =>
         this.buildImportLines(b)
           .addLine()
-          .addBlock(`export class ${entityName}Query extends GentQuery<${entityName}>`, (b) => {
-            b.addLine(`protected entityClass = ${entityName};`).addLine();
-            this.buildConstructor(b).addLine();
-            this.buildApplyAccessControlRules(b).addLine();
-            this.buildMutate(b).addLine();
-            this.buildFieldLines(b);
-            this.buildRelationLines(b);
-            return b;
-          })
-          .format(),
+          .addBlock(
+            `export class ${entityName}Query extends GentQuery<${entityName}>`,
+            (b) => {
+              b.addLine(`protected entityClass = ${entityName};`).addLine();
+              this.buildConstructor(b).addLine();
+              this.buildApplyAccessControlRules(b).addLine();
+              this.buildMutate(b).addLine();
+              this.buildFieldLines(b);
+              this.buildRelationLines(b);
+              return b;
+            }
+          )
+          .format()
       )
       .saveToFile();
   }

@@ -1,1 +1,1 @@
-export * from './BaseGent';
+export * from "./BaseGent";

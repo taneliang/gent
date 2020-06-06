@@ -1,8 +1,8 @@
-import { getAllSchemaCodegenInfo } from './getAllSchemaCodegenInfo';
-import { ModelFileGenerator } from '../codegen/files/ModelFileGenerator';
-import { LoaderFileGenerator } from '../codegen/files/LoaderFileGenerator';
-import { QueryFileGenerator } from '../codegen/files/QueryFileGenerator';
-import { MutatorFileGenerator } from '../codegen/files/MutatorFileGenerator';
+import { getAllSchemaCodegenInfo } from "./getAllSchemaCodegenInfo";
+import { ModelFileGenerator } from "../codegen/files/ModelFileGenerator";
+import { LoaderFileGenerator } from "../codegen/files/LoaderFileGenerator";
+import { QueryFileGenerator } from "../codegen/files/QueryFileGenerator";
+import { MutatorFileGenerator } from "../codegen/files/MutatorFileGenerator";
 
 function main() {
   const allCodegenInfo = getAllSchemaCodegenInfo();

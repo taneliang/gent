@@ -1,9 +1,9 @@
-import { QueryBuilder } from 'mikro-orm';
-import { QueryBuilder as KnexQueryBuilder } from 'knex';
-import { EntityClass, EntityData } from 'mikro-orm/dist/typings';
-import { BaseGent, ViewerContext } from '.';
+import { QueryBuilder } from "mikro-orm";
+import { QueryBuilder as KnexQueryBuilder } from "knex";
+import { EntityClass, EntityData } from "mikro-orm/dist/typings";
+import { BaseGent, ViewerContext } from ".";
 
-export const mutationActions = ['create', 'update', 'delete'] as const;
+export const mutationActions = ["create", "update", "delete"] as const;
 export type MutationAction = typeof mutationActions[number];
 
 /**
@@ -11,7 +11,7 @@ export type MutationAction = typeof mutationActions[number];
  */
 export type GentMutatorGraphViewRestricter<GentMutatorSubclass> = (
   childMutator: GentMutatorSubclass,
-  knexQueryBuilder: KnexQueryBuilder,
+  knexQueryBuilder: KnexQueryBuilder
 ) => void | Promise<void>;
 
 /**
@@ -46,12 +46,16 @@ export abstract class GentMutator<Model extends BaseGent> {
   constructor(
     vc: ViewerContext,
     entityClass: EntityClass<Model>,
-    graphViewRestrictor: GentMutatorGraphViewRestricter<any> | undefined = undefined,
+    graphViewRestrictor:
+      | GentMutatorGraphViewRestricter<any>
+      | undefined = undefined
   ) {
     this.vc = vc;
     this.entityClass = entityClass;
     this.graphViewRestrictor = graphViewRestrictor;
-    this.queryBuilder = this.vc.entityManager.createQueryBuilder(entityClass).select('*');
+    this.queryBuilder = this.vc.entityManager
+      .createQueryBuilder(entityClass)
+      .select("*");
   }
 
   /**
@@ -60,7 +64,7 @@ export abstract class GentMutator<Model extends BaseGent> {
    */
   protected abstract applyAccessControlRules(
     action: MutationAction,
-    knexQueryBuilder: KnexQueryBuilder,
+    knexQueryBuilder: KnexQueryBuilder
   ): void;
 
   /**
@@ -72,17 +76,23 @@ export abstract class GentMutator<Model extends BaseGent> {
    * @returns A promise that resolves to the created entity object.
    */
   async create(data: any): Promise<Model> {
-    const finalKnexQb = this.queryBuilder.clone().insert(data).getKnexQuery().returning('*');
+    const finalKnexQb = this.queryBuilder
+      .clone()
+      .insert(data)
+      .getKnexQuery()
+      .returning("*");
     if (this.graphViewRestrictor) {
       await this.graphViewRestrictor(this, finalKnexQb);
     }
-    this.applyAccessControlRules('create', finalKnexQb);
+    this.applyAccessControlRules("create", finalKnexQb);
 
-    const results: EntityData<Model>[] = await this.vc.entityManager
-      .getConnection('write')
+    const results: EntityData<
+      Model
+    >[] = await this.vc.entityManager
+      .getConnection("write")
       .execute(finalKnexQb as any);
     const resultEntities = results.map((result) =>
-      this.vc.entityManager.map(this.entityClass, result),
+      this.vc.entityManager.map(this.entityClass, result)
     );
     return resultEntities[0];
   }
@@ -100,17 +110,23 @@ export abstract class GentMutator<Model extends BaseGent> {
    * @returns A promise that resolves to all the updated entity objects.
    */
   async update(data: any): Promise<Model[]> {
-    const finalKnexQb = this.queryBuilder.clone().update(data).getKnexQuery().returning('*');
+    const finalKnexQb = this.queryBuilder
+      .clone()
+      .update(data)
+      .getKnexQuery()
+      .returning("*");
     if (this.graphViewRestrictor) {
       await this.graphViewRestrictor(this, finalKnexQb);
     }
-    this.applyAccessControlRules('update', finalKnexQb);
+    this.applyAccessControlRules("update", finalKnexQb);
 
-    const results: EntityData<Model>[] = await this.vc.entityManager
+    const results: EntityData<
+      Model
+    >[] = await this.vc.entityManager
       .getConnection()
       .execute(finalKnexQb as any);
     const resultEntities = results.map((result) =>
-      this.vc.entityManager.map(this.entityClass, result),
+      this.vc.entityManager.map(this.entityClass, result)
     );
     return resultEntities;
   }
@@ -128,9 +144,11 @@ export abstract class GentMutator<Model extends BaseGent> {
     if (this.graphViewRestrictor) {
       await this.graphViewRestrictor(this, finalKnexQb);
     }
-    this.applyAccessControlRules('delete', finalKnexQb);
+    this.applyAccessControlRules("delete", finalKnexQb);
 
-    await this.vc.entityManager.getConnection('write').execute(finalKnexQb as any);
+    await this.vc.entityManager
+      .getConnection("write")
+      .execute(finalKnexQb as any);
     // TODO: Figure out how to avoid nuking the identity map
     this.vc.entityManager.clear();
   }

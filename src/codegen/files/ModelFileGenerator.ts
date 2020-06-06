@@ -1,10 +1,13 @@
-import { CodeBuilder } from '@elg/tscodegen';
-import { ModelFieldGenerator } from '../properties/FieldBasedGenerator';
-import { ModelOneToManyRelationGenerator } from '../properties/OneToManyRelationBasedGenerator';
-import { ModelManyToOneRelationGenerator } from '../properties/ManyToOneRelationBasedGenerator';
-import { FileGenerator } from './FileGenerator';
-import { buildImportLines } from '../ImportMap';
-import { isOneToManySpecification, isManyToOneSpecification } from '../../schema';
+import { CodeBuilder } from "@elg/tscodegen";
+import { ModelFieldGenerator } from "../properties/FieldBasedGenerator";
+import { ModelOneToManyRelationGenerator } from "../properties/OneToManyRelationBasedGenerator";
+import { ModelManyToOneRelationGenerator } from "../properties/ManyToOneRelationBasedGenerator";
+import { FileGenerator } from "./FileGenerator";
+import { buildImportLines } from "../ImportMap";
+import {
+  isOneToManySpecification,
+  isManyToOneSpecification,
+} from "../../schema";
 
 /**
  * Generator of the file containing the database entity class, e.g. `User.ts`.
@@ -12,7 +15,8 @@ import { isOneToManySpecification, isManyToOneSpecification } from '../../schema
 export class ModelFileGenerator extends FileGenerator {
   private readonly fieldGenerators = (() =>
     this.codegenInfo.schema.fields.map(
-      (spec) => new ModelFieldGenerator(this.codegenInfo.schema.entityName, spec),
+      (spec) =>
+        new ModelFieldGenerator(this.codegenInfo.schema.entityName, spec)
     ))();
 
   private readonly relationGenerators = (() => {
@@ -23,18 +27,20 @@ export class ModelFileGenerator extends FileGenerator {
       } else if (isManyToOneSpecification(spec)) {
         return new ModelManyToOneRelationGenerator(schema.entityName, spec);
       }
-      throw new Error(`Unsupported edge specification "${JSON.stringify(spec)}".`);
+      throw new Error(
+        `Unsupported edge specification "${JSON.stringify(spec)}".`
+      );
     });
   })();
 
   generatedFileNameSuffix(): string {
-    return '';
+    return "";
   }
 
   buildImportLines(builder: CodeBuilder): CodeBuilder {
     const ourImports = {
-      'mikro-orm': ['Entity'],
-      '../../gent': ['BaseGent'],
+      "mikro-orm": ["Entity"],
+      "../../gent": ["BaseGent"],
     };
     const generatorImports = [
       ...this.fieldGenerators,
@@ -44,12 +50,16 @@ export class ModelFileGenerator extends FileGenerator {
   }
 
   buildFieldLines(builder: CodeBuilder): CodeBuilder {
-    this.fieldGenerators.forEach((generator) => generator.generateLines(builder).addLine());
+    this.fieldGenerators.forEach((generator) =>
+      generator.generateLines(builder).addLine()
+    );
     return builder;
   }
 
   buildRelationLines(builder: CodeBuilder): CodeBuilder {
-    this.relationGenerators.forEach((generator) => generator.generateLines(builder).addLine());
+    this.relationGenerators.forEach((generator) =>
+      generator.generateLines(builder).addLine()
+    );
     return builder;
   }
 
@@ -61,13 +71,13 @@ export class ModelFileGenerator extends FileGenerator {
       .build((b) =>
         this.buildImportLines(b)
           .addLine()
-          .addLine('@Entity()')
+          .addLine("@Entity()")
           .addBlock(`export class ${entityName} extends BaseGent`, (b) => {
             this.buildFieldLines(b);
             this.buildRelationLines(b);
             return b;
           })
-          .format(),
+          .format()
       )
       .saveToFile();
   }

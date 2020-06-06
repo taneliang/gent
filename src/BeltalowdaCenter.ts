@@ -1,6 +1,6 @@
-import { EntityName } from 'mikro-orm';
-import { BaseGent } from './entities/BaseGent';
-import { Beltalowda } from './Beltalowda';
+import { EntityName } from "mikro-orm";
+import { BaseGent } from "./entities/BaseGent";
+import { Beltalowda } from "./Beltalowda";
 
 /**
  * Maintains a map of models and fields to Beltalowda instances. Allows
@@ -21,10 +21,12 @@ export class BeltalowdaCenter {
   beltalowdaForModel<M extends BaseGent, FT extends string | number>(
     entityClass: EntityName<M>,
     fieldNameToFilter: string,
-    loaderProvider: () => Beltalowda<M, FT>,
+    loaderProvider: () => Beltalowda<M, FT>
   ): Beltalowda<M, FT> {
     const modelName =
-      typeof entityClass === 'string' ? entityClass : entityClass.prototype.constructor.name;
+      typeof entityClass === "string"
+        ? entityClass
+        : entityClass.prototype.constructor.name;
     const existingLoadersForModel = this.#loaders.get(modelName);
     if (!existingLoadersForModel) {
       this.#loaders.set(modelName, new Map());

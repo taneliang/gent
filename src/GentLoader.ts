@@ -1,13 +1,13 @@
-import { ViewerContext } from '.';
-import { BaseGent } from './entities/BaseGent';
-import { EntityClass } from 'mikro-orm/dist/typings';
-import { Beltalowda } from './Beltalowda';
+import { ViewerContext } from ".";
+import { BaseGent } from "./entities/BaseGent";
+import { EntityClass } from "mikro-orm/dist/typings";
+import { Beltalowda } from "./Beltalowda";
 
 /**
  * A callback function that restricts the the query to a subset of the data.
  */
 export type GentLoaderGraphViewRestricter<GentLoaderSubclass> = (
-  childLoader: GentLoaderSubclass,
+  childLoader: GentLoaderSubclass
 ) => Promise<void>;
 
 /**
@@ -27,7 +27,9 @@ export abstract class GentLoader<Model extends BaseGent> {
   readonly vc: ViewerContext;
 
   protected ids: number[] = [];
-  private readonly graphViewRestrictor: GentLoaderGraphViewRestricter<this> | undefined;
+  private readonly graphViewRestrictor:
+    | GentLoaderGraphViewRestricter<this>
+    | undefined;
 
   /**
    * @param vc The viewer context performing the query.
@@ -37,7 +39,9 @@ export abstract class GentLoader<Model extends BaseGent> {
    */
   constructor(
     vc: ViewerContext,
-    graphViewRestrictor: GentLoaderGraphViewRestricter<any> | undefined = undefined,
+    graphViewRestrictor:
+      | GentLoaderGraphViewRestricter<any>
+      | undefined = undefined
   ) {
     this.vc = vc;
     this.graphViewRestrictor = graphViewRestrictor;
@@ -86,7 +90,11 @@ export abstract class GentLoader<Model extends BaseGent> {
     }
     await this.applyGraphViewRestrictions();
     return this.vc.beltalowdas
-      .beltalowdaForModel(this.entityClass, 'id', this.createIdBeltalowda.bind(this))
+      .beltalowdaForModel(
+        this.entityClass,
+        "id",
+        this.createIdBeltalowda.bind(this)
+      )
       .loadOneFromOneValue(this.ids[0]);
   }
 
@@ -99,7 +107,11 @@ export abstract class GentLoader<Model extends BaseGent> {
   async getAll(): Promise<(Model | Error | undefined)[]> {
     await this.applyGraphViewRestrictions();
     return this.vc.beltalowdas
-      .beltalowdaForModel(this.entityClass, 'id', this.createIdBeltalowda.bind(this))
+      .beltalowdaForModel(
+        this.entityClass,
+        "id",
+        this.createIdBeltalowda.bind(this)
+      )
       .loadManyWithOneEntityEach(this.ids);
   }
 }

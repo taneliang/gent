@@ -1,15 +1,15 @@
-import { ViewerContext } from './ViewerContext';
-import { QueryBuilder } from 'knex';
-import { EntityData } from 'mikro-orm';
-import { EntityClass } from 'mikro-orm/dist/typings';
-import { BaseGent } from './entities/BaseGent';
-import { GentMutator } from './GentMutator';
+import { ViewerContext } from "./ViewerContext";
+import { QueryBuilder } from "knex";
+import { EntityData } from "mikro-orm";
+import { EntityClass } from "mikro-orm/dist/typings";
+import { BaseGent } from "./entities/BaseGent";
+import { GentMutator } from "./GentMutator";
 
 /**
  * A callback function that restricts the the query to a subset of the data.
  */
 export type GentQueryGraphViewRestricter<GentQuerySubclass> = (
-  childQuery: GentQuerySubclass,
+  childQuery: GentQuerySubclass
 ) => Promise<void>;
 
 /**
@@ -34,7 +34,9 @@ export abstract class GentQuery<Model extends BaseGent> {
    */
   readonly queryBuilder: QueryBuilder<Model>;
 
-  private readonly graphViewRestrictor: GentQueryGraphViewRestricter<GentQuery<Model>> | undefined;
+  private readonly graphViewRestrictor:
+    | GentQueryGraphViewRestricter<GentQuery<Model>>
+    | undefined;
 
   /**
    * @param vc The viewer context performing the query.
@@ -49,15 +51,17 @@ export abstract class GentQuery<Model extends BaseGent> {
   constructor(
     vc: ViewerContext,
     entityClass: EntityClass<Model>,
-    graphViewRestrictor: GentQueryGraphViewRestricter<any> | undefined = undefined,
-    shouldApplyAccessControlRules = true,
+    graphViewRestrictor:
+      | GentQueryGraphViewRestricter<any>
+      | undefined = undefined,
+    shouldApplyAccessControlRules = true
   ) {
     this.vc = vc;
     this.entityClass = entityClass;
     this.graphViewRestrictor = graphViewRestrictor;
     this.queryBuilder = this.vc.entityManager
       .createQueryBuilder(entityClass)
-      .select('*')
+      .select("*")
       .getKnexQuery();
     if (shouldApplyAccessControlRules) {
       this.applyAccessControlRules();
@@ -93,12 +97,12 @@ export abstract class GentQuery<Model extends BaseGent> {
   }
 
   whereId(id: number): this {
-    this.queryBuilder.where('id', id);
+    this.queryBuilder.where("id", id);
     return this;
   }
 
   whereIdsIn(ids: number[]): this {
-    this.queryBuilder.whereIn('id', ids);
+    this.queryBuilder.whereIn("id", ids);
     return this;
   }
 
@@ -114,12 +118,14 @@ export abstract class GentQuery<Model extends BaseGent> {
    */
   async getIds(): Promise<number[]> {
     await this.applyGraphViewRestrictions();
-    const finalQb = this.queryBuilder.clone().clearSelect().select('id');
-    const results: EntityData<Model>[] = await this.vc.entityManager
-      .getConnection('read')
+    const finalQb = this.queryBuilder.clone().clearSelect().select("id");
+    const results: EntityData<
+      Model
+    >[] = await this.vc.entityManager
+      .getConnection("read")
       .execute(finalQb as any);
     const resultEntities = results.map((result) =>
-      this.vc.entityManager.map(this.entityClass, result),
+      this.vc.entityManager.map(this.entityClass, result)
     );
     return resultEntities.map((gent) => gent.id);
   }
@@ -131,10 +137,14 @@ export abstract class GentQuery<Model extends BaseGent> {
   async getOne(): Promise<Model | undefined> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder.clone().first();
-    const result: EntityData<Model> | undefined = await this.vc.entityManager
-      .getConnection('read')
+    const result:
+      | EntityData<Model>
+      | undefined = await this.vc.entityManager
+      .getConnection("read")
       .execute(finalQb as any);
-    return result ? this.vc.entityManager.map(this.entityClass, result) : undefined;
+    return result
+      ? this.vc.entityManager.map(this.entityClass, result)
+      : undefined;
   }
 
   /**
@@ -143,11 +153,13 @@ export abstract class GentQuery<Model extends BaseGent> {
   async getAll(): Promise<Model[]> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder;
-    const results: EntityData<Model>[] = await this.vc.entityManager
-      .getConnection('read')
+    const results: EntityData<
+      Model
+    >[] = await this.vc.entityManager
+      .getConnection("read")
       .execute(finalQb as any);
     const resultEntities = results.map((result) =>
-      this.vc.entityManager.map(this.entityClass, result),
+      this.vc.entityManager.map(this.entityClass, result)
     );
     return resultEntities;
   }

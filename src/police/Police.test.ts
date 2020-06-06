@@ -4,20 +4,19 @@ import {
   PoliceDecision,
   PoliceEnforceableAction,
   policeEnforceableActions,
-} from './Police';
+} from "./Police";
 import {
   DangerouslyOmnipotentViewerContext,
   ViewerContext,
   UnauthenticatedViewerContext,
-} from '..';
-import { closeGlobalOrmConnection } from '../orm';
+} from "..";
+import { closeGlobalOrmConnection } from "../orm";
 import {
   initTestOrm,
   TestEntityQuery,
   TestEntity,
   TestAuthenticatedViewerContext,
-} from '../test-util';
-import _ from 'lodash';
+} from "../test-util";
 
 describe(Police, () => {
   type TestPolice = Police<TestEntityQuery, TestEntity>;
@@ -32,7 +31,7 @@ describe(Police, () => {
    */
   function createPolice(
     vc: ViewerContext | undefined = undefined,
-    action: PoliceEnforceableAction = 'read',
+    action: PoliceEnforceableAction = "read"
   ): { vc: ViewerContext; query: TestEntityQuery; police: TestPolice } {
     vc = vc ?? new DangerouslyOmnipotentViewerContext();
     const query = new TestEntityQuery(vc, TestEntity);
@@ -53,16 +52,18 @@ describe(Police, () => {
    */
   function testShouldDoNothingIfAlreadyDecidedToDeny(
     policeRunner: (police: TestPolice) => TestPolice,
-    vcConstructor: (() => ViewerContext) | undefined = undefined,
+    vcConstructor: (() => ViewerContext) | undefined = undefined
   ) {
-    test('should do nothing if a decision has been made', () => {
+    test("should do nothing if a decision has been made", () => {
       expect(
         policeRunner(
-          createPolice(vcConstructor ? vcConstructor() : undefined).police.denyAll('reason'),
-        ).decision,
+          createPolice(
+            vcConstructor ? vcConstructor() : undefined
+          ).police.denyAll("reason")
+        ).decision
       ).toEqual<TestPoliceDecision>({
-        type: 'deny',
-        reason: 'reason',
+        type: "deny",
+        reason: "reason",
       });
     });
   }
@@ -81,14 +82,17 @@ describe(Police, () => {
    */
   function testShouldDoNothingIfAlreadyDecidedToAllow(
     policeRunner: (police: TestPolice) => TestPolice,
-    vcConstructor: (() => ViewerContext) | undefined = undefined,
+    vcConstructor: (() => ViewerContext) | undefined = undefined
   ) {
-    test('should do nothing if a decision has been made', () => {
+    test("should do nothing if a decision has been made", () => {
       expect(
-        policeRunner(createPolice(vcConstructor ? vcConstructor() : undefined).police.allowAll())
-          .decision,
+        policeRunner(
+          createPolice(
+            vcConstructor ? vcConstructor() : undefined
+          ).police.allowAll()
+        ).decision
       ).toEqual<TestPoliceDecision>({
-        type: 'allow-unrestricted',
+        type: "allow-unrestricted",
       });
     });
   }
@@ -99,24 +103,29 @@ describe(Police, () => {
    * @param policeRunner A callback function that should call the method being
    * tested.
    */
-  function testShouldReturnSelf(policeRunner: (police: TestPolice) => TestPolice) {
-    test('should return self', () => {
+  function testShouldReturnSelf(
+    policeRunner: (police: TestPolice) => TestPolice
+  ) {
+    test("should return self", () => {
       const police = createPolice().police;
       expect(policeRunner(police)).toBe(police);
     });
   }
 
   describe(Police.prototype.constructor, () => {
-    test('should construct police with no decision', () => {
+    test("should construct police with no decision", () => {
       const { police } = createPolice();
       expect(police.decision).toBeUndefined();
     });
   });
 
-  describe('action-specific rules', () => {
+  describe("action-specific rules", () => {
     function testShouldInvokeCallbackOnlyOnActions(
       actions: PoliceEnforceableAction[],
-      policeRunner: (police: TestPolice, mockActionSpecificRulesCallback: jest.Mock) => TestPolice,
+      policeRunner: (
+        police: TestPolice,
+        mockActionSpecificRulesCallback: jest.Mock
+      ) => TestPolice
     ) {
       policeEnforceableActions.forEach((action) => {
         if (actions.includes(action)) {
@@ -126,24 +135,29 @@ describe(Police, () => {
               .mockImplementation((police) => police);
             const police = policeRunner(
               createPolice(undefined, action).police,
-              mockActionSpecificRulesCallback,
+              mockActionSpecificRulesCallback
             );
             expect(mockActionSpecificRulesCallback).toHaveBeenCalledTimes(1);
-            expect(mockActionSpecificRulesCallback).toHaveBeenCalledWith(police);
+            expect(mockActionSpecificRulesCallback).toHaveBeenCalledWith(
+              police
+            );
           });
 
           test(`should not invoke callback on ${action} action if decision has been made`, () => {
             const mockActionSpecificRulesCallback = jest.fn();
             policeRunner(
               createPolice(undefined, action).police.allowAll(),
-              mockActionSpecificRulesCallback,
+              mockActionSpecificRulesCallback
             );
             expect(mockActionSpecificRulesCallback).not.toHaveBeenCalled();
           });
         } else {
           test(`should not invoke callback on ${action} action`, () => {
             const mockActionSpecificRulesCallback = jest.fn();
-            policeRunner(createPolice(undefined, action).police, mockActionSpecificRulesCallback);
+            policeRunner(
+              createPolice(undefined, action).police,
+              mockActionSpecificRulesCallback
+            );
             expect(mockActionSpecificRulesCallback).not.toHaveBeenCalled();
           });
         }
@@ -152,39 +166,46 @@ describe(Police, () => {
 
     describe(Police.prototype.onCreate, () => {
       testShouldReturnSelf((police) => police.onCreate((police) => police));
-      testShouldInvokeCallbackOnlyOnActions(['create'], (police, mockCallback) =>
-        police.onCreate(mockCallback),
+      testShouldInvokeCallbackOnlyOnActions(
+        ["create"],
+        (police, mockCallback) => police.onCreate(mockCallback)
       );
     });
 
     describe(Police.prototype.onRead, () => {
       testShouldReturnSelf((police) => police.onRead((police) => police));
-      testShouldInvokeCallbackOnlyOnActions(['read'], (police, mockCallback) =>
-        police.onRead(mockCallback),
+      testShouldInvokeCallbackOnlyOnActions(["read"], (police, mockCallback) =>
+        police.onRead(mockCallback)
       );
     });
 
     describe(Police.prototype.onCreateUpdateDelete, () => {
-      testShouldReturnSelf((police) => police.onCreateUpdateDelete((police) => police));
+      testShouldReturnSelf((police) =>
+        police.onCreateUpdateDelete((police) => police)
+      );
       testShouldInvokeCallbackOnlyOnActions(
-        ['create', 'update', 'delete'],
-        (police, mockCallback) => police.onCreateUpdateDelete(mockCallback),
+        ["create", "update", "delete"],
+        (police, mockCallback) => police.onCreateUpdateDelete(mockCallback)
       );
     });
   });
 
-  describe('decision steps', () => {
+  describe("decision steps", () => {
     describe(Police.prototype.allowIf, () => {
       testShouldReturnSelf((police) => police.allowIf(false));
-      testShouldDoNothingIfAlreadyDecidedToDeny((police) => police.allowIf(true));
+      testShouldDoNothingIfAlreadyDecidedToDeny((police) =>
+        police.allowIf(true)
+      );
 
-      test('should allow if true', () => {
-        expect(createPolice().police.allowIf(true).decision).toEqual<TestPoliceDecision>({
-          type: 'allow-unrestricted',
+      test("should allow if true", () => {
+        expect(createPolice().police.allowIf(true).decision).toEqual<
+          TestPoliceDecision
+        >({
+          type: "allow-unrestricted",
         });
       });
 
-      test('should do nothing if false', () => {
+      test("should do nothing if false", () => {
         expect(createPolice().police.allowIf(false).decision).toBeUndefined();
       });
     });
@@ -193,24 +214,29 @@ describe(Police, () => {
       testShouldReturnSelf((police) => police.allowIfOmnipotent());
       testShouldDoNothingIfAlreadyDecidedToDeny(
         (police) => police.allowIfOmnipotent(),
-        () => new DangerouslyOmnipotentViewerContext(),
+        () => new DangerouslyOmnipotentViewerContext()
       );
 
-      test('should allow if VC is omnipotent', () => {
+      test("should allow if VC is omnipotent", () => {
         expect(
-          createPolice(new DangerouslyOmnipotentViewerContext()).police.allowIfOmnipotent()
-            .decision,
+          createPolice(
+            new DangerouslyOmnipotentViewerContext()
+          ).police.allowIfOmnipotent().decision
         ).toEqual<TestPoliceDecision>({
-          type: 'allow-unrestricted',
+          type: "allow-unrestricted",
         });
       });
 
-      test('should do nothing if VC is not omnipotent', () => {
+      test("should do nothing if VC is not omnipotent", () => {
         expect(
-          createPolice(new TestAuthenticatedViewerContext()).police.allowIfOmnipotent().decision,
+          createPolice(
+            new TestAuthenticatedViewerContext()
+          ).police.allowIfOmnipotent().decision
         ).toBeUndefined();
         expect(
-          createPolice(new UnauthenticatedViewerContext()).police.allowIfOmnipotent().decision,
+          createPolice(
+            new UnauthenticatedViewerContext()
+          ).police.allowIfOmnipotent().decision
         ).toBeUndefined();
       });
     });
@@ -219,34 +245,38 @@ describe(Police, () => {
       testShouldReturnSelf((police) => police.allowAll());
       testShouldDoNothingIfAlreadyDecidedToDeny(
         (police) => police.allowAll(),
-        () => new DangerouslyOmnipotentViewerContext(),
+        () => new DangerouslyOmnipotentViewerContext()
       );
 
-      test('should set decision to allow', () => {
+      test("should set decision to allow", () => {
         const police = createPolice().police.allowAll();
         expect(police.decision).toEqual<TestPoliceDecision>({
-          type: 'allow-unrestricted',
+          type: "allow-unrestricted",
         });
       });
     });
 
     describe(Police.prototype.denyIf, () => {
-      testShouldReturnSelf((police) => police.denyIf(true, 'some reason'));
-      testShouldReturnSelf((police) => police.denyIf(false, 'some reason'));
+      testShouldReturnSelf((police) => police.denyIf(true, "some reason"));
+      testShouldReturnSelf((police) => police.denyIf(false, "some reason"));
       testShouldDoNothingIfAlreadyDecidedToAllow((police) =>
-        police.denyIf(true, 'should not appear'),
+        police.denyIf(true, "should not appear")
       );
 
-      test('should deny if true', () => {
-        const reason = 'deny reason';
-        expect(createPolice().police.denyIf(true, reason).decision).toEqual<TestPoliceDecision>({
-          type: 'deny',
+      test("should deny if true", () => {
+        const reason = "deny reason";
+        expect(createPolice().police.denyIf(true, reason).decision).toEqual<
+          TestPoliceDecision
+        >({
+          type: "deny",
           reason,
         });
       });
 
-      test('should do nothing if false', () => {
-        expect(createPolice().police.denyIf(false, 'should not appear').decision).toBeUndefined();
+      test("should do nothing if false", () => {
+        expect(
+          createPolice().police.denyIf(false, "should not appear").decision
+        ).toBeUndefined();
       });
     });
 
@@ -254,47 +284,55 @@ describe(Police, () => {
       testShouldReturnSelf((police) => police.denyIfUnauthenticated());
       testShouldDoNothingIfAlreadyDecidedToAllow(
         (police) => police.denyIfUnauthenticated(),
-        () => new UnauthenticatedViewerContext(),
+        () => new UnauthenticatedViewerContext()
       );
 
-      test('should deny if unauthenticated', () => {
+      test("should deny if unauthenticated", () => {
         expect(
-          createPolice(new UnauthenticatedViewerContext()).police.denyIfUnauthenticated().decision,
+          createPolice(
+            new UnauthenticatedViewerContext()
+          ).police.denyIfUnauthenticated().decision
         ).toMatchObject({
-          type: 'deny',
+          type: "deny",
         });
       });
 
-      test('should do nothing if authenticated or omnipotent', () => {
+      test("should do nothing if authenticated or omnipotent", () => {
         expect(
-          createPolice(new TestAuthenticatedViewerContext()).police.denyIfUnauthenticated()
-            .decision,
+          createPolice(
+            new TestAuthenticatedViewerContext()
+          ).police.denyIfUnauthenticated().decision
         ).toBeUndefined();
         expect(
-          createPolice(new DangerouslyOmnipotentViewerContext()).police.denyIfUnauthenticated()
-            .decision,
+          createPolice(
+            new DangerouslyOmnipotentViewerContext()
+          ).police.denyIfUnauthenticated().decision
         ).toBeUndefined();
       });
     });
 
     describe(Police.prototype.denyAll, () => {
-      testShouldReturnSelf((police) => police.denyAll('no go'));
-      testShouldDoNothingIfAlreadyDecidedToAllow((police) => police.denyAll('should not appear'));
+      testShouldReturnSelf((police) => police.denyAll("no go"));
+      testShouldDoNothingIfAlreadyDecidedToAllow((police) =>
+        police.denyAll("should not appear")
+      );
 
-      test('should set decision to deny', () => {
-        const reason = 'some reason';
+      test("should set decision to deny", () => {
+        const reason = "some reason";
         const police = createPolice().police.denyAll(reason);
         expect(police.decision).toEqual<TestPoliceDecision>({
-          type: 'deny',
+          type: "deny",
           reason,
         });
       });
     });
 
     describe(Police.prototype.allowWithRestrictedGraphView, () => {
-      testShouldReturnSelf((police) => police.allowIf(true).throwIfNoDecision());
+      testShouldReturnSelf((police) =>
+        police.allowIf(true).throwIfNoDecision()
+      );
 
-      test('should call callback with own vc and query', () => {
+      test("should call callback with own vc and query", () => {
         const { vc: omniVc, police, query } = createPolice();
         const mockCallback = jest.fn().mockImplementation((_vc, q) => q);
         police.allowWithRestrictedGraphView(mockCallback);
@@ -302,25 +340,27 @@ describe(Police, () => {
         expect(mockCallback).toHaveBeenCalledWith(omniVc, query);
       });
 
-      test('should set decision', () => {
+      test("should set decision", () => {
         const { police, query } = createPolice();
         police.allowWithRestrictedGraphView((_vc, q) => q);
         expect(police.decision).toEqual<TestPoliceDecision>({
-          type: 'allow-restricted',
+          type: "allow-restricted",
           restrictedQuery: query,
         });
       });
 
-      test('should do nothing if a decision has been made to allow', () => {
+      test("should do nothing if a decision has been made to allow", () => {
         const mockCallback = jest.fn();
-        createPolice().police.allowAll().allowWithRestrictedGraphView(mockCallback);
+        createPolice()
+          .police.allowAll()
+          .allowWithRestrictedGraphView(mockCallback);
         expect(mockCallback).not.toHaveBeenCalled();
       });
 
-      test('should do nothing if a decision has been made to deny', () => {
+      test("should do nothing if a decision has been made to deny", () => {
         const mockCallback = jest.fn();
         createPolice()
-          .police.denyAll('should not appear')
+          .police.denyAll("should not appear")
           .allowWithRestrictedGraphView(mockCallback);
         expect(mockCallback).not.toHaveBeenCalled();
       });
@@ -328,29 +368,40 @@ describe(Police, () => {
   });
 
   describe(Police.prototype.throwIfNoDecision, () => {
-    test('should throw PoliceNoDecisionError if no decision was made', () => {
+    test("should throw PoliceNoDecisionError if no decision was made", () => {
       // On construction
-      expect(() => createPolice().police.throwIfNoDecision()).toThrow(PoliceNoDecisionError);
+      expect(() => createPolice().police.throwIfNoDecision()).toThrow(
+        PoliceNoDecisionError
+      );
 
       // With steps that did not decide
       expect(() =>
-        createPolice().police.allowIf(false).denyIf(false, '... just no').throwIfNoDecision(),
+        createPolice()
+          .police.allowIf(false)
+          .denyIf(false, "... just no")
+          .throwIfNoDecision()
       ).toThrow(PoliceNoDecisionError);
     });
 
-    test('should not throw PoliceNoDecisionError if a decision was made', () => {
+    test("should not throw PoliceNoDecisionError if a decision was made", () => {
       expect(() =>
-        createPolice().police.allowIf(true).denyIf(false, '... just no').throwIfNoDecision(),
+        createPolice()
+          .police.allowIf(true)
+          .denyIf(false, "... just no")
+          .throwIfNoDecision()
       ).not.toThrow(PoliceNoDecisionError);
 
       expect(() =>
-        createPolice().police.allowIf(false).denyIf(true, '... just no').throwIfNoDecision(),
+        createPolice()
+          .police.allowIf(false)
+          .denyIf(true, "... just no")
+          .throwIfNoDecision()
       ).not.toThrow(PoliceNoDecisionError);
 
       expect(() =>
         createPolice()
           .police.allowWithRestrictedGraphView((_vc, query) => query)
-          .throwIfNoDecision(),
+          .throwIfNoDecision()
       ).not.toThrow(PoliceNoDecisionError);
     });
 
