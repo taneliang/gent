@@ -43,6 +43,17 @@ duplicating code.
 
 ## Installation
 
+```sh
+# Clone this repo
+git clone git@github.com:taneliang/gent.git
+cd gent
+yarn # Install dependencies
+yarn link
+
+# cd to your project directory
+yarn link @elg/gent
+```
+
 TODO: This package isn't on NPM yet; the below commands won't work.
 
 ```sh
