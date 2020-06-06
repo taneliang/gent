@@ -1,5 +1,5 @@
 {
-  "name": "gent",
+  "name": "@elg/gent",
   "version": "0.1.0",
   "description": "Reusable business logic base layer for GraphQL API servers written in TypeScript+Node.js",
   "main": "src/index.ts",
