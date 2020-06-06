@@ -96,21 +96,28 @@ export class LoaderManyToOneRelationGenerator extends ManyToOneRelationBasedGene
  * Generates code for a many to one edge in a *Query class.
  */
 export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGenerator {
-  generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const {
-      toOne: { name, type },
-    } = this.specification;
-    const methodReadyName = _.upperFirst(name);
-    const idReadyName = `${_.snakeCase(name)}_id`;
-
-    return codeBuilder
-      .addBlock(`where${methodReadyName}IdsIn(ids: number[]): this`, (b) =>
+  private buildRelationIdsInMethod(
+    codeBuilder: CodeBuilder,
+    methodReadyName: string,
+    idReadyName: string
+  ): CodeBuilder {
+    return codeBuilder.addBlock(
+      `where${methodReadyName}IdsIn(ids: number[]): this`,
+      (b) =>
         b
           .addLine(`this.queryBuilder.whereIn('${idReadyName}', ids);`)
           .addLine("return this;")
-      )
-      .addLine()
-      .addBlock(`query${methodReadyName}(): ${type}Query`, (b) =>
+    );
+  }
+
+  private buildQueryRelationMethod(
+    codeBuilder: CodeBuilder,
+    type: string,
+    methodReadyName: string
+  ): CodeBuilder {
+    return codeBuilder.addBlock(
+      `query${methodReadyName}(): ${type}Query`,
+      (b) =>
         b
           .addBlock(
             `return new ${type}Query(this.vc, async (childQuery) =>`,
@@ -120,9 +127,18 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
               )
           )
           .addLine(");")
-      )
-      .addLine()
-      .addBlock(`async get${methodReadyName}Ids(): Promise<number[]>`, (b) =>
+    );
+  }
+
+  private buildGetRelationIdsMethod(
+    codeBuilder: CodeBuilder,
+    name: string,
+    methodReadyName: string,
+    idReadyName: string
+  ): CodeBuilder {
+    return codeBuilder.addBlock(
+      `async get${methodReadyName}Ids(): Promise<number[]>`,
+      (b) =>
         b
           .addLine("const finalQb = this.queryBuilder")
           .addLine(".clone()")
@@ -139,7 +155,32 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
           .addLine(
             `return uniq(relatedEntitiesWithIds.flatMap((gent) => gent.${name}.id));`
           )
-      );
+    );
+  }
+
+  generateLines(codeBuilder: CodeBuilder): CodeBuilder {
+    const {
+      toOne: { name, type },
+    } = this.specification;
+    const methodReadyName = _.upperFirst(name);
+    const idReadyName = `${_.snakeCase(name)}_id`;
+
+    this.buildRelationIdsInMethod(
+      codeBuilder,
+      methodReadyName,
+      idReadyName
+    ).addLine();
+
+    this.buildQueryRelationMethod(codeBuilder, type, methodReadyName).addLine();
+
+    this.buildGetRelationIdsMethod(
+      codeBuilder,
+      name,
+      methodReadyName,
+      idReadyName
+    );
+
+    return codeBuilder;
   }
 
   importsRequired(): ImportMap {
