@@ -1,11 +1,11 @@
-import { MikroORM, Options } from "mikro-orm";
+import { EntityManager, MikroORM, Options } from "mikro-orm";
 import * as entities from "./entities/";
 
 let globalOrm: MikroORM | undefined;
 
 export const gentEntities = Object.values(entities);
 
-export async function initOrm(options: Options) {
+export async function initOrm(options: Options): Promise<void> {
   globalOrm = await MikroORM.init(options);
 }
 
@@ -24,11 +24,11 @@ function initializedGlobalOrm(): MikroORM | never {
   return globalOrm;
 }
 
-export function getGlobalEntityManager() {
+export function getGlobalEntityManager(): EntityManager {
   return initializedGlobalOrm().em;
 }
 
-export function createContextualizedEntityManager() {
+export function createContextualizedEntityManager(): EntityManager {
   return initializedGlobalOrm().em.fork();
 }
 

@@ -47,7 +47,7 @@ export abstract class GentMutator<Model extends BaseGent> {
     vc: ViewerContext,
     entityClass: EntityClass<Model>,
     graphViewRestrictor:
-      | GentMutatorGraphViewRestricter<any>
+      | GentMutatorGraphViewRestricter<any> // eslint-disable-line @typescript-eslint/no-explicit-any
       | undefined = undefined
   ) {
     this.vc = vc;
@@ -75,7 +75,7 @@ export abstract class GentMutator<Model extends BaseGent> {
    * fields to create an entity.
    * @returns A promise that resolves to the created entity object.
    */
-  async create(data: any): Promise<Model> {
+  async create(data: unknown): Promise<Model> {
     const finalKnexQb = this.queryBuilder
       .clone()
       .insert(data)
@@ -90,7 +90,7 @@ export abstract class GentMutator<Model extends BaseGent> {
       Model
     >[] = await this.vc.entityManager
       .getConnection("write")
-      .execute(finalKnexQb as any);
+      .execute(finalKnexQb as never);
     const resultEntities = results.map((result) =>
       this.vc.entityManager.map(this.entityClass, result)
     );
@@ -109,7 +109,7 @@ export abstract class GentMutator<Model extends BaseGent> {
    * fields to update the entities.
    * @returns A promise that resolves to all the updated entity objects.
    */
-  async update(data: any): Promise<Model[]> {
+  async update(data: unknown): Promise<Model[]> {
     const finalKnexQb = this.queryBuilder
       .clone()
       .update(data)
@@ -124,7 +124,7 @@ export abstract class GentMutator<Model extends BaseGent> {
       Model
     >[] = await this.vc.entityManager
       .getConnection()
-      .execute(finalKnexQb as any);
+      .execute(finalKnexQb as never);
     const resultEntities = results.map((result) =>
       this.vc.entityManager.map(this.entityClass, result)
     );
@@ -148,7 +148,7 @@ export abstract class GentMutator<Model extends BaseGent> {
 
     await this.vc.entityManager
       .getConnection("write")
-      .execute(finalKnexQb as any);
+      .execute(finalKnexQb as never);
     // TODO: Figure out how to avoid nuking the identity map
     this.vc.entityManager.clear();
   }

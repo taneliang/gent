@@ -52,7 +52,7 @@ export abstract class GentQuery<Model extends BaseGent> {
     vc: ViewerContext,
     entityClass: EntityClass<Model>,
     graphViewRestrictor:
-      | GentQueryGraphViewRestricter<any>
+      | GentQueryGraphViewRestricter<any> // eslint-disable-line @typescript-eslint/no-explicit-any
       | undefined = undefined,
     shouldApplyAccessControlRules = true
   ) {
@@ -91,7 +91,7 @@ export abstract class GentQuery<Model extends BaseGent> {
    *
    * @param builder A function that modifies the Knex query builder.
    */
-  buildKnexQueryBuilder(builder: (qb: QueryBuilder<Model>) => void) {
+  buildKnexQueryBuilder(builder: (qb: QueryBuilder<Model>) => void): this {
     builder(this.queryBuilder);
     return this;
   }
@@ -123,7 +123,7 @@ export abstract class GentQuery<Model extends BaseGent> {
       Model
     >[] = await this.vc.entityManager
       .getConnection("read")
-      .execute(finalQb as any);
+      .execute(finalQb as never);
     const resultEntities = results.map((result) =>
       this.vc.entityManager.map(this.entityClass, result)
     );
@@ -141,7 +141,7 @@ export abstract class GentQuery<Model extends BaseGent> {
       | EntityData<Model>
       | undefined = await this.vc.entityManager
       .getConnection("read")
-      .execute(finalQb as any);
+      .execute(finalQb as never);
     return result
       ? this.vc.entityManager.map(this.entityClass, result)
       : undefined;
@@ -157,7 +157,7 @@ export abstract class GentQuery<Model extends BaseGent> {
       Model
     >[] = await this.vc.entityManager
       .getConnection("read")
-      .execute(finalQb as any);
+      .execute(finalQb as never);
     const resultEntities = results.map((result) =>
       this.vc.entityManager.map(this.entityClass, result)
     );

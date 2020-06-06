@@ -31,6 +31,9 @@ export class BeltalowdaCenter {
     if (!existingLoadersForModel) {
       this.#loaders.set(modelName, new Map());
     }
+
+    // `get` guaranteed to succeed due to the above check and `set`.
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const loadersForModel = this.#loaders.get(modelName)!;
 
     const existingLoader = loadersForModel.get(fieldNameToFilter);

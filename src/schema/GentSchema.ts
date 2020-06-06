@@ -2,6 +2,7 @@ import {
   BaseGent,
   EdgeSpecification,
   FieldSpecification,
+  GentQuery,
   GentSchemaValidationError,
   Police,
 } from "..";
@@ -27,7 +28,8 @@ export abstract class GentSchema {
   abstract get fields(): FieldSpecification[];
   abstract get edges(): EdgeSpecification[];
 
-  static accessControlRules(police: Police<any, BaseGent>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static accessControlRules(police: Police<GentQuery<any>, BaseGent>): void {
     police.allowAll();
   }
 }

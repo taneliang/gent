@@ -11,6 +11,8 @@ export { gentEntities } from "./orm";
 
 import { initOrm } from "./orm";
 
-export async function init(ormOptions: Parameters<typeof initOrm>) {
+export async function init(
+  ormOptions: Parameters<typeof initOrm>
+): Promise<void> {
   await initOrm(...ormOptions);
 }

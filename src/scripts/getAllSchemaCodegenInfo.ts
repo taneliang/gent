@@ -50,8 +50,9 @@ function validateSchema(
 }
 
 function processSourceFile(filePath: string): SchemaCodegenInfo {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { default: Schema } = require(filePath) as {
-    default?: typeof GentSchema & { constructor(): GentSchema };
+    default?: typeof GentSchema & { new (): GentSchema };
   };
 
   if (!validateSchema(filePath, Schema)) {

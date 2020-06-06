@@ -3,6 +3,7 @@ import _ from "lodash";
 import { CodeBuilder } from "@elg/tscodegen";
 import { PropertyBasedGenerator } from "./PropertyBasedGenerator";
 import { ManyToOneSpecification } from "../..";
+import { ImportMap } from "../ImportMap";
 
 /**
  * A base generator class for a many to one edge.
@@ -19,7 +20,7 @@ export class ModelManyToOneRelationGenerator extends ManyToOneRelationBasedGener
     const {
       fromMany: { inverseName },
     } = this.specification;
-    const propertyOptions: ManyToOneOptions<any> = {
+    const propertyOptions: ManyToOneOptions<never> = {
       ..._.pick(this.specification, ["nullable", "unique"]),
       inversedBy: inverseName,
     };
@@ -38,7 +39,7 @@ export class ModelManyToOneRelationGenerator extends ManyToOneRelationBasedGener
       .addLine(`${name}${nullUnwrapIndicator}: ${type};`);
   }
 
-  importsRequired() {
+  importsRequired(): ImportMap {
     const {
       toOne: { type },
     } = this.specification;
@@ -81,7 +82,7 @@ export class LoaderManyToOneRelationGenerator extends ManyToOneRelationBasedGene
     );
   }
 
-  importsRequired() {
+  importsRequired(): ImportMap {
     const {
       toOne: { type },
     } = this.specification;
@@ -131,7 +132,7 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
             `const results: EntityData<${this.parentEntityType}>[] = await this.vc.entityManager`
           )
           .addLine(".getConnection('read')")
-          .addLine(".execute(finalQb as any);")
+          .addLine(".execute(finalQb as never);")
           .addLine("const relatedEntitiesWithIds = results.map((result) =>")
           .addLine("this.vc.entityManager.map(this.entityClass, result),")
           .addLine(");")
@@ -141,7 +142,7 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
       );
   }
 
-  importsRequired() {
+  importsRequired(): ImportMap {
     const {
       toOne: { type },
     } = this.specification;

@@ -54,7 +54,7 @@ describe(Police, () => {
     policeRunner: (police: TestPolice) => TestPolice,
     vcConstructor: (() => ViewerContext) | undefined = undefined
   ) {
-    test("should do nothing if a decision has been made", () => {
+    test("should do nothing if a decision (deny) has been made", () => {
       expect(
         policeRunner(
           createPolice(
@@ -84,7 +84,7 @@ describe(Police, () => {
     policeRunner: (police: TestPolice) => TestPolice,
     vcConstructor: (() => ViewerContext) | undefined = undefined
   ) {
-    test("should do nothing if a decision has been made", () => {
+    test("should do nothing if a decision (allow) has been made", () => {
       expect(
         policeRunner(
           createPolice(

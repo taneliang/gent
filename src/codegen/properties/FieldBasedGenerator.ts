@@ -3,6 +3,7 @@ import { PropertyOptions } from "mikro-orm";
 import { PropertyBasedGenerator } from "./PropertyBasedGenerator";
 import { CodeBuilder } from "@elg/tscodegen";
 import { FieldSpecification } from "../..";
+import { ImportMap } from "../ImportMap";
 
 /**
  * A base generator class for a particular entity field.
@@ -31,7 +32,7 @@ export class ModelFieldGenerator extends FieldBasedGenerator {
       .addLine(`${name}${nullUnwrapIndicator}: ${type};`);
   }
 
-  importsRequired() {
+  importsRequired(): ImportMap {
     return { "mikro-orm": ["Property"] };
   }
 }
@@ -100,7 +101,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     }
   }
 
-  importsRequired() {
+  importsRequired(): ImportMap {
     return {};
   }
 }

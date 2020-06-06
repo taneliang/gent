@@ -40,7 +40,7 @@ export abstract class GentLoader<Model extends BaseGent> {
   constructor(
     vc: ViewerContext,
     graphViewRestrictor:
-      | GentLoaderGraphViewRestricter<any>
+      | GentLoaderGraphViewRestricter<any> // eslint-disable-line @typescript-eslint/no-explicit-any
       | undefined = undefined
   ) {
     this.vc = vc;

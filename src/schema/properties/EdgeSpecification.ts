@@ -37,7 +37,8 @@ export function isManyToOneSpecification(
   edgeSpec: EdgeSpecification
 ): edgeSpec is ManyToOneSpecification {
   return (
-    edgeSpec.hasOwnProperty("fromMany") && edgeSpec.hasOwnProperty("toOne")
+    Object.prototype.hasOwnProperty.call(edgeSpec, "fromMany") &&
+    Object.prototype.hasOwnProperty.call(edgeSpec, "toOne")
   );
 }
 
@@ -45,14 +46,25 @@ export function isOneToManySpecification(
   edgeSpec: EdgeSpecification
 ): edgeSpec is OneToManySpecification {
   return (
-    edgeSpec.hasOwnProperty("fromOne") && edgeSpec.hasOwnProperty("toMany")
+    Object.prototype.hasOwnProperty.call(edgeSpec, "fromOne") &&
+    Object.prototype.hasOwnProperty.call(edgeSpec, "toMany")
   );
 }
 
-// export function isOneToOneSpecification(edgeSpec: EdgeSpecification): edgeSpec is OneToOneSpecification {
-//   return edgeSpec.hasOwnProperty('fromOne') && edgeSpec.hasOwnProperty('toOne')
+// export function isOneToOneSpecification(
+//   edgeSpec: EdgeSpecification
+// ): edgeSpec is OneToOneSpecification {
+//   return (
+//     Object.prototype.hasOwnProperty.call(edgeSpec, "fromOne") &&
+//     Object.prototype.hasOwnProperty.call(edgeSpec, "toOne")
+//   );
 // }
 
-// export function isManyToManySpecification(edgeSpec: EdgeSpecification): edgeSpec is ManyToManySpecification {
-//   return edgeSpec.hasOwnProperty('fromMany') && edgeSpec.hasOwnProperty('toMany')
+// export function isManyToManySpecification(
+//   edgeSpec: EdgeSpecification
+// ): edgeSpec is ManyToManySpecification {
+//   return (
+//     Object.prototype.hasOwnProperty.call(edgeSpec, "fromMany") &&
+//     Object.prototype.hasOwnProperty.call(edgeSpec, "toMany")
+//   );
 // }

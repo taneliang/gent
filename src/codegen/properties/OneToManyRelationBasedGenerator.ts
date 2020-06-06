@@ -3,6 +3,7 @@ import _ from "lodash";
 import { CodeBuilder } from "@elg/tscodegen";
 import { PropertyBasedGenerator } from "./PropertyBasedGenerator";
 import { OneToManySpecification } from "../..";
+import { ImportMap } from "../ImportMap";
 
 /**
  * A base generator class for a one to many edge.
@@ -16,7 +17,7 @@ abstract class OneToManyRelationBasedGenerator extends PropertyBasedGenerator<
  */
 export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
   generateOptionsString(): string {
-    const propertyOptions: OneToManyOptions<any> = _.pick(
+    const propertyOptions: OneToManyOptions<never> = _.pick(
       this.specification.toMany,
       ["nullable", "unique"]
     );
@@ -35,7 +36,7 @@ export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGener
       .addLine(`${name} = new Collection<${type}>(this);`);
   }
 
-  importsRequired() {
+  importsRequired(): ImportMap {
     const {
       toMany: { type },
     } = this.specification;
@@ -101,7 +102,7 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
       );
   }
 
-  importsRequired() {
+  importsRequired(): ImportMap {
     const {
       toMany: { type },
     } = this.specification;
@@ -140,7 +141,7 @@ export class QueryOneToManyRelationGenerator extends OneToManyRelationBasedGener
     );
   }
 
-  importsRequired() {
+  importsRequired(): ImportMap {
     const {
       toMany: { type },
     } = this.specification;
