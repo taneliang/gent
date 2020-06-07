@@ -1,3 +1,5 @@
+#!/usr/bin/env ts-node-script
+
 import { getAllSchemaCodegenInfo } from "./getAllSchemaCodegenInfo";
 import { ModelFileGenerator } from "../codegen/files/ModelFileGenerator";
 import { LoaderFileGenerator } from "../codegen/files/LoaderFileGenerator";
