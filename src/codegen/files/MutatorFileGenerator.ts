@@ -124,6 +124,7 @@ export class MutatorFileGenerator extends FileGenerator {
           )
           .format()
       )
+      .lock(this.fileDocblockContent)
       .saveToFile();
   }
 }

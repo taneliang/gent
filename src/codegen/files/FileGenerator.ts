@@ -28,6 +28,8 @@ export abstract class FileGenerator {
   protected readonly codegenInfo: SchemaCodegenInfo;
   protected readonly codeFile: CodeFile;
 
+  protected readonly fileDocblockContent: string;
+
   constructor(codegenInfo: SchemaCodegenInfo) {
     this.codegenInfo = codegenInfo;
 
@@ -36,6 +38,7 @@ export abstract class FileGenerator {
     this.codeFile = new CodeFile(
       filePathForComponent(entityName, filePath, this.generatedFileNameSuffix())
     );
+    this.fileDocblockContent = `\nRegenerate this file by running:\nnpx gentgen ${filePath}\n`;
   }
 
   /**

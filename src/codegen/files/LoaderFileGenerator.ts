@@ -101,6 +101,7 @@ export class LoaderFileGenerator extends FileGenerator {
           )
           .format()
       )
+      .lock(this.fileDocblockContent)
       .saveToFile();
   }
 }

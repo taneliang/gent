@@ -165,6 +165,7 @@ export class QueryFileGenerator extends FileGenerator {
           )
           .format()
       )
+      .lock(this.fileDocblockContent)
       .saveToFile();
   }
 }

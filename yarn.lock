@@ -273,10 +273,10 @@
     is-absolute "^1.0.0"
     is-negated-glob "^1.0.0"
 
-"@elg/tscodegen@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@elg/tscodegen/-/tscodegen-0.1.1.tgz#b774a68d644df2c8f2f605bfff979ae57fa17a7a"
-  integrity sha512-/gVzsFcACEbDk+X/uEdsr9c3hYsyobk5enHw4+cban8DbzcyxOpm70DlvStRY9HU1dCF27W4qDB3twpKN2dUxw==
+"@elg/tscodegen@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@elg/tscodegen/-/tscodegen-0.2.0.tgz#95942ef1330050f0944a8493dfa535ed374ecbf7"
+  integrity sha512-f9huK9vURm0A4nLX18Dbfd3mPggKxN5vLkxEki24nClXDRTNrLrCiBRjVXWe7/aXFpopc58lvoB8JY/3bAumZw==
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"

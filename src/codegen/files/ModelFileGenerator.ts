@@ -79,6 +79,7 @@ export class ModelFileGenerator extends FileGenerator {
           })
           .format()
       )
+      .lock(this.fileDocblockContent)
       .saveToFile();
   }
 }
