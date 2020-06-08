@@ -38,7 +38,7 @@ export abstract class FileGenerator {
     this.codeFile = new CodeFile(
       filePathForComponent(entityName, filePath, this.generatedFileNameSuffix())
     );
-    this.fileDocblockContent = `\nRegenerate this file by running:\nnpx gentgen ${filePath}\n`;
+    this.fileDocblockContent = `\nRegenerate this file by running:\ngentgen generate ${filePath}\n`;
   }
 
   /**
