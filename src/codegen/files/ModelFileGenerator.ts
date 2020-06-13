@@ -1,7 +1,7 @@
 import { CodeBuilder } from "@elg/tscodegen";
-import { ModelFieldGenerator } from "../properties/FieldBasedGenerator";
-import { ModelOneToManyRelationGenerator } from "../properties/OneToManyRelationBasedGenerator";
-import { ModelManyToOneRelationGenerator } from "../properties/ManyToOneRelationBasedGenerator";
+import { ModelFieldGenerator } from "../properties/field/ModelFieldGenerator";
+import { ModelOneToManyRelationGenerator } from "../properties/oneToMany/ModelOneToManyRelationGenerator";
+import { ModelManyToOneRelationGenerator } from "../properties/manyToOne/ModelManyToOneRelationGenerator";
 import { FileGenerator } from "./FileGenerator";
 import { buildImportLines } from "../ImportMap";
 import {

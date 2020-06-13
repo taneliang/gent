@@ -1,41 +1,7 @@
 import _ from "lodash";
-import { PropertyOptions } from "mikro-orm";
-import { PropertyBasedGenerator } from "./PropertyBasedGenerator";
 import { CodeBuilder } from "@elg/tscodegen";
-import { FieldSpecification } from "../..";
-import { ImportMap } from "../ImportMap";
-
-/**
- * A base generator class for a particular entity field.
- */
-export abstract class FieldBasedGenerator extends PropertyBasedGenerator<
-  FieldSpecification
-> {}
-
-/**
- * Generates code for a field property in a database entity class.
- */
-export class ModelFieldGenerator extends FieldBasedGenerator {
-  generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const { name, type } = this.specification;
-    const propertyOptions: PropertyOptions = _.pick(this.specification, [
-      "nullable",
-      "unique",
-    ]);
-
-    const optionsString = _.isEmpty(propertyOptions)
-      ? ""
-      : JSON.stringify(propertyOptions);
-    const nullUnwrapIndicator = propertyOptions.nullable ? "?" : "!";
-    return codeBuilder
-      .addLine(`@Property(${optionsString})`)
-      .addLine(`${name}${nullUnwrapIndicator}: ${type};`);
-  }
-
-  importsRequired(): ImportMap {
-    return { "mikro-orm": ["Property"] };
-  }
-}
+import { ImportMap } from "../../ImportMap";
+import { FieldBasedGenerator } from "./FieldBasedGenerator";
 
 /**
  * Generates code for a field in a *Query class.
@@ -53,7 +19,6 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     // where*DoesNotMatchPattern
     // where*DoesNotHavePrefix
     // where*DoesNotHaveSuffix
-
     return codeBuilder.addBlock(
       `where${methodReadyName}Like(pattern: string): this`,
       (b) =>
@@ -71,16 +36,13 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     const idReadyName = _.snakeCase(name);
 
     // TODO: Rename where* to where*Is?
-
     // TODO:
     // where*Exists (nullable only)
-
     // TODO: Implement comparables?
     // where*IsGreaterThan
     // where*IsGreaterThanOrEqual
     // where*IsLessThan
     // where*IsLessThanOrEqual
-
     return codeBuilder.addBlock(
       `where${methodReadyName}Eq(value: ${type}): this`,
       (b) =>
