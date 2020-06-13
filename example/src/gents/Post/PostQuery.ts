@@ -4,7 +4,7 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Post/PostSchema.ts
  *
- * @generated Codelock<<59U1wqW+CR2F5ZKweSgGIp8ril+wEiDO>>
+ * @generated Codelock<<gQEw5DFrM9935B29j1fxk57Xp9WkwJag>>
  */
 
 import {
@@ -112,5 +112,47 @@ export class PostQuery extends GentQuery<Post> {
       this.vc.entityManager.map(this.entityClass, result)
     );
     return resultEntities.map((gent) => gent.title);
+  }
+
+  whereDescriptionLike(pattern: string): this {
+    this.queryBuilder.where("description", "LIKE", pattern);
+    return this;
+  }
+
+  whereDescriptionEquals(value: string): this {
+    this.queryBuilder.where("description", value);
+    return this;
+  }
+
+  whereDescriptionIn(values: string[]): this {
+    this.queryBuilder.whereIn("description", values);
+    return this;
+  }
+
+  whereDescriptionIsNull(): this {
+    this.queryBuilder.whereNull("description");
+    return this;
+  }
+
+  whereDescriptionIsNotNull(): this {
+    this.queryBuilder.whereNotNull("description");
+    return this;
+  }
+
+  async getDescriptions(): Promise<(string | undefined)[]> {
+    await this.applyGraphViewRestrictions();
+    const finalQb = this.queryBuilder
+      .clone()
+      .clearSelect()
+      .select("description");
+    const results: EntityData<
+      Post
+    >[] = await this.vc.entityManager
+      .getConnection("read")
+      .execute(finalQb as never);
+    const resultEntities = results.map((result) =>
+      this.vc.entityManager.map(this.entityClass, result)
+    );
+    return resultEntities.map((gent) => gent.description);
   }
 }

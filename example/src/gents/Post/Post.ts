@@ -4,7 +4,7 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Post/PostSchema.ts
  *
- * @generated Codelock<<b3gzbhmWEYbjO3oA47AnNbZWw4d5uBqC>>
+ * @generated Codelock<<M523kKzRY1YXdcatkZ94HOq7KM8e4ZpR>>
  */
 
 import { Entity, PrimaryKey, Property } from "mikro-orm";
@@ -17,4 +17,7 @@ export class Post implements GentModel {
 
   @Property()
   title!: string;
+
+  @Property({ nullable: true })
+  description?: string;
 }

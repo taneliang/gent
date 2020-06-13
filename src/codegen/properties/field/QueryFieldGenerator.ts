@@ -57,6 +57,22 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     );
   }
 
+  private buildWhereIsNullLines(codeBuilder: CodeBuilder): CodeBuilder {
+    const { methodReadyName, idReadyName } = this.processedSpecification;
+    return codeBuilder
+      .addBlock(`where${methodReadyName}IsNull(): this`, (b) =>
+        b
+          .addLine(`this.queryBuilder.whereNull('${idReadyName}');`)
+          .addLine("return this;")
+      )
+      .addLine()
+      .addBlock(`where${methodReadyName}IsNotNull(): this`, (b) =>
+        b
+          .addLine(`this.queryBuilder.whereNotNull('${idReadyName}');`)
+          .addLine("return this;")
+      );
+  }
+
   private buildGetAllLines(codeBuilder: CodeBuilder): CodeBuilder {
     const {
       name,
@@ -87,15 +103,21 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
   }
 
   private buildAllGenericFieldLines(codeBuilder: CodeBuilder): CodeBuilder {
-    // TODO:
-    // where*Exists (nullable only)
     // TODO: Implement comparables?
+    // where*IsBetween
     // where*IsGreaterThan
     // where*IsGreaterThanOrEqual
     // where*IsLessThan
     // where*IsLessThanOrEqual
+    const { nullable } = this.processedSpecification;
+
     this.buildWhereEqualsLines(codeBuilder).addLine();
     this.buildWhereInLines(codeBuilder).addLine();
+
+    if (nullable) {
+      this.buildWhereIsNullLines(codeBuilder).addLine();
+    }
+
     this.buildGetAllLines(codeBuilder);
     return codeBuilder;
   }
