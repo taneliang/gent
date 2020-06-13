@@ -1,6 +1,6 @@
 import {
   GentQuery,
-  BaseGent,
+  GentModel,
   ViewerContext,
   DangerouslyOmnipotentViewerContext,
   AuthenticatedViewerContext,
@@ -23,7 +23,7 @@ export type PoliceEnforceableAction = typeof policeEnforceableActions[number];
  */
 export type PoliceDecision<
   QueryType extends GentQuery<Model>,
-  Model extends BaseGent
+  Model extends GentModel
 > =
   | { type: "allow-unrestricted" }
   | { type: "allow-restricted"; restrictedQuery: QueryType }
@@ -56,7 +56,7 @@ export class PoliceNoDecisionError extends Error {
  */
 export class Police<
   QueryType extends GentQuery<Model>,
-  Model extends BaseGent
+  Model extends GentModel
 > {
   readonly vc: ViewerContext;
   readonly action: PoliceEnforceableAction;

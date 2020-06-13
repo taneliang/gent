@@ -1,5 +1,5 @@
 import { ViewerContext } from ".";
-import { BaseGent } from "./entities/BaseGent";
+import { GentModel } from "./GentModel";
 import { EntityClass } from "mikro-orm/dist/typings";
 import { Beltalowda } from "./Beltalowda";
 
@@ -23,7 +23,7 @@ export type GentLoaderGraphViewRestricter<GentLoaderSubclass> = (
  *
  * To be used through subclasses generated for an entity.
  */
-export abstract class GentLoader<Model extends BaseGent> {
+export abstract class GentLoader<Model extends GentModel> {
   readonly vc: ViewerContext;
 
   protected ids: number[] = [];

@@ -1,7 +1,7 @@
 import { QueryBuilder } from "mikro-orm";
 import { QueryBuilder as KnexQueryBuilder } from "knex";
 import { EntityClass, EntityData } from "mikro-orm/dist/typings";
-import { BaseGent, ViewerContext } from ".";
+import { GentModel, ViewerContext } from ".";
 
 export const mutationActions = ["create", "update", "delete"] as const;
 export type MutationAction = typeof mutationActions[number];
@@ -21,7 +21,7 @@ export type GentMutatorGraphViewRestricter<GentMutatorSubclass> = (
  *
  * To be used through subclasses generated for an entity.
  */
-export abstract class GentMutator<Model extends BaseGent> {
+export abstract class GentMutator<Model extends GentModel> {
   readonly vc: ViewerContext;
 
   protected entityClass: EntityClass<Model>;

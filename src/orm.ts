@@ -1,9 +1,6 @@
 import { EntityManager, MikroORM, Options } from "mikro-orm";
-import * as entities from "./entities/";
 
 let globalOrm: MikroORM | undefined;
-
-export const gentEntities = Object.values(entities);
 
 export async function initOrm(options: Options): Promise<void> {
   globalOrm = await MikroORM.init(options);

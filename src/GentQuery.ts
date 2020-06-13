@@ -2,7 +2,7 @@ import { ViewerContext } from "./ViewerContext";
 import { QueryBuilder } from "knex";
 import { EntityData } from "mikro-orm";
 import { EntityClass } from "mikro-orm/dist/typings";
-import { BaseGent } from "./entities/BaseGent";
+import { GentModel } from "./GentModel";
 import { GentMutator } from "./GentMutator";
 
 /**
@@ -23,7 +23,7 @@ export type GentQueryGraphViewRestricter<GentQuerySubclass> = (
  *
  * To be used through subclasses generated for an entity.
  */
-export abstract class GentQuery<Model extends BaseGent> {
+export abstract class GentQuery<Model extends GentModel> {
   readonly vc: ViewerContext;
 
   protected entityClass: EntityClass<Model>;

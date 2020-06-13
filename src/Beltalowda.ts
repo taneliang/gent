@@ -1,7 +1,7 @@
 import Dataloader from "dataloader";
 import _ from "lodash";
 import { ViewerContext } from ".";
-import { BaseGent } from "./entities/BaseGent";
+import { GentModel } from "./GentModel";
 import { GentQuery } from "./GentQuery";
 
 /**
@@ -17,7 +17,7 @@ import { GentQuery } from "./GentQuery";
 // the inner planets. The name is fitting for this class as it does GentLoader's
 // dirty work. See: https://expanse.fandom.com/wiki/Beltalowda
 export class Beltalowda<
-  Model extends BaseGent,
+  Model extends GentModel,
   FieldType extends string | number
 > {
   readonly vc: ViewerContext;

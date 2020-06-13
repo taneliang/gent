@@ -1,5 +1,5 @@
 import {
-  BaseGent,
+  GentModel,
   EdgeSpecification,
   FieldSpecification,
   GentQuery,
@@ -29,7 +29,7 @@ export abstract class GentSchema {
   abstract get edges(): EdgeSpecification[];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static accessControlRules(police: Police<GentQuery<any>, BaseGent>): void {
+  static accessControlRules(police: Police<GentQuery<any>, GentModel>): void {
     police.allowAll();
   }
 }

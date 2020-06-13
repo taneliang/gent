@@ -40,7 +40,7 @@ export class ModelFileGenerator extends FileGenerator {
   buildImportLines(builder: CodeBuilder): CodeBuilder {
     const ourImports = {
       "mikro-orm": ["Entity"],
-      "@elg/gent": ["BaseGent"],
+      "@elg/gent": ["GentModel"],
     };
     const generatorImports = [
       ...this.fieldGenerators,
@@ -72,7 +72,7 @@ export class ModelFileGenerator extends FileGenerator {
         this.buildImportLines(b)
           .addLine()
           .addLine("@Entity()")
-          .addBlock(`export class ${entityName} implements BaseGent`, (b) => {
+          .addBlock(`export class ${entityName} implements GentModel`, (b) => {
             this.buildFieldLines(b);
             this.buildRelationLines(b);
             return b;

@@ -1,5 +1,5 @@
 import { EntityName } from "mikro-orm";
-import { BaseGent } from "./entities/BaseGent";
+import { GentModel } from "./GentModel";
 import { Beltalowda } from "./Beltalowda";
 
 /**
@@ -18,7 +18,7 @@ export class BeltalowdaCenter {
    */
   readonly #loaders = new Map<string, Map<string, unknown>>();
 
-  beltalowdaForModel<M extends BaseGent, FT extends string | number>(
+  beltalowdaForModel<M extends GentModel, FT extends string | number>(
     entityClass: EntityName<M>,
     fieldNameToFilter: string,
     loaderProvider: () => Beltalowda<M, FT>
