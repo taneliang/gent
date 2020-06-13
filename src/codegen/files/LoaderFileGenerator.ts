@@ -1,6 +1,6 @@
 import { CodeBuilder } from "@elg/tscodegen";
-import { LoaderOneToManyRelationGenerator } from "../properties/oneToMany/LoaderOneToManyRelationGenerator";
-import { LoaderManyToOneRelationGenerator } from "../properties/manyToOne/LoaderManyToOneRelationGenerator";
+import { LoaderOneToManyRelationGenerator } from "../properties/one-to-many/LoaderOneToManyRelationGenerator";
+import { LoaderManyToOneRelationGenerator } from "../properties/many-to-one/LoaderManyToOneRelationGenerator";
 import { FileGenerator } from "./FileGenerator";
 import { buildImportLines } from "../ImportMap";
 import {

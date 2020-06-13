@@ -8,7 +8,7 @@ import { FieldBasedGenerator } from "./FieldBasedGenerator";
  * Generates code for a field property in a database entity class.
  */
 export class ModelFieldGenerator extends FieldBasedGenerator {
-  get decoratorName(): "PrimaryKey" | "Property" {
+  private get decoratorName(): "PrimaryKey" | "Property" {
     const { isPrimaryKey } = this.specification;
     return isPrimaryKey ? "PrimaryKey" : "Property";
   }

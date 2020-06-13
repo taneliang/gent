@@ -7,11 +7,17 @@ import { ManyToOneRelationBasedGenerator } from "./ManyToOneRelationBasedGenerat
  * Generates code for a many to one edge in a *Query class.
  */
 export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGenerator {
-  private buildRelationIdInMethod(
-    codeBuilder: CodeBuilder,
-    methodReadyName: string,
-    idReadyName: string
-  ): CodeBuilder {
+  private processedSpecification = (() => {
+    const {
+      toOne: { name, type },
+    } = this.specification;
+    const methodReadyName = _.upperFirst(name);
+    const idReadyName = `${_.snakeCase(name)}_id`;
+    return { name, type, methodReadyName, idReadyName };
+  })();
+
+  private buildRelationIdInMethod(codeBuilder: CodeBuilder): CodeBuilder {
+    const { methodReadyName, idReadyName } = this.processedSpecification;
     return codeBuilder.addBlock(
       `where${methodReadyName}IdIn(ids: number[]): this`,
       (b) =>
@@ -21,11 +27,8 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
     );
   }
 
-  private buildQueryRelationMethod(
-    codeBuilder: CodeBuilder,
-    type: string,
-    methodReadyName: string
-  ): CodeBuilder {
+  private buildQueryRelationMethod(codeBuilder: CodeBuilder): CodeBuilder {
+    const { type, methodReadyName } = this.processedSpecification;
     return codeBuilder.addBlock(
       `query${methodReadyName}(): ${type}Query`,
       (b) =>
@@ -41,12 +44,8 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
     );
   }
 
-  private buildGetRelationIdsMethod(
-    codeBuilder: CodeBuilder,
-    name: string,
-    methodReadyName: string,
-    idReadyName: string
-  ): CodeBuilder {
+  private buildGetRelationIdsMethod(codeBuilder: CodeBuilder): CodeBuilder {
+    const { name, methodReadyName, idReadyName } = this.processedSpecification;
     return codeBuilder.addBlock(
       `async get${methodReadyName}Ids(): Promise<number[]>`,
       (b) =>
@@ -70,34 +69,14 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
   }
 
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const {
-      toOne: { name, type },
-    } = this.specification;
-    const methodReadyName = _.upperFirst(name);
-    const idReadyName = `${_.snakeCase(name)}_id`;
-
-    this.buildRelationIdInMethod(
-      codeBuilder,
-      methodReadyName,
-      idReadyName
-    ).addLine();
-
-    this.buildQueryRelationMethod(codeBuilder, type, methodReadyName).addLine();
-
-    this.buildGetRelationIdsMethod(
-      codeBuilder,
-      name,
-      methodReadyName,
-      idReadyName
-    );
-
+    this.buildRelationIdInMethod(codeBuilder).addLine();
+    this.buildQueryRelationMethod(codeBuilder).addLine();
+    this.buildGetRelationIdsMethod(codeBuilder);
     return codeBuilder;
   }
 
   importsRequired(): ImportMap {
-    const {
-      toOne: { type },
-    } = this.specification;
+    const { type } = this.processedSpecification;
     return {
       "mikro-orm": ["EntityData"],
       lodash: ["uniq"],

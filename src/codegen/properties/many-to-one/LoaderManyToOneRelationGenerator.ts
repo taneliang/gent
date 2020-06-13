@@ -7,12 +7,16 @@ import { ManyToOneRelationBasedGenerator } from "./ManyToOneRelationBasedGenerat
  * Generates code for a many to one edge in a *Loader class.
  */
 export class LoaderManyToOneRelationGenerator extends ManyToOneRelationBasedGenerator {
-  generateLines(codeBuilder: CodeBuilder): CodeBuilder {
+  private processedSpecification = (() => {
     const {
       toOne: { name, type },
     } = this.specification;
     const methodReadyName = _.upperFirst(name);
+    return { name, type, methodReadyName };
+  })();
 
+  private buildLoadRelationMethod(codeBuilder: CodeBuilder): CodeBuilder {
+    const { name, type, methodReadyName } = this.processedSpecification;
     return codeBuilder.addBlock(
       `load${methodReadyName}(): ${type}Loader`,
       (b) =>
@@ -35,10 +39,13 @@ export class LoaderManyToOneRelationGenerator extends ManyToOneRelationBasedGene
     );
   }
 
+  generateLines(codeBuilder: CodeBuilder): CodeBuilder {
+    this.buildLoadRelationMethod(codeBuilder);
+    return codeBuilder;
+  }
+
   importsRequired(): ImportMap {
-    const {
-      toOne: { type },
-    } = this.specification;
+    const { type } = this.processedSpecification;
     return {
       [`../${type}/${type}Loader`]: [`${type}Loader`],
     };

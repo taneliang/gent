@@ -7,14 +7,22 @@ import { OneToManyRelationBasedGenerator } from "./OneToManyRelationBasedGenerat
  * Generates code for a one to many edge in a *Query class.
  */
 export class QueryOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
-  generateLines(codeBuilder: CodeBuilder): CodeBuilder {
+  private processedSpecification = (() => {
     const {
       fromOne: { inverseName },
       toMany: { name, type },
     } = this.specification;
     const methodReadyName = _.upperFirst(name);
     const methodReadyInverseName = _.upperFirst(inverseName);
+    return { type, methodReadyName, methodReadyInverseName };
+  })();
 
+  private buildQueryRelationMethod(codeBuilder: CodeBuilder): CodeBuilder {
+    const {
+      type,
+      methodReadyName,
+      methodReadyInverseName,
+    } = this.processedSpecification;
     return codeBuilder.addBlock(
       `query${methodReadyName}(): ${type}Query`,
       (b) =>
@@ -30,10 +38,13 @@ export class QueryOneToManyRelationGenerator extends OneToManyRelationBasedGener
     );
   }
 
+  generateLines(codeBuilder: CodeBuilder): CodeBuilder {
+    this.buildQueryRelationMethod(codeBuilder);
+    return codeBuilder;
+  }
+
   importsRequired(): ImportMap {
-    const {
-      toMany: { type },
-    } = this.specification;
+    const { type } = this.processedSpecification;
     return {
       [`../${type}/${type}Query`]: [`${type}Query`],
     };

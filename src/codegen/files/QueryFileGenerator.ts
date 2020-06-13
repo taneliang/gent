@@ -2,8 +2,8 @@ import _ from "lodash";
 import { CodeBuilder } from "@elg/tscodegen";
 import { FileGenerator } from "./FileGenerator";
 import { QueryFieldGenerator } from "../properties/field/QueryFieldGenerator";
-import { QueryOneToManyRelationGenerator } from "../properties/oneToMany/QueryOneToManyRelationGenerator";
-import { QueryManyToOneRelationGenerator } from "../properties/manyToOne/QueryManyToOneRelationGenerator";
+import { QueryOneToManyRelationGenerator } from "../properties/one-to-many/QueryOneToManyRelationGenerator";
+import { QueryManyToOneRelationGenerator } from "../properties/many-to-one/QueryManyToOneRelationGenerator";
 import { buildImportLines } from "../ImportMap";
 import {
   isOneToManySpecification,

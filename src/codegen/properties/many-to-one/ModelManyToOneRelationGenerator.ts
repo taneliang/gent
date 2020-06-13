@@ -8,7 +8,7 @@ import { ManyToOneRelationBasedGenerator } from "./ManyToOneRelationBasedGenerat
  * Generates code for a many to one property in a database entity class.
  */
 export class ModelManyToOneRelationGenerator extends ManyToOneRelationBasedGenerator {
-  generateOptionsString(): string {
+  private generateOptionsString(): string {
     const {
       fromMany: { inverseName },
     } = this.specification;

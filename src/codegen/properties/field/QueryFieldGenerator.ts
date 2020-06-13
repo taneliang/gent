@@ -14,7 +14,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     return { name, type, nullable, methodReadyName, idReadyName };
   })();
 
-  private buildAllStringFieldLines(codeBuilder: CodeBuilder): CodeBuilder {
+  private buildAllStringFieldMethods(codeBuilder: CodeBuilder): CodeBuilder {
     const { methodReadyName, idReadyName } = this.processedSpecification;
     // TODO:
     // where*MatchesPattern
@@ -32,10 +32,10 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
           .addLine("return this;")
       )
       .addLine();
-    return this.buildAllGenericFieldLines(codeBuilder);
+    return this.buildAllGenericFieldMethods(codeBuilder);
   }
 
-  private buildWhereEqualsLines(codeBuilder: CodeBuilder): CodeBuilder {
+  private buildWhereEqualsMethod(codeBuilder: CodeBuilder): CodeBuilder {
     const { type, methodReadyName, idReadyName } = this.processedSpecification;
     return codeBuilder.addBlock(
       `where${methodReadyName}Equals(value: ${type}): this`,
@@ -46,7 +46,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     );
   }
 
-  private buildWhereInLines(codeBuilder: CodeBuilder): CodeBuilder {
+  private buildWhereInMethod(codeBuilder: CodeBuilder): CodeBuilder {
     const { type, methodReadyName, idReadyName } = this.processedSpecification;
     return codeBuilder.addBlock(
       `where${methodReadyName}In(values: ${type}[]): this`,
@@ -57,7 +57,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     );
   }
 
-  private buildWhereIsNullLines(codeBuilder: CodeBuilder): CodeBuilder {
+  private buildWhereIsNullMethod(codeBuilder: CodeBuilder): CodeBuilder {
     const { methodReadyName, idReadyName } = this.processedSpecification;
     return codeBuilder
       .addBlock(`where${methodReadyName}IsNull(): this`, (b) =>
@@ -73,7 +73,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
       );
   }
 
-  private buildGetAllLines(codeBuilder: CodeBuilder): CodeBuilder {
+  private buildGetAllMethod(codeBuilder: CodeBuilder): CodeBuilder {
     const {
       name,
       type,
@@ -102,7 +102,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     );
   }
 
-  private buildAllGenericFieldLines(codeBuilder: CodeBuilder): CodeBuilder {
+  private buildAllGenericFieldMethods(codeBuilder: CodeBuilder): CodeBuilder {
     // TODO: Implement comparables?
     // where*IsBetween
     // where*IsGreaterThan
@@ -111,14 +111,14 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     // where*IsLessThanOrEqual
     const { nullable } = this.processedSpecification;
 
-    this.buildWhereEqualsLines(codeBuilder).addLine();
-    this.buildWhereInLines(codeBuilder).addLine();
+    this.buildWhereEqualsMethod(codeBuilder).addLine();
+    this.buildWhereInMethod(codeBuilder).addLine();
 
     if (nullable) {
-      this.buildWhereIsNullLines(codeBuilder).addLine();
+      this.buildWhereIsNullMethod(codeBuilder).addLine();
     }
 
-    this.buildGetAllLines(codeBuilder);
+    this.buildGetAllMethod(codeBuilder);
     return codeBuilder;
   }
 
@@ -126,9 +126,9 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     const { type } = this.specification;
     switch (type) {
       case "string":
-        return this.buildAllStringFieldLines(codeBuilder);
+        return this.buildAllStringFieldMethods(codeBuilder);
       default:
-        return this.buildAllGenericFieldLines(codeBuilder);
+        return this.buildAllGenericFieldMethods(codeBuilder);
     }
   }
 

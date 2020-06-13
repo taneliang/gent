@@ -8,7 +8,7 @@ import { OneToManyRelationBasedGenerator } from "./OneToManyRelationBasedGenerat
  * Generates code for a one to many property in a database entity class.
  */
 export class ModelOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
-  generateOptionsString(): string {
+  private generateOptionsString(): string {
     const propertyOptions: OneToManyOptions<never> = _.pick(
       this.specification.toMany,
       ["nullable", "unique"]

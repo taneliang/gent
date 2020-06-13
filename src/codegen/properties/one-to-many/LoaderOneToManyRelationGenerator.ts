@@ -7,11 +7,18 @@ import { OneToManyRelationBasedGenerator } from "./OneToManyRelationBasedGenerat
  * Generates code for a one to many edge in a *Loader class.
  */
 export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGenerator {
-  private buildLoadRelationMethod(
-    codeBuilder: CodeBuilder,
-    type: string,
-    methodReadyName: string
-  ): CodeBuilder {
+  private processedSpecification = (() => {
+    const {
+      fromOne: { inverseName },
+      toMany: { name, type },
+    } = this.specification;
+    const methodReadyName = _.upperFirst(name);
+    const idReadyInverseName = `${_.snakeCase(inverseName)}_id`;
+    return { name, type, methodReadyName, inverseName, idReadyInverseName };
+  })();
+
+  private buildLoadRelationMethod(codeBuilder: CodeBuilder): CodeBuilder {
+    const { type, methodReadyName } = this.processedSpecification;
     return codeBuilder.addBlock(
       `load${methodReadyName}(): ${type}Loader`,
       (b) =>
@@ -36,13 +43,13 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
     );
   }
 
-  private buildGetRelationMethod(
-    codeBuilder: CodeBuilder,
-    type: string,
-    methodReadyName: string,
-    inverseName: string,
-    idReadyInverseName: string
-  ): CodeBuilder {
+  private buildGetRelationMethod(codeBuilder: CodeBuilder): CodeBuilder {
+    const {
+      type,
+      methodReadyName,
+      inverseName,
+      idReadyInverseName,
+    } = this.processedSpecification;
     return codeBuilder.addBlock(
       `async get${methodReadyName}(): Promise<(${type}[] | Error)[]>`,
       (b) =>
@@ -65,30 +72,13 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
   }
 
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const {
-      fromOne: { inverseName },
-      toMany: { name, type },
-    } = this.specification;
-    const methodReadyName = _.upperFirst(name);
-    const idReadyInverseName = `${_.snakeCase(inverseName)}_id`;
-
-    this.buildLoadRelationMethod(codeBuilder, type, methodReadyName).addLine();
-
-    this.buildGetRelationMethod(
-      codeBuilder,
-      type,
-      methodReadyName,
-      inverseName,
-      idReadyInverseName
-    );
-
+    this.buildLoadRelationMethod(codeBuilder).addLine();
+    this.buildGetRelationMethod(codeBuilder);
     return codeBuilder;
   }
 
   importsRequired(): ImportMap {
-    const {
-      toMany: { type },
-    } = this.specification;
+    const { type } = this.processedSpecification;
     return {
       [`../${type}/${type}`]: [type],
       [`../${type}/${type}Loader`]: [`${type}Loader`],
