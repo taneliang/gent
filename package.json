@@ -28,7 +28,7 @@
   "peerDependencies": {
     "mikro-orm": "3.x",
     "ts-node": ">=8",
-    "typescript": "3.x"
+    "typescript": ">=3.9.0"
   },
   "dependencies": {
     "@elg/tscodegen": "^0.2.0",
