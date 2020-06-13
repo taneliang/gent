@@ -27,7 +27,7 @@ function initializedGlobalOrm(): MikroORM | never {
   return globalOrm;
 }
 
-export function createContextualizedEntityManager(): EntityManager {
+export function createEntityManagerForNewVC(): EntityManager {
   return initializedGlobalOrm().em.fork();
 }
 

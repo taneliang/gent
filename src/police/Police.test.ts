@@ -16,7 +16,7 @@ import {
   TestEntityQuery,
   TestEntity,
   TestAuthenticatedViewerContext,
-  createContextualizedEntityManager,
+  createEntityManagerForNewVC,
 } from "../test-util";
 
 describe(Police, () => {
@@ -36,9 +36,7 @@ describe(Police, () => {
   ): { vc: ViewerContext; query: TestEntityQuery; police: TestPolice } {
     vc =
       vc ??
-      new DangerouslyOmnipotentViewerContext(
-        createContextualizedEntityManager()
-      );
+      new DangerouslyOmnipotentViewerContext(createEntityManagerForNewVC());
     const query = new TestEntityQuery(vc, TestEntity);
     const police = new Police(vc, action, query);
     return { vc, police, query };
@@ -220,16 +218,14 @@ describe(Police, () => {
       testShouldDoNothingIfAlreadyDecidedToDeny(
         (police) => police.allowIfOmnipotent(),
         () =>
-          new DangerouslyOmnipotentViewerContext(
-            createContextualizedEntityManager()
-          )
+          new DangerouslyOmnipotentViewerContext(createEntityManagerForNewVC())
       );
 
       test("should allow if VC is omnipotent", () => {
         expect(
           createPolice(
             new DangerouslyOmnipotentViewerContext(
-              createContextualizedEntityManager()
+              createEntityManagerForNewVC()
             )
           ).police.allowIfOmnipotent().decision
         ).toEqual<TestPoliceDecision>({
@@ -240,16 +236,12 @@ describe(Police, () => {
       test("should do nothing if VC is not omnipotent", () => {
         expect(
           createPolice(
-            new TestAuthenticatedViewerContext(
-              createContextualizedEntityManager()
-            )
+            new TestAuthenticatedViewerContext(createEntityManagerForNewVC())
           ).police.allowIfOmnipotent().decision
         ).toBeUndefined();
         expect(
           createPolice(
-            new UnauthenticatedViewerContext(
-              createContextualizedEntityManager()
-            )
+            new UnauthenticatedViewerContext(createEntityManagerForNewVC())
           ).police.allowIfOmnipotent().decision
         ).toBeUndefined();
       });
@@ -260,9 +252,7 @@ describe(Police, () => {
       testShouldDoNothingIfAlreadyDecidedToDeny(
         (police) => police.allowAll(),
         () =>
-          new DangerouslyOmnipotentViewerContext(
-            createContextualizedEntityManager()
-          )
+          new DangerouslyOmnipotentViewerContext(createEntityManagerForNewVC())
       );
 
       test("should set decision to allow", () => {
@@ -301,16 +291,13 @@ describe(Police, () => {
       testShouldReturnSelf((police) => police.denyIfUnauthenticated());
       testShouldDoNothingIfAlreadyDecidedToAllow(
         (police) => police.denyIfUnauthenticated(),
-        () =>
-          new UnauthenticatedViewerContext(createContextualizedEntityManager())
+        () => new UnauthenticatedViewerContext(createEntityManagerForNewVC())
       );
 
       test("should deny if unauthenticated", () => {
         expect(
           createPolice(
-            new UnauthenticatedViewerContext(
-              createContextualizedEntityManager()
-            )
+            new UnauthenticatedViewerContext(createEntityManagerForNewVC())
           ).police.denyIfUnauthenticated().decision
         ).toMatchObject({
           type: "deny",
@@ -320,15 +307,13 @@ describe(Police, () => {
       test("should do nothing if authenticated or omnipotent", () => {
         expect(
           createPolice(
-            new TestAuthenticatedViewerContext(
-              createContextualizedEntityManager()
-            )
+            new TestAuthenticatedViewerContext(createEntityManagerForNewVC())
           ).police.denyIfUnauthenticated().decision
         ).toBeUndefined();
         expect(
           createPolice(
             new DangerouslyOmnipotentViewerContext(
-              createContextualizedEntityManager()
+              createEntityManagerForNewVC()
             )
           ).police.denyIfUnauthenticated().decision
         ).toBeUndefined();
