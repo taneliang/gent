@@ -4,7 +4,7 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Post/PostSchema.ts
  *
- * @generated Codelock<<gQEw5DFrM9935B29j1fxk57Xp9WkwJag>>
+ * @generated Codelock<<WTE06VdJDZ213g2Wp5zULfhvamOI/yQJ>>
  */
 
 import {
@@ -17,6 +17,7 @@ import { Post } from "./Post";
 import { PostMutator } from "./PostMutator";
 import PostSchema from "./PostSchema";
 import { EntityData } from "mikro-orm";
+import { CommentQuery } from "../Comment/CommentQuery";
 
 export class PostQuery extends GentQuery<Post> {
   protected entityClass = Post;
@@ -154,5 +155,11 @@ export class PostQuery extends GentQuery<Post> {
       this.vc.entityManager.map(this.entityClass, result)
     );
     return resultEntities.map((gent) => gent.description);
+  }
+
+  queryComments(): CommentQuery {
+    return new CommentQuery(this.vc, async (childQuery) => {
+      childQuery.wherePostIdIn(await this.getIds());
+    });
   }
 }

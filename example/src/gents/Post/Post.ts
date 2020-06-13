@@ -4,11 +4,12 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Post/PostSchema.ts
  *
- * @generated Codelock<<M523kKzRY1YXdcatkZ94HOq7KM8e4ZpR>>
+ * @generated Codelock<<Ao2S1Bj8vM+Ysl3wEykTQaS6qlUpEa9S>>
  */
 
-import { Entity, PrimaryKey, Property } from "mikro-orm";
+import { Collection, Entity, OneToMany, PrimaryKey, Property } from "mikro-orm";
 import { GentModel } from "@elg/gent";
+import { Comment } from "../Comment/Comment";
 
 @Entity()
 export class Post implements GentModel {
@@ -20,4 +21,7 @@ export class Post implements GentModel {
 
   @Property({ nullable: true })
   description?: string;
+
+  @OneToMany(() => Comment, (e) => e.post)
+  comments = new Collection<Comment>(this);
 }
