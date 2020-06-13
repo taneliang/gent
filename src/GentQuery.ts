@@ -96,38 +96,11 @@ export abstract class GentQuery<Model extends BaseGent> {
     return this;
   }
 
-  whereId(id: number): this {
-    this.queryBuilder.where("id", id);
-    return this;
-  }
-
-  whereIdsIn(ids: number[]): this {
-    this.queryBuilder.whereIn("id", ids);
-    return this;
-  }
-
-  private async applyGraphViewRestrictions() {
+  protected async applyGraphViewRestrictions(): Promise<void> {
     if (!this.graphViewRestrictor) {
       return;
     }
     await this.graphViewRestrictor(this);
-  }
-
-  /**
-   * Returns the result set's IDs.
-   */
-  async getIds(): Promise<number[]> {
-    await this.applyGraphViewRestrictions();
-    const finalQb = this.queryBuilder.clone().clearSelect().select("id");
-    const results: EntityData<
-      Model
-    >[] = await this.vc.entityManager
-      .getConnection("read")
-      .execute(finalQb as never);
-    const resultEntities = results.map((result) =>
-      this.vc.entityManager.map(this.entityClass, result)
-    );
-    return resultEntities.map((gent) => gent.id);
   }
 
   /**

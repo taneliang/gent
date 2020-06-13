@@ -8,6 +8,11 @@ import { FieldBasedGenerator } from "./FieldBasedGenerator";
  * Generates code for a field property in a database entity class.
  */
 export class ModelFieldGenerator extends FieldBasedGenerator {
+  get decoratorName(): "PrimaryKey" | "Property" {
+    const { isPrimaryKey } = this.specification;
+    return isPrimaryKey ? "PrimaryKey" : "Property";
+  }
+
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
     const { name, type } = this.specification;
     const propertyOptions: PropertyOptions = _.pick(this.specification, [
@@ -20,11 +25,11 @@ export class ModelFieldGenerator extends FieldBasedGenerator {
       : JSON.stringify(propertyOptions);
     const nullUnwrapIndicator = propertyOptions.nullable ? "?" : "!";
     return codeBuilder
-      .addLine(`@Property(${optionsString})`)
+      .addLine(`@${this.decoratorName}(${optionsString})`)
       .addLine(`${name}${nullUnwrapIndicator}: ${type};`);
   }
 
   importsRequired(): ImportMap {
-    return { "mikro-orm": ["Property"] };
+    return { "mikro-orm": [this.decoratorName] };
   }
 }

@@ -1,5 +1,8 @@
-import { Entity } from "mikro-orm";
+import { Entity, PrimaryKey } from "mikro-orm";
 import { BaseGent } from "..";
 
 @Entity()
-export class TestEntity extends BaseGent {}
+export class TestEntity implements BaseGent {
+  @PrimaryKey()
+  id!: number;
+}

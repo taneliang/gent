@@ -23,7 +23,7 @@ export class QueryOneToManyRelationGenerator extends OneToManyRelationBasedGener
             `return new ${type}Query(this.vc, async (childQuery) =>`,
             (b) =>
               b.addLine(
-                `childQuery.where${methodReadyInverseName}IdsIn(await this.getIds());`
+                `childQuery.where${methodReadyInverseName}IdIn(await this.getIds());`
               )
           )
           .addLine(");")

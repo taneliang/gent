@@ -7,13 +7,13 @@ import { ManyToOneRelationBasedGenerator } from "./ManyToOneRelationBasedGenerat
  * Generates code for a many to one edge in a *Query class.
  */
 export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGenerator {
-  private buildRelationIdsInMethod(
+  private buildRelationIdInMethod(
     codeBuilder: CodeBuilder,
     methodReadyName: string,
     idReadyName: string
   ): CodeBuilder {
     return codeBuilder.addBlock(
-      `where${methodReadyName}IdsIn(ids: number[]): this`,
+      `where${methodReadyName}IdIn(ids: number[]): this`,
       (b) =>
         b
           .addLine(`this.queryBuilder.whereIn('${idReadyName}', ids);`)
@@ -34,7 +34,7 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
             `return new ${type}Query(this.vc, async (childQuery) =>`,
             (b) =>
               b.addLine(
-                `childQuery.whereIdsIn(await this.get${methodReadyName}Ids());`
+                `childQuery.whereIdIn(await this.get${methodReadyName}Ids());`
               )
           )
           .addLine(");")
@@ -76,7 +76,7 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
     const methodReadyName = _.upperFirst(name);
     const idReadyName = `${_.snakeCase(name)}_id`;
 
-    this.buildRelationIdsInMethod(
+    this.buildRelationIdInMethod(
       codeBuilder,
       methodReadyName,
       idReadyName

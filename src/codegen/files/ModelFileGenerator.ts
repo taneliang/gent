@@ -72,7 +72,7 @@ export class ModelFileGenerator extends FileGenerator {
         this.buildImportLines(b)
           .addLine()
           .addLine("@Entity()")
-          .addBlock(`export class ${entityName} extends BaseGent`, (b) => {
+          .addBlock(`export class ${entityName} implements BaseGent`, (b) => {
             this.buildFieldLines(b);
             this.buildRelationLines(b);
             return b;
