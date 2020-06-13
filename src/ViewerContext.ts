@@ -1,5 +1,4 @@
 import { EntityManager } from "mikro-orm";
-import { createContextualizedEntityManager } from "./orm";
 import { BeltalowdaCenter } from "./BeltalowdaCenter";
 
 /**
@@ -11,7 +10,7 @@ import { BeltalowdaCenter } from "./BeltalowdaCenter";
  */
 export abstract class ViewerContext {
   /**
-   * Entity manager, forked meant to be used with this viewer context.
+   * Entity manager, meant to be used with this viewer context.
    *
    * WARNING: You probably don't want to use this directly! This is intended
    * for use by GentQuery/GentMutator and has raw access to the database. Using
@@ -22,8 +21,12 @@ export abstract class ViewerContext {
 
   readonly beltalowdas: BeltalowdaCenter;
 
-  constructor() {
-    this.entityManager = createContextualizedEntityManager();
+  /**
+   * TODO: Add more docs to describe forking
+   * @param entityManager An entity manager forked for this viewer context.
+   */
+  constructor(entityManager: EntityManager) {
+    this.entityManager = entityManager;
     this.beltalowdas = new BeltalowdaCenter();
   }
 
