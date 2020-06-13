@@ -25,12 +25,14 @@
     "lint:misc:fix": "yarn lint:misc --write",
     "prepare": "yarn clean && yarn build"
   },
+  "peerDependencies": {
+    "mikro-orm": "3.x"
+  },
   "dependencies": {
     "@elg/tscodegen": "^0.2.0",
     "commander": "^5.1.0",
     "dataloader": "^2.0.0",
     "lodash": "^4.17.15",
-    "mikro-orm": "^3.6.15",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5"
   },
@@ -48,6 +50,7 @@
     "eslint-plugin-prettier": "^3.1.3",
     "jest": "^26.0.1",
     "jest-junit": "^10.0.0",
+    "mikro-orm": "^3.6.15",
     "mock-fs": "^4.12.0",
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5",
