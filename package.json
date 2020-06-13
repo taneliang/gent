@@ -26,15 +26,15 @@
     "prepare": "yarn clean && yarn build"
   },
   "peerDependencies": {
-    "mikro-orm": "3.x"
+    "mikro-orm": "3.x",
+    "ts-node": ">=8",
+    "typescript": "3.x"
   },
   "dependencies": {
     "@elg/tscodegen": "^0.2.0",
     "commander": "^5.1.0",
     "dataloader": "^2.0.0",
-    "lodash": "^4.17.15",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.5"
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "@types/faker": "^4.1.12",
@@ -55,7 +55,8 @@
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5",
     "sqlite3": "^4.2.0",
-    "ts-jest": "^26.1.0"
+    "ts-jest": "^26.1.0",
+    "typescript": "^3.9.5"
   },
   "keywords": [
     "codegen",
