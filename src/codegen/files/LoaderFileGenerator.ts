@@ -63,14 +63,16 @@ export class LoaderFileGenerator extends FileGenerator {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
 
-    return builder.addBlock("protected createIdBeltalowda()", (b) =>
-      b
-        .addLine("return new Beltalowda(")
-        .addLine("this.vc,")
-        .addLine(`() => new ${entityName}Query(this.vc),`)
-        .addLine("'id',")
-        .addLine("(model) => model.id,")
-        .addLine(");")
+    return builder.addBlock(
+      `protected createIdBeltalowda(): Beltalowda<${entityName}, number>`,
+      (b) =>
+        b
+          .addLine("return new Beltalowda(")
+          .addLine("this.vc,")
+          .addLine(`() => new ${entityName}Query(this.vc),`)
+          .addLine("'id',")
+          .addLine("(model) => model.id,")
+          .addLine(");")
     );
   }
 

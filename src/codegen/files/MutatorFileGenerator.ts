@@ -68,9 +68,11 @@ export class MutatorFileGenerator extends FileGenerator {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
 
-    return builder.addBlock(
-      "protected applyAccessControlRules(action: MutationAction, knexQueryBuilder: QueryBuilder)",
-      (b) =>
+    return builder
+      .addLine("protected applyAccessControlRules(")
+      .addLine("action: MutationAction,")
+      .addLine("knexQueryBuilder: QueryBuilder,")
+      .addBlock("): void", (b) =>
         b
           .addLine(
             `const authorizedSubviewQuery = new ${entityName}Query(this.vc, undefined, false);`
@@ -101,7 +103,7 @@ export class MutatorFileGenerator extends FileGenerator {
                 )
                 .addLine(");")
           )
-    );
+      );
   }
 
   generate(): void {

@@ -82,7 +82,7 @@ export class QueryFileGenerator extends FileGenerator {
     // TODO: Consider using MikroORM's naming strategy instead
     const tableReadyEntityName = _.snakeCase(entityName);
 
-    return builder.addBlock("protected applyAccessControlRules()", (b) =>
+    return builder.addBlock("protected applyAccessControlRules(): void", (b) =>
       b
         .addLine(
           `const authorizedSubviewQuery = new ${entityName}Query(this.vc, undefined, false);`
