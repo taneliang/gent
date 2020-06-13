@@ -91,7 +91,9 @@ export abstract class GentQuery<Model extends GentModel> {
    *
    * @param builder A function that modifies the Knex query builder.
    */
-  buildKnexQueryBuilder(builder: (qb: QueryBuilder<Model>) => void): this {
+  dangerouslyBuildKnexQueryBuilder(
+    builder: (qb: QueryBuilder<Model>) => void
+  ): this {
     builder(this.queryBuilder);
     return this;
   }

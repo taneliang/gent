@@ -45,7 +45,7 @@ export class Beltalowda<
     Model[]
   > = async (valuesToFetch) => {
     const unorderedResults = await this.queryConstructor()
-      .buildKnexQueryBuilder((qb) =>
+      .dangerouslyBuildKnexQueryBuilder((qb) =>
         qb.whereIn(this.fieldNameToFilter, valuesToFetch)
       )
       .getAll();
