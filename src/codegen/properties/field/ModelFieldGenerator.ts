@@ -14,11 +14,15 @@ export class ModelFieldGenerator extends FieldBasedGenerator {
   }
 
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const { name, type } = this.specification;
+    const { name, type, sqlColumnType } = this.specification;
+
     const propertyOptions: PropertyOptions = _.pick(this.specification, [
       "nullable",
       "unique",
     ]);
+    if (sqlColumnType) {
+      propertyOptions.columnType = sqlColumnType;
+    }
 
     const optionsString = _.isEmpty(propertyOptions)
       ? ""
