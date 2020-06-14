@@ -9,8 +9,8 @@ import { FieldBasedGenerator } from "./FieldBasedGenerator";
  */
 export class ModelFieldGenerator extends FieldBasedGenerator {
   private get decoratorName(): "PrimaryKey" | "Property" {
-    const { isPrimaryKey } = this.specification;
-    return isPrimaryKey ? "PrimaryKey" : "Property";
+    const { primaryKey } = this.specification;
+    return primaryKey ? "PrimaryKey" : "Property";
   }
 
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
