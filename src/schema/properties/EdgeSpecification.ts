@@ -14,23 +14,24 @@ export type OneToManySpecification = {
   toMany: PropertySpecification;
 };
 
-// TODO:
-// export type OneToOneSpecification = {
-//   fromOne: {
-//     inverseName: string;
-//   };
-//   toMany: PropertySpecification;
-//   /**
-//    * If true, this end of the edge will hold the other's foreign key.
-//    */
-//   isOwner: boolean;
-// };
+export type OneToOneSpecification = {
+  fromOne: {
+    inverseName: string;
+    /**
+     * If true, this end of the edge will hold the other's foreign key.
+     */
+    owner: boolean;
+  };
+  toOne: PropertySpecification;
+};
 
 // TODO:
 // export type ManyToManySpecification = {};
 
-export type EdgeSpecification = ManyToOneSpecification | OneToManySpecification;
-// | OneToOneSpecification
+export type EdgeSpecification =
+  | ManyToOneSpecification
+  | OneToManySpecification
+  | OneToOneSpecification;
 // | ManyToManySpecification;
 
 export function isManyToOneSpecification(
@@ -51,14 +52,14 @@ export function isOneToManySpecification(
   );
 }
 
-// export function isOneToOneSpecification(
-//   edgeSpec: EdgeSpecification
-// ): edgeSpec is OneToOneSpecification {
-//   return (
-//     Object.prototype.hasOwnProperty.call(edgeSpec, "fromOne") &&
-//     Object.prototype.hasOwnProperty.call(edgeSpec, "toOne")
-//   );
-// }
+export function isOneToOneSpecification(
+  edgeSpec: EdgeSpecification
+): edgeSpec is OneToOneSpecification {
+  return (
+    Object.prototype.hasOwnProperty.call(edgeSpec, "fromOne") &&
+    Object.prototype.hasOwnProperty.call(edgeSpec, "toOne")
+  );
+}
 
 // export function isManyToManySpecification(
 //   edgeSpec: EdgeSpecification

@@ -1,11 +1,13 @@
 import { CodeBuilder } from "@elg/tscodegen";
 import { LoaderOneToManyRelationGenerator } from "../properties/one-to-many/LoaderOneToManyRelationGenerator";
 import { LoaderManyToOneRelationGenerator } from "../properties/many-to-one/LoaderManyToOneRelationGenerator";
+import { LoaderOneToOneRelationGenerator } from "../properties/one-to-one/LoaderOneToOneRelationGenerator";
 import { FileGenerator } from "./FileGenerator";
 import { buildImportLines } from "../ImportMap";
 import {
   isOneToManySpecification,
   isManyToOneSpecification,
+  isOneToOneSpecification,
 } from "../../schema";
 
 /**
@@ -19,6 +21,8 @@ export class LoaderFileGenerator extends FileGenerator {
         return new LoaderOneToManyRelationGenerator(schema.entityName, spec);
       } else if (isManyToOneSpecification(spec)) {
         return new LoaderManyToOneRelationGenerator(schema.entityName, spec);
+      } else if (isOneToOneSpecification(spec)) {
+        return new LoaderOneToOneRelationGenerator(schema.entityName, spec);
       }
       throw new Error(
         `Unsupported edge specification "${JSON.stringify(spec)}".`

@@ -4,10 +4,12 @@ import { FileGenerator } from "./FileGenerator";
 import { QueryFieldGenerator } from "../properties/field/QueryFieldGenerator";
 import { QueryOneToManyRelationGenerator } from "../properties/one-to-many/QueryOneToManyRelationGenerator";
 import { QueryManyToOneRelationGenerator } from "../properties/many-to-one/QueryManyToOneRelationGenerator";
+import { QueryOneToOneRelationGenerator } from "../properties/one-to-one/QueryOneToOneRelationGenerator";
 import { buildImportLines } from "../ImportMap";
 import {
   isOneToManySpecification,
   isManyToOneSpecification,
+  isOneToOneSpecification,
 } from "../../schema";
 
 /**
@@ -27,6 +29,8 @@ export class QueryFileGenerator extends FileGenerator {
         return new QueryOneToManyRelationGenerator(schema.entityName, spec);
       } else if (isManyToOneSpecification(spec)) {
         return new QueryManyToOneRelationGenerator(schema.entityName, spec);
+      } else if (isOneToOneSpecification(spec)) {
+        return new QueryOneToOneRelationGenerator(schema.entityName, spec);
       }
       throw new Error(
         `Unsupported edge specification "${JSON.stringify(spec)}".`
