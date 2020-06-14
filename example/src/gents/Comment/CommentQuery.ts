@@ -4,7 +4,7 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Comment/CommentSchema.ts
  *
- * @generated Codelock<<nphu2OQ84kf4UWBuPpQdmJRmVrhJ+HDJ>>
+ * @generated Codelock<<D/2v8TgZe0QCA8rPn2ZkPcmb9DhZ7DRF>>
  */
 
 import {
@@ -121,6 +121,19 @@ export class CommentQuery extends GentQuery<Comment> {
 
   wherePostIdIn(ids: number[]): this {
     this.queryBuilder.whereIn("post_id", ids);
+    return this;
+  }
+
+  whereHasPost(
+    builder: (query: PostQuery) => PostQuery = (query) => query
+  ): this {
+    const relationQuery = builder(new PostQuery(this.vc));
+    this.queryBuilder.whereExists(
+      relationQuery.queryBuilder.where(
+        "comment.post_id",
+        relationQuery.queryBuilder.client.ref("post.id")
+      )
+    );
     return this;
   }
 

@@ -12,10 +12,63 @@ export class QueryOneToManyRelationGenerator extends OneToManyRelationBasedGener
       fromOne: { inverseName },
       toMany: { name, type },
     } = this.specification;
-    const methodReadyName = _.upperFirst(name);
-    const methodReadyInverseName = _.upperFirst(inverseName);
-    return { type, methodReadyName, methodReadyInverseName };
+    return {
+      type,
+      fromTableName: _.snakeCase(this.parentEntityType),
+      toTableName: _.snakeCase(type),
+      methodReadyName: _.upperFirst(name),
+      methodReadyInverseName: _.upperFirst(inverseName),
+      inverseIdColumnName: `${_.snakeCase(inverseName)}_id`,
+    };
   })();
+
+  /**
+   * Builds a whereHas* method that does a where-relation-exists query.
+   */
+  private buildWhereHasRelationMethod(codeBuilder: CodeBuilder): CodeBuilder {
+    const {
+      type,
+      fromTableName,
+      toTableName,
+      methodReadyName,
+      inverseIdColumnName,
+    } = this.processedSpecification;
+    return codeBuilder
+      .addLine(`whereHas${methodReadyName}(`)
+      .addLine(
+        `builder: (query: ${type}Query) => ${type}Query = (query) => query,`
+      )
+      .addBlock("): this", (b) =>
+        b
+          .addLine(`const relationQuery = builder(new ${type}Query(this.vc));`)
+          .addLine("this.queryBuilder.whereExists(")
+          .addLine("relationQuery.queryBuilder.where(")
+          // TODO: Ensure unique aliases
+          .addLine(`"${fromTableName}.id",`)
+          .addLine(
+            `relationQuery.queryBuilder.client.ref("${toTableName}.${inverseIdColumnName}")`
+          )
+          .addLine(")")
+          .addLine(");")
+          .addLine("return this;")
+      );
+  }
+
+  // TODO:
+  // whereRelation (= join)
+  // TODO: withRelation (= left join)
+  // withComments(
+  //   builder: (query: CommentQuery) => CommentQuery = (query) => query
+  // ): this {
+  //   const relationQuery = builder(new CommentQuery(this.vc));
+  //   this.queryBuilder.join(
+  //     // TODO: Ensure unique label
+  //     // TODO: Fix ambiguous id column; generate aliases and store on query? Can also supply depth
+  //     relationQuery.queryBuilder.as("comments"),
+  //     (joinClause) => joinClause.on("comments.post_id", "=", "id")
+  //   );
+  //   return this;
+  // }
 
   private buildQueryRelationMethod(codeBuilder: CodeBuilder): CodeBuilder {
     const {
@@ -39,6 +92,7 @@ export class QueryOneToManyRelationGenerator extends OneToManyRelationBasedGener
   }
 
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
+    this.buildWhereHasRelationMethod(codeBuilder).addLine();
     this.buildQueryRelationMethod(codeBuilder);
     return codeBuilder;
   }

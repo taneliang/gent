@@ -11,8 +11,11 @@ export class LoaderManyToOneRelationGenerator extends ManyToOneRelationBasedGene
     const {
       toOne: { name, type },
     } = this.specification;
-    const methodReadyName = _.upperFirst(name);
-    return { name, type, methodReadyName };
+    return {
+      name,
+      type,
+      methodReadyName: _.upperFirst(name),
+    };
   })();
 
   private buildLoadRelationMethod(codeBuilder: CodeBuilder): CodeBuilder {

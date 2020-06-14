@@ -9,13 +9,17 @@ import { FieldBasedGenerator } from "./FieldBasedGenerator";
 export class QueryFieldGenerator extends FieldBasedGenerator {
   private processedSpecification = (() => {
     const { name, type, nullable } = this.specification;
-    const methodReadyName = _.upperFirst(name);
-    const idReadyName = _.snakeCase(name);
-    return { name, type, nullable, methodReadyName, idReadyName };
+    return {
+      name,
+      type,
+      nullable,
+      methodReadyName: _.upperFirst(name),
+      columnName: _.snakeCase(name),
+    };
   })();
 
   private buildAllStringFieldMethods(codeBuilder: CodeBuilder): CodeBuilder {
-    const { methodReadyName, idReadyName } = this.processedSpecification;
+    const { methodReadyName, columnName } = this.processedSpecification;
     // TODO:
     // where*MatchesPattern
     // where*HasPrefix
@@ -26,9 +30,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
     codeBuilder
       .addBlock(`where${methodReadyName}Like(pattern: string): this`, (b) =>
         b
-          .addLine(
-            `this.queryBuilder.where('${idReadyName}', 'LIKE', pattern);`
-          )
+          .addLine(`this.queryBuilder.where('${columnName}', 'LIKE', pattern);`)
           .addLine("return this;")
       )
       .addLine();
@@ -36,39 +38,39 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
   }
 
   private buildWhereEqualsMethod(codeBuilder: CodeBuilder): CodeBuilder {
-    const { type, methodReadyName, idReadyName } = this.processedSpecification;
+    const { type, methodReadyName, columnName } = this.processedSpecification;
     return codeBuilder.addBlock(
       `where${methodReadyName}Equals(value: ${type}): this`,
       (b) =>
         b
-          .addLine(`this.queryBuilder.where('${idReadyName}', value);`)
+          .addLine(`this.queryBuilder.where('${columnName}', value);`)
           .addLine("return this;")
     );
   }
 
   private buildWhereInMethod(codeBuilder: CodeBuilder): CodeBuilder {
-    const { type, methodReadyName, idReadyName } = this.processedSpecification;
+    const { type, methodReadyName, columnName } = this.processedSpecification;
     return codeBuilder.addBlock(
       `where${methodReadyName}In(values: ${type}[]): this`,
       (b) =>
         b
-          .addLine(`this.queryBuilder.whereIn('${idReadyName}', values);`)
+          .addLine(`this.queryBuilder.whereIn('${columnName}', values);`)
           .addLine("return this;")
     );
   }
 
   private buildWhereIsNullMethod(codeBuilder: CodeBuilder): CodeBuilder {
-    const { methodReadyName, idReadyName } = this.processedSpecification;
+    const { methodReadyName, columnName } = this.processedSpecification;
     return codeBuilder
       .addBlock(`where${methodReadyName}IsNull(): this`, (b) =>
         b
-          .addLine(`this.queryBuilder.whereNull('${idReadyName}');`)
+          .addLine(`this.queryBuilder.whereNull('${columnName}');`)
           .addLine("return this;")
       )
       .addLine()
       .addBlock(`where${methodReadyName}IsNotNull(): this`, (b) =>
         b
-          .addLine(`this.queryBuilder.whereNotNull('${idReadyName}');`)
+          .addLine(`this.queryBuilder.whereNotNull('${columnName}');`)
           .addLine("return this;")
       );
   }
@@ -79,7 +81,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
       type,
       nullable,
       methodReadyName,
-      idReadyName,
+      columnName,
     } = this.processedSpecification;
     const returnType = nullable ? `(${type} | undefined)` : type;
     return codeBuilder.addBlock(
@@ -88,7 +90,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
         b
           .addLine("await this.applyGraphViewRestrictions();")
           .addLine(
-            `const finalQb = this.queryBuilder.clone().clearSelect().select("${idReadyName}");`
+            `const finalQb = this.queryBuilder.clone().clearSelect().select("${columnName}");`
           )
           .addLine("const results: EntityData<")
           .addLine(`${this.parentEntityType}`)

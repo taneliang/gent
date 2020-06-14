@@ -12,9 +12,13 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
       fromOne: { inverseName },
       toMany: { name, type },
     } = this.specification;
-    const methodReadyName = _.upperFirst(name);
-    const idReadyInverseName = `${_.snakeCase(inverseName)}_id`;
-    return { name, type, methodReadyName, inverseName, idReadyInverseName };
+    return {
+      name,
+      type,
+      methodReadyName: _.upperFirst(name),
+      inverseName,
+      inverseIdColumnName: `${_.snakeCase(inverseName)}_id`,
+    };
   })();
 
   private buildLoadRelationMethod(codeBuilder: CodeBuilder): CodeBuilder {
@@ -48,7 +52,7 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
       type,
       methodReadyName,
       inverseName,
-      idReadyInverseName,
+      inverseIdColumnName,
     } = this.processedSpecification;
     return codeBuilder.addBlock(
       `async get${methodReadyName}(): Promise<(${type}[] | Error)[]>`,
@@ -56,13 +60,13 @@ export class LoaderOneToManyRelationGenerator extends OneToManyRelationBasedGene
         b
           .addLine("return this.vc.beltalowdas")
           .addBlock(
-            `.beltalowdaForModel(${type}, '${idReadyInverseName}', () =>`,
+            `.beltalowdaForModel(${type}, '${inverseIdColumnName}', () =>`,
             (b) =>
               b
                 .addLine("return new Beltalowda(")
                 .addLine("this.vc,")
                 .addLine(`() => new ${type}Query(this.vc),`)
-                .addLine(`'${idReadyInverseName}',`)
+                .addLine(`'${inverseIdColumnName}',`)
                 .addLine(`(model) => model.${inverseName}.id,`)
                 .addLine(");")
           )

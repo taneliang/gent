@@ -4,7 +4,7 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Post/PostSchema.ts
  *
- * @generated Codelock<<WTE06VdJDZ213g2Wp5zULfhvamOI/yQJ>>
+ * @generated Codelock<<2ycbuOGJD0tJIk65ifPrypChfVhoqSnY>>
  */
 
 import {
@@ -155,6 +155,19 @@ export class PostQuery extends GentQuery<Post> {
       this.vc.entityManager.map(this.entityClass, result)
     );
     return resultEntities.map((gent) => gent.description);
+  }
+
+  whereHasComments(
+    builder: (query: CommentQuery) => CommentQuery = (query) => query
+  ): this {
+    const relationQuery = builder(new CommentQuery(this.vc));
+    this.queryBuilder.whereExists(
+      relationQuery.queryBuilder.where(
+        "post.id",
+        relationQuery.queryBuilder.client.ref("comment.post_id")
+      )
+    );
+    return this;
   }
 
   queryComments(): CommentQuery {
