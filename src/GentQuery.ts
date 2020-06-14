@@ -61,8 +61,8 @@ export abstract class GentQuery<Model extends GentModel> {
     this.graphViewRestrictor = graphViewRestrictor;
     this.queryBuilder = this.vc.entityManager
       .createQueryBuilder(entityClass)
-      .select("*")
-      .getKnexQuery();
+      .getKnexQuery()
+      .select("*");
     if (shouldApplyAccessControlRules) {
       this.applyAccessControlRules();
     }
