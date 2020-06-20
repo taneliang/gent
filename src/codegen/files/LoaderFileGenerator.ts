@@ -34,7 +34,7 @@ export class LoaderFileGenerator extends FileGenerator {
     return "Loader";
   }
 
-  buildImportLines(builder: CodeBuilder): CodeBuilder {
+  private buildImportLines(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
@@ -50,10 +50,17 @@ export class LoaderFileGenerator extends FileGenerator {
     const generatorImports = [...this.relationGenerators].map((generator) =>
       generator.importsRequired()
     );
-    return buildImportLines([ourImports, ...generatorImports], builder);
+
+    buildImportLines([ourImports, ...generatorImports], builder);
+
+    if (this.codegenInfo.schema.codegenOptions?.loader?.enableManualImports) {
+      builder.addLine().addManualSection("custom-imports", (b) => b);
+    }
+
+    return builder;
   }
 
-  buildConstructor(builder: CodeBuilder): CodeBuilder {
+  private buildConstructor(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
 
@@ -63,7 +70,7 @@ export class LoaderFileGenerator extends FileGenerator {
     );
   }
 
-  buildCreateIdBeltalowda(builder: CodeBuilder): CodeBuilder {
+  private buildCreateIdBeltalowda(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
 
@@ -80,7 +87,7 @@ export class LoaderFileGenerator extends FileGenerator {
     );
   }
 
-  buildRelationLines(builder: CodeBuilder): CodeBuilder {
+  private buildRelationLines(builder: CodeBuilder): CodeBuilder {
     this.relationGenerators.forEach((generator) =>
       generator.generateLines(builder).addLine()
     );
@@ -102,6 +109,9 @@ export class LoaderFileGenerator extends FileGenerator {
               this.buildConstructor(b).addLine();
               this.buildCreateIdBeltalowda(b).addLine();
               this.buildRelationLines(b);
+              if (schema.codegenOptions?.loader?.enableManualMethods) {
+                b.addLine().addManualSection("custom-methods", (b) => b);
+              }
               return b;
             }
           )

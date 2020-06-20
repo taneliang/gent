@@ -42,7 +42,7 @@ export class QueryFileGenerator extends FileGenerator {
     return "Query";
   }
 
-  buildImportLines(builder: CodeBuilder): CodeBuilder {
+  private buildImportLines(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
@@ -60,10 +60,17 @@ export class QueryFileGenerator extends FileGenerator {
       ...this.fieldGenerators,
       ...this.relationGenerators,
     ].map((generator) => generator.importsRequired());
-    return buildImportLines([ourImports, ...generatorImports], builder);
+
+    buildImportLines([ourImports, ...generatorImports], builder);
+
+    if (this.codegenInfo.schema.codegenOptions?.query?.enableManualImports) {
+      builder.addLine().addManualSection("custom-imports", (b) => b);
+    }
+
+    return builder;
   }
 
-  buildConstructor(builder: CodeBuilder): CodeBuilder {
+  private buildConstructor(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
 
@@ -80,7 +87,7 @@ export class QueryFileGenerator extends FileGenerator {
     );
   }
 
-  buildApplyAccessControlRules(builder: CodeBuilder): CodeBuilder {
+  private buildApplyAccessControlRules(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     // TODO: Consider using MikroORM's naming strategy instead
@@ -118,7 +125,7 @@ export class QueryFileGenerator extends FileGenerator {
     );
   }
 
-  buildMutate(builder: CodeBuilder): CodeBuilder {
+  private buildMutate(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
 
@@ -133,14 +140,14 @@ export class QueryFileGenerator extends FileGenerator {
     );
   }
 
-  buildFieldLines(builder: CodeBuilder): CodeBuilder {
+  private buildFieldLines(builder: CodeBuilder): CodeBuilder {
     this.fieldGenerators.forEach((generator) =>
       generator.generateLines(builder).addLine()
     );
     return builder;
   }
 
-  buildRelationLines(builder: CodeBuilder): CodeBuilder {
+  private buildRelationLines(builder: CodeBuilder): CodeBuilder {
     this.relationGenerators.forEach((generator) =>
       generator.generateLines(builder).addLine()
     );
@@ -164,6 +171,9 @@ export class QueryFileGenerator extends FileGenerator {
               this.buildMutate(b).addLine();
               this.buildFieldLines(b);
               this.buildRelationLines(b);
+              if (schema.codegenOptions?.query?.enableManualMethods) {
+                b.addLine().addManualSection("custom-methods", (b) => b);
+              }
               return b;
             }
           )

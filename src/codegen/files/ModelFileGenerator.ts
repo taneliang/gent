@@ -41,7 +41,7 @@ export class ModelFileGenerator extends FileGenerator {
     return "";
   }
 
-  buildImportLines(builder: CodeBuilder): CodeBuilder {
+  private buildImportLines(builder: CodeBuilder): CodeBuilder {
     const ourImports = {
       "mikro-orm": ["Entity"],
       "@elg/gent": ["GentModel"],
@@ -50,17 +50,24 @@ export class ModelFileGenerator extends FileGenerator {
       ...this.fieldGenerators,
       ...this.relationGenerators,
     ].map((generator) => generator.importsRequired());
-    return buildImportLines([ourImports, ...generatorImports], builder);
+
+    buildImportLines([ourImports, ...generatorImports], builder);
+
+    if (this.codegenInfo.schema.codegenOptions?.model?.enableManualImports) {
+      builder.addLine().addManualSection("custom-imports", (b) => b);
+    }
+
+    return builder;
   }
 
-  buildFieldLines(builder: CodeBuilder): CodeBuilder {
+  private buildFieldLines(builder: CodeBuilder): CodeBuilder {
     this.fieldGenerators.forEach((generator) =>
       generator.generateLines(builder).addLine()
     );
     return builder;
   }
 
-  buildRelationLines(builder: CodeBuilder): CodeBuilder {
+  private buildRelationLines(builder: CodeBuilder): CodeBuilder {
     this.relationGenerators.forEach((generator) =>
       generator.generateLines(builder).addLine()
     );
@@ -79,6 +86,9 @@ export class ModelFileGenerator extends FileGenerator {
           .addBlock(`export class ${entityName} implements GentModel`, (b) => {
             this.buildFieldLines(b);
             this.buildRelationLines(b);
+            if (schema.codegenOptions?.model?.enableManualMethods) {
+              b.addLine().addManualSection("custom-methods", (b) => b);
+            }
             return b;
           })
           .format()

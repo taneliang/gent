@@ -10,7 +10,7 @@ export class MutatorFileGenerator extends FileGenerator {
     return "Mutator";
   }
 
-  buildImportLines(builder: CodeBuilder): CodeBuilder {
+  private buildImportLines(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
     const ourImports = {
@@ -26,10 +26,17 @@ export class MutatorFileGenerator extends FileGenerator {
       [`./${entityName}Query`]: [`${entityName}Query`],
       [`./${entityName}Schema`]: ["default"],
     };
-    return buildImportLines([ourImports], builder);
+
+    buildImportLines([ourImports], builder);
+
+    if (this.codegenInfo.schema.codegenOptions?.mutator?.enableManualImports) {
+      builder.addLine().addManualSection("custom-imports", (b) => b);
+    }
+
+    return builder;
   }
 
-  buildConstructor(builder: CodeBuilder): CodeBuilder {
+  private buildConstructor(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
 
@@ -39,7 +46,7 @@ export class MutatorFileGenerator extends FileGenerator {
     );
   }
 
-  buildFromEntities(builder: CodeBuilder): CodeBuilder {
+  private buildFromEntities(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
 
@@ -64,7 +71,7 @@ export class MutatorFileGenerator extends FileGenerator {
     );
   }
 
-  buildApplyAccessControlRules(builder: CodeBuilder): CodeBuilder {
+  private buildApplyAccessControlRules(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
 
@@ -121,6 +128,9 @@ export class MutatorFileGenerator extends FileGenerator {
               this.buildConstructor(b).addLine();
               this.buildFromEntities(b).addLine();
               this.buildApplyAccessControlRules(b);
+              if (schema.codegenOptions?.mutator?.enableManualMethods) {
+                b.addLine().addManualSection("custom-methods", (b) => b);
+              }
               return b;
             }
           )

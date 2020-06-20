@@ -7,6 +7,25 @@ import {
   Police,
 } from "..";
 
+export type SchemaCodegenOptions = {
+  model?: {
+    enableManualImports?: boolean;
+    enableManualMethods?: boolean;
+  };
+  mutator?: {
+    enableManualImports?: boolean;
+    enableManualMethods?: boolean;
+  };
+  query?: {
+    enableManualImports?: boolean;
+    enableManualMethods?: boolean;
+  };
+  loader?: {
+    enableManualImports?: boolean;
+    enableManualMethods?: boolean;
+  };
+};
+
 export abstract class GentSchema {
   /**
    * Name of this entity.
@@ -27,6 +46,8 @@ export abstract class GentSchema {
 
   abstract get fields(): FieldSpecification[];
   abstract get edges(): EdgeSpecification[];
+
+  readonly codegenOptions?: SchemaCodegenOptions;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static accessControlRules(police: Police<GentQuery<any>, GentModel>): void {
