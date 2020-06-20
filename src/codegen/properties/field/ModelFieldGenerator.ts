@@ -14,7 +14,13 @@ export class ModelFieldGenerator extends FieldBasedGenerator {
   }
 
   generateLines(codeBuilder: CodeBuilder): CodeBuilder {
-    const { name, type, sqlColumnType } = this.specification;
+    const {
+      defaultDatabaseValue,
+      defaultValueCode,
+      name,
+      sqlColumnType,
+      type,
+    } = this.specification;
 
     const propertyOptions: PropertyOptions = _.pick(this.specification, [
       "nullable",
@@ -23,14 +29,22 @@ export class ModelFieldGenerator extends FieldBasedGenerator {
     if (sqlColumnType) {
       propertyOptions.columnType = sqlColumnType;
     }
+    if (defaultDatabaseValue) {
+      propertyOptions.default = defaultDatabaseValue;
+    }
 
     const optionsString = _.isEmpty(propertyOptions)
       ? ""
       : JSON.stringify(propertyOptions);
     const nullUnwrapIndicator = propertyOptions.nullable ? "?" : "!";
+    const defaultValueAssigner = defaultValueCode
+      ? `= ${defaultValueCode}`
+      : "";
     return codeBuilder
       .addLine(`@${this.decoratorName}(${optionsString})`)
-      .addLine(`${name}${nullUnwrapIndicator}: ${type};`);
+      .addLine(
+        `${name}${nullUnwrapIndicator}: ${type}${defaultValueAssigner};`
+      );
   }
 
   importsRequired(): ImportMap {

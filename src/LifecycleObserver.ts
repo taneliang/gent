@@ -98,29 +98,18 @@ export type LifecycleObserver<Model extends GentModel> = CreateObserver<Model> &
   DeleteObserver<Model>;
 
 /**
- * Returns a new `LifecycleObserver` that does 2 things:
- * - On create, sets the created and updated at field of the data to be
- *   mutated.
- * - On update, sets the updated at field of the data to be mutated.
+ * Returns a new `LifecycleObserver` that, on update, sets the updated at field
+ * of the data to be mutated.
  *
- * @param createdAtFieldName Created at model field name. Default: `createdAt`
+ * Recommended to be paired with `createdAt` and `updatedAt` fields with
+ * a `defaultValueCode: "NOW()"` specification.
+ *
  * @param updatedAtFieldName Updated at model field name. Default: `updatedAt`
  */
-export function makeTimestampObserver<Model extends GentModel>(
-  createdAtFieldName = "createdAt",
+export function makeUpdateTimestampUpdater<Model extends GentModel>(
   updatedAtFieldName = "updatedAt"
 ): LifecycleObserver<Model> {
   return {
-    transformDataBeforeCreate(
-      _vc: ViewerContext,
-      data: EntityData<Model>
-    ): EntityData<Model> {
-      return {
-        ...data,
-        [createdAtFieldName]: new Date(),
-        [updatedAtFieldName]: new Date(),
-      };
-    },
     transformDataBeforeUpdate(
       _vc: ViewerContext,
       data: EntityData<Model>

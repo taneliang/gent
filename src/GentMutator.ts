@@ -161,7 +161,7 @@ export abstract class GentMutator<Model extends GentModel> {
     if (this.lifecycleObservers) {
       for (const observer of this.lifecycleObservers) {
         data =
-          (await observer.transformDataBeforeCreate?.(this.vc, data)) ?? data;
+          (await observer.transformDataBeforeUpdate?.(this.vc, data)) ?? data;
       }
     }
 
