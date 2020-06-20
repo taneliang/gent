@@ -6,8 +6,8 @@
   "scripts": {
     "migrate": "",
     "codegen": "../dist/cli/gentgen.js generate src/gents",
-    "codegen:watch": "npx nodemon --delay 2 -e ts -x ../dist/cli/gentgen.js generate src/gents",
-    "watch": "npx nodemon -e ts -w ./src -x ts-node src/index.ts",
+    "codegen:watch": "npx nodemon --delay 1 -w ./src -w ../dist -e ts -x ../dist/cli/gentgen.js generate src/gents",
+    "watch": "npx nodemon -e ts -w ./src -w ../dist -x ts-node src/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

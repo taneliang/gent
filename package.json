@@ -16,6 +16,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "tsc --project tsconfig.dist.json && chmod +x dist/cli/gentgen.js",
+    "build:watch": "nodemon -w ./src -e ts -x yarn build",
     "typecheck": "tsc --noEmit",
     "test": "jest --coverage",
     "lint": "yarn lint:code && yarn lint:misc",
