@@ -18,6 +18,7 @@ export class MutatorFileGenerator extends FileGenerator {
       "@elg/gent": [
         "GentMutator",
         "GentMutatorGraphViewRestricter",
+        ...(schema.hooks ? ["LifecycleHook"] : []),
         "MutationAction",
         "Police",
         "ViewerContext",
@@ -124,7 +125,11 @@ export class MutatorFileGenerator extends FileGenerator {
           .addBlock(
             `export class ${entityName}Mutator extends GentMutator<${entityName}>`,
             (b) => {
-              b.addLine(`protected entityClass = ${entityName};`).addLine();
+              if (schema.hooks) {
+                b.addLine(
+                  `protected readonly lifecycleHooks: LifecycleHook<${entityName}>[] = new ${entityName}Schema().hooks;`
+                ).addLine();
+              }
               this.buildConstructor(b).addLine();
               this.buildFromEntities(b).addLine();
               this.buildApplyAccessControlRules(b);

@@ -4,7 +4,7 @@ import {
   QueryBuilder as KnexQueryBuilder,
   Transaction as KnexTransaction,
 } from "knex";
-import { GentModel, ViewerContext } from ".";
+import { GentModel, LifecycleHook, ViewerContext } from ".";
 
 export const mutationActions = ["create", "update", "delete"] as const;
 export type MutationAction = typeof mutationActions[number];
@@ -30,7 +30,8 @@ export type GentMutatorGraphViewRestricter<GentMutatorSubclass> = (
 export abstract class GentMutator<Model extends GentModel> {
   readonly vc: ViewerContext;
 
-  protected entityClass: EntityClass<Model>;
+  protected readonly entityClass: EntityClass<Model>;
+  protected readonly lifecycleHooks?: LifecycleHook<Model>[];
 
   /**
    * A Knex query builder that contains the current state of the query.
@@ -105,6 +106,14 @@ export abstract class GentMutator<Model extends GentModel> {
     }
     this.applyAccessControlRules("create", finalKnexQb);
 
+    if (this.lifecycleHooks) {
+      for (const hook of this.lifecycleHooks) {
+        if (hook.beforeCreate) {
+          await hook.beforeCreate(this.vc, data);
+        }
+      }
+    }
+
     const results: EntityData<
       Model
     >[] = await this.vc.entityManager
@@ -113,7 +122,17 @@ export abstract class GentMutator<Model extends GentModel> {
     const resultEntities = results.map((result) =>
       this.vc.entityManager.map(this.entityClass, result)
     );
-    return resultEntities[0];
+    const resultEntity = resultEntities[0];
+
+    if (this.lifecycleHooks) {
+      for (const hook of this.lifecycleHooks) {
+        if (hook.afterCreate) {
+          await hook.afterCreate(this.vc, data, resultEntity);
+        }
+      }
+    }
+
+    return resultEntity;
   }
 
   /**
@@ -142,6 +161,14 @@ export abstract class GentMutator<Model extends GentModel> {
     }
     this.applyAccessControlRules("update", finalKnexQb);
 
+    if (this.lifecycleHooks) {
+      for (const hook of this.lifecycleHooks) {
+        if (hook.beforeUpdate) {
+          await hook.beforeUpdate(this.vc, data);
+        }
+      }
+    }
+
     const results: EntityData<
       Model
     >[] = await this.vc.entityManager
@@ -150,6 +177,15 @@ export abstract class GentMutator<Model extends GentModel> {
     const resultEntities = results.map((result) =>
       this.vc.entityManager.map(this.entityClass, result)
     );
+
+    if (this.lifecycleHooks) {
+      for (const hook of this.lifecycleHooks) {
+        if (hook.afterUpdate) {
+          await hook.afterUpdate(this.vc, data, resultEntities);
+        }
+      }
+    }
+
     return resultEntities;
   }
 
@@ -161,8 +197,12 @@ export abstract class GentMutator<Model extends GentModel> {
    * a `GentQuery` subclass, or by passing the entities directly to the
    * `fromEntities` static method generated on all `GentMutator` subclasses.
    */
-  async delete(): Promise<void> {
-    const finalKnexQb = this.queryBuilder.clone().delete().getKnexQuery();
+  async delete(): Promise<Model[]> {
+    const finalKnexQb = this.queryBuilder
+      .clone()
+      .delete()
+      .getKnexQuery()
+      .returning("*");
     if (this.graphViewRestrictor) {
       await this.graphViewRestrictor(this, finalKnexQb);
     }
@@ -171,10 +211,33 @@ export abstract class GentMutator<Model extends GentModel> {
     }
     this.applyAccessControlRules("delete", finalKnexQb);
 
-    await this.vc.entityManager
+    if (this.lifecycleHooks) {
+      for (const hook of this.lifecycleHooks) {
+        if (hook.beforeDelete) {
+          await hook.beforeDelete(this.vc);
+        }
+      }
+    }
+
+    const results: EntityData<
+      Model
+    >[] = await this.vc.entityManager
       .getConnection("write")
       .execute(finalKnexQb as never);
+    const resultEntities = results.map((result) =>
+      this.vc.entityManager.map(this.entityClass, result)
+    );
+
+    if (this.lifecycleHooks) {
+      for (const hook of this.lifecycleHooks) {
+        if (hook.afterDelete) {
+          await hook.afterDelete(this.vc, resultEntities);
+        }
+      }
+    }
+
     // TODO: Figure out how to avoid nuking the identity map
     this.vc.entityManager.clear();
+    return resultEntities;
   }
 }
