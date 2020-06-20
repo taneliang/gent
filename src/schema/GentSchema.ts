@@ -11,6 +11,8 @@ export type SchemaCodegenOptions = {
   model?: {
     enableManualImports?: boolean;
     enableManualMethods?: boolean;
+    enableManualEntityDecoratorOptions?: boolean;
+    enableManualEntityDecorators?: boolean;
   };
   mutator?: {
     enableManualImports?: boolean;

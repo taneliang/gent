@@ -74,25 +74,41 @@ export class ModelFileGenerator extends FileGenerator {
     return builder;
   }
 
-  generate(): void {
+  private buildFileContents(builder: CodeBuilder): CodeBuilder {
     const { schema } = this.codegenInfo;
     const entityName = schema.entityName;
 
+    this.buildImportLines(builder).addLine();
+
+    if (schema.codegenOptions?.model?.enableManualEntityDecoratorOptions) {
+      builder
+        .addBlock("@Entity(", (b) =>
+          b.addManualSection("entity-decorator-options", (b) => b)
+        )
+        .addLine(")");
+    } else {
+      builder.addLine("@Entity()");
+    }
+
+    if (schema.codegenOptions?.model?.enableManualEntityDecorators) {
+      builder.addManualSection("entity-decorators", (b) => b);
+    }
+
+    builder.addBlock(`export class ${entityName} implements GentModel`, (b) => {
+      this.buildFieldLines(b);
+      this.buildRelationLines(b);
+      if (schema.codegenOptions?.model?.enableManualMethods) {
+        b.addLine().addManualSection("custom-methods", (b) => b);
+      }
+      return b;
+    });
+
+    return builder.format();
+  }
+
+  generate(): void {
     this.codeFile
-      .build((b) =>
-        this.buildImportLines(b)
-          .addLine()
-          .addLine("@Entity()")
-          .addBlock(`export class ${entityName} implements GentModel`, (b) => {
-            this.buildFieldLines(b);
-            this.buildRelationLines(b);
-            if (schema.codegenOptions?.model?.enableManualMethods) {
-              b.addLine().addManualSection("custom-methods", (b) => b);
-            }
-            return b;
-          })
-          .format()
-      )
+      .build((builder) => this.buildFileContents(builder))
       .lock(this.fileDocblockContent)
       .saveToFile();
   }
