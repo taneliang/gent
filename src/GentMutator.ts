@@ -1,6 +1,9 @@
-import { QueryBuilder } from "mikro-orm";
-import { QueryBuilder as KnexQueryBuilder } from "knex";
-import { EntityClass, EntityData } from "mikro-orm/dist/typings";
+import { QueryBuilder, EntityData } from "mikro-orm";
+import { EntityClass } from "mikro-orm/dist/typings";
+import {
+  QueryBuilder as KnexQueryBuilder,
+  Transaction as KnexTransaction,
+} from "knex";
 import { GentModel, ViewerContext } from ".";
 
 export const mutationActions = ["create", "update", "delete"] as const;
@@ -8,6 +11,9 @@ export type MutationAction = typeof mutationActions[number];
 
 /**
  * A callback function that restricts the mutation to a subset of the data.
+ *
+ * TODO: Throw error when restrictors return a Knex QB -- they will be awaited
+ * and a query will be silently executed.
  */
 export type GentMutatorGraphViewRestricter<GentMutatorSubclass> = (
   childMutator: GentMutatorSubclass,
@@ -35,6 +41,8 @@ export abstract class GentMutator<Model extends GentModel> {
   private readonly graphViewRestrictor:
     | GentMutatorGraphViewRestricter<GentMutator<Model>>
     | undefined;
+
+  private transaction?: KnexTransaction;
 
   /**
    * @param vc The viewer context performing the query.
@@ -68,14 +76,22 @@ export abstract class GentMutator<Model extends GentModel> {
   ): void;
 
   /**
+   * Perform all actions in this transaction.
+   * @param transaction Knex transaction.
+   */
+  inTransaction(transaction: KnexTransaction): this {
+    this.transaction = transaction;
+    return this;
+  }
+
+  /**
    * Creates a single entity, subject to access control rules defined on the
    * entity's schema.
    *
-   * @param data An entity model class or a plain object with the necessary
-   * fields to create an entity.
+   * @param data An plain object with the necessary fields to create an entity.
    * @returns A promise that resolves to the created entity object.
    */
-  async create(data: unknown): Promise<Model> {
+  async create(data: EntityData<Model>): Promise<Model> {
     const finalKnexQb = this.queryBuilder
       .clone()
       .insert(data)
@@ -83,6 +99,9 @@ export abstract class GentMutator<Model extends GentModel> {
       .returning("*");
     if (this.graphViewRestrictor) {
       await this.graphViewRestrictor(this, finalKnexQb);
+    }
+    if (this.transaction) {
+      finalKnexQb.transacting(this.transaction);
     }
     this.applyAccessControlRules("create", finalKnexQb);
 
@@ -105,11 +124,11 @@ export abstract class GentMutator<Model extends GentModel> {
    * a `GentQuery` subclass, or by passing the entities directly to the
    * `fromEntities` static method generated on all `GentMutator` subclasses.
    *
-   * @param data An entity model class or a plain object with the necessary
-   * fields to update the entities.
+   * @param data An plain object with the necessary fields to update the
+   * entities.
    * @returns A promise that resolves to all the updated entity objects.
    */
-  async update(data: unknown): Promise<Model[]> {
+  async update(data: EntityData<Model>): Promise<Model[]> {
     const finalKnexQb = this.queryBuilder
       .clone()
       .update(data)
@@ -117,6 +136,9 @@ export abstract class GentMutator<Model extends GentModel> {
       .returning("*");
     if (this.graphViewRestrictor) {
       await this.graphViewRestrictor(this, finalKnexQb);
+    }
+    if (this.transaction) {
+      finalKnexQb.transacting(this.transaction);
     }
     this.applyAccessControlRules("update", finalKnexQb);
 
@@ -143,6 +165,9 @@ export abstract class GentMutator<Model extends GentModel> {
     const finalKnexQb = this.queryBuilder.clone().delete().getKnexQuery();
     if (this.graphViewRestrictor) {
       await this.graphViewRestrictor(this, finalKnexQb);
+    }
+    if (this.transaction) {
+      finalKnexQb.transacting(this.transaction);
     }
     this.applyAccessControlRules("delete", finalKnexQb);
 
