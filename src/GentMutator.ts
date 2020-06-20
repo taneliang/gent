@@ -4,7 +4,7 @@ import {
   QueryBuilder as KnexQueryBuilder,
   Transaction as KnexTransaction,
 } from "knex";
-import { GentModel, LifecycleHook, ViewerContext } from ".";
+import { GentModel, LifecycleObserver, ViewerContext } from ".";
 
 export const mutationActions = ["create", "update", "delete"] as const;
 export type MutationAction = typeof mutationActions[number];
@@ -31,7 +31,7 @@ export abstract class GentMutator<Model extends GentModel> {
   readonly vc: ViewerContext;
 
   protected readonly entityClass: EntityClass<Model>;
-  protected readonly lifecycleHooks?: LifecycleHook<Model>[];
+  protected readonly lifecycleObservers?: LifecycleObserver<Model>[];
 
   /**
    * A Knex query builder that contains the current state of the query.
@@ -89,10 +89,19 @@ export abstract class GentMutator<Model extends GentModel> {
    * Creates a single entity, subject to access control rules defined on the
    * entity's schema.
    *
-   * @param data An plain object with the necessary fields to create an entity.
+   * @param inputData An plain object with the necessary fields to create an
+   * entity.
    * @returns A promise that resolves to the created entity object.
    */
-  async create(data: EntityData<Model>): Promise<Model> {
+  async create(inputData: EntityData<Model>): Promise<Model> {
+    let data = inputData;
+    if (this.lifecycleObservers) {
+      for (const observer of this.lifecycleObservers) {
+        data =
+          (await observer.transformDataBeforeCreate?.(this.vc, data)) ?? data;
+      }
+    }
+
     const finalKnexQb = this.queryBuilder
       .clone()
       .insert(data)
@@ -106,12 +115,12 @@ export abstract class GentMutator<Model extends GentModel> {
     }
     this.applyAccessControlRules("create", finalKnexQb);
 
-    if (this.lifecycleHooks) {
-      for (const hook of this.lifecycleHooks) {
-        if (hook.beforeCreate) {
-          await hook.beforeCreate(this.vc, data);
-        }
-      }
+    if (this.lifecycleObservers) {
+      await Promise.all(
+        this.lifecycleObservers.map((observer) =>
+          observer.beforeCreate?.(this.vc, data)
+        )
+      );
     }
 
     const results: EntityData<
@@ -124,12 +133,12 @@ export abstract class GentMutator<Model extends GentModel> {
     );
     const resultEntity = resultEntities[0];
 
-    if (this.lifecycleHooks) {
-      for (const hook of this.lifecycleHooks) {
-        if (hook.afterCreate) {
-          await hook.afterCreate(this.vc, data, resultEntity);
-        }
-      }
+    if (this.lifecycleObservers) {
+      await Promise.all(
+        this.lifecycleObservers.map((observer) =>
+          observer.afterCreate?.(this.vc, data, resultEntity)
+        )
+      );
     }
 
     return resultEntity;
@@ -143,11 +152,19 @@ export abstract class GentMutator<Model extends GentModel> {
    * a `GentQuery` subclass, or by passing the entities directly to the
    * `fromEntities` static method generated on all `GentMutator` subclasses.
    *
-   * @param data An plain object with the necessary fields to update the
+   * @param inputData An plain object with the necessary fields to update the
    * entities.
    * @returns A promise that resolves to all the updated entity objects.
    */
-  async update(data: EntityData<Model>): Promise<Model[]> {
+  async update(inputData: EntityData<Model>): Promise<Model[]> {
+    let data = inputData;
+    if (this.lifecycleObservers) {
+      for (const observer of this.lifecycleObservers) {
+        data =
+          (await observer.transformDataBeforeCreate?.(this.vc, data)) ?? data;
+      }
+    }
+
     const finalKnexQb = this.queryBuilder
       .clone()
       .update(data)
@@ -161,12 +178,12 @@ export abstract class GentMutator<Model extends GentModel> {
     }
     this.applyAccessControlRules("update", finalKnexQb);
 
-    if (this.lifecycleHooks) {
-      for (const hook of this.lifecycleHooks) {
-        if (hook.beforeUpdate) {
-          await hook.beforeUpdate(this.vc, data);
-        }
-      }
+    if (this.lifecycleObservers) {
+      await Promise.all(
+        this.lifecycleObservers.map((observer) =>
+          observer.beforeUpdate?.(this.vc, data)
+        )
+      );
     }
 
     const results: EntityData<
@@ -178,12 +195,12 @@ export abstract class GentMutator<Model extends GentModel> {
       this.vc.entityManager.map(this.entityClass, result)
     );
 
-    if (this.lifecycleHooks) {
-      for (const hook of this.lifecycleHooks) {
-        if (hook.afterUpdate) {
-          await hook.afterUpdate(this.vc, data, resultEntities);
-        }
-      }
+    if (this.lifecycleObservers) {
+      await Promise.all(
+        this.lifecycleObservers.map((observer) =>
+          observer.afterUpdate?.(this.vc, data, resultEntities)
+        )
+      );
     }
 
     return resultEntities;
@@ -211,12 +228,12 @@ export abstract class GentMutator<Model extends GentModel> {
     }
     this.applyAccessControlRules("delete", finalKnexQb);
 
-    if (this.lifecycleHooks) {
-      for (const hook of this.lifecycleHooks) {
-        if (hook.beforeDelete) {
-          await hook.beforeDelete(this.vc);
-        }
-      }
+    if (this.lifecycleObservers) {
+      await Promise.all(
+        this.lifecycleObservers.map((observer) =>
+          observer.beforeDelete?.(this.vc)
+        )
+      );
     }
 
     const results: EntityData<
@@ -228,12 +245,12 @@ export abstract class GentMutator<Model extends GentModel> {
       this.vc.entityManager.map(this.entityClass, result)
     );
 
-    if (this.lifecycleHooks) {
-      for (const hook of this.lifecycleHooks) {
-        if (hook.afterDelete) {
-          await hook.afterDelete(this.vc, resultEntities);
-        }
-      }
+    if (this.lifecycleObservers) {
+      await Promise.all(
+        this.lifecycleObservers.map((observer) =>
+          observer.afterDelete?.(this.vc, resultEntities)
+        )
+      );
     }
 
     // TODO: Figure out how to avoid nuking the identity map

@@ -4,7 +4,7 @@ import {
   FieldSpecification,
   GentQuery,
   GentSchemaValidationError,
-  LifecycleHook,
+  LifecycleObserver,
   Police,
 } from "..";
 
@@ -50,7 +50,10 @@ export abstract class GentSchema {
   abstract get fields(): FieldSpecification[];
   abstract get edges(): EdgeSpecification[];
 
-  readonly hooks?: LifecycleHook<never>[];
+  // TODO: Find long term solution to `any`s in this and access control rules
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly observers?: LifecycleObserver<any>[];
+
   readonly codegenOptions?: SchemaCodegenOptions;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

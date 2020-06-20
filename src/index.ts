@@ -3,6 +3,7 @@ export * from "./GentLoader";
 export * from "./GentModel";
 export * from "./GentMutator";
 export * from "./GentQuery";
+export * from "./LifecycleObserver";
 export * from "./ViewerContext";
 export * from "./police";
 export * from "./schema";
