@@ -1,7 +1,7 @@
-import { IdEntity, Primary } from "mikro-orm";
+import { AnyEntity, Primary } from "mikro-orm";
 import { CollectionItem } from "mikro-orm/dist/typings";
 
-export interface GentModel extends IdEntity<GentModel> {
+export interface GentModel extends AnyEntity<GentModel, "id"> {
   id: number;
 }
 
