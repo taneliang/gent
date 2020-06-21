@@ -4,7 +4,7 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Post/PostSchema.ts
  *
- * @generated Codelock<<V1uD+T0z4C9Op6dvuC1UsXFzJb/hoqIc>>
+ * @generated Codelock<</UB1UcdiioQl2FFzUgsRgYklmEpknrTJ>>
  */
 
 import { QueryBuilder } from "knex";
@@ -20,8 +20,6 @@ import { PostQuery } from "./PostQuery";
 import PostSchema from "./PostSchema";
 
 export class PostMutator extends GentMutator<Post> {
-  protected entityClass = Post;
-
   constructor(
     vc: ViewerContext,
     graphViewRestrictor:

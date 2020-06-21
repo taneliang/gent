@@ -4,13 +4,14 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Comment/CommentSchema.ts
  *
- * @generated Codelock<<A1gkSpBA8GB2NSK75ocAtuiEJazZEu1O>>
+ * @generated Codelock<<E4YwW1O1WihxNRYHYVbD6xCh4lF5GuhZ>>
  */
 
 import { QueryBuilder } from "knex";
 import {
   GentMutator,
   GentMutatorGraphViewRestricter,
+  LifecycleObserver,
   MutationAction,
   Police,
   ViewerContext,
@@ -20,7 +21,9 @@ import { CommentQuery } from "./CommentQuery";
 import CommentSchema from "./CommentSchema";
 
 export class CommentMutator extends GentMutator<Comment> {
-  protected entityClass = Comment;
+  protected readonly lifecycleObservers: LifecycleObserver<
+    Comment
+  >[] = new CommentSchema().observers;
 
   constructor(
     vc: ViewerContext,

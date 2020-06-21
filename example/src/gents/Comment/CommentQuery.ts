@@ -4,7 +4,7 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Comment/CommentSchema.ts
  *
- * @generated Codelock<<D/2v8TgZe0QCA8rPn2ZkPcmb9DhZ7DRF>>
+ * @generated Codelock<<v+gOuE+dWitGRHpfIh1RzecHOnXHa7Gb>>
  */
 
 import {
@@ -88,6 +88,60 @@ export class CommentQuery extends GentQuery<Comment> {
       this.vc.entityManager.map(this.entityClass, result)
     );
     return resultEntities.map((gent) => gent.id);
+  }
+
+  whereCreatedAtEquals(value: Date): this {
+    this.queryBuilder.where("created_at", value);
+    return this;
+  }
+
+  whereCreatedAtIn(values: Date[]): this {
+    this.queryBuilder.whereIn("created_at", values);
+    return this;
+  }
+
+  async getCreatedAts(): Promise<Date[]> {
+    await this.applyGraphViewRestrictions();
+    const finalQb = this.queryBuilder
+      .clone()
+      .clearSelect()
+      .select("created_at");
+    const results: EntityData<
+      Comment
+    >[] = await this.vc.entityManager
+      .getConnection("read")
+      .execute(finalQb as never);
+    const resultEntities = results.map((result) =>
+      this.vc.entityManager.map(this.entityClass, result)
+    );
+    return resultEntities.map((gent) => gent.createdAt);
+  }
+
+  whereUpdatedAtEquals(value: Date): this {
+    this.queryBuilder.where("updated_at", value);
+    return this;
+  }
+
+  whereUpdatedAtIn(values: Date[]): this {
+    this.queryBuilder.whereIn("updated_at", values);
+    return this;
+  }
+
+  async getUpdatedAts(): Promise<Date[]> {
+    await this.applyGraphViewRestrictions();
+    const finalQb = this.queryBuilder
+      .clone()
+      .clearSelect()
+      .select("updated_at");
+    const results: EntityData<
+      Comment
+    >[] = await this.vc.entityManager
+      .getConnection("read")
+      .execute(finalQb as never);
+    const resultEntities = results.map((result) =>
+      this.vc.entityManager.map(this.entityClass, result)
+    );
+    return resultEntities.map((gent) => gent.updatedAt);
   }
 
   whereContentLike(pattern: string): this {

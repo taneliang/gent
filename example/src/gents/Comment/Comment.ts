@@ -4,7 +4,7 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Comment/CommentSchema.ts
  *
- * @generated Codelock<<uZXLMt0snDPIktIvEVkH7zi9tariHRp0>>
+ * @generated Codelock<<LFgXIA7EErifIAKpzVRlt6yiraGBdgHo>>
  */
 
 import { Entity, ManyToOne, PrimaryKey, Property } from "mikro-orm";
@@ -15,6 +15,12 @@ import { Post } from "../Post/Post";
 export class Comment implements GentModel {
   @PrimaryKey()
   id!: number;
+
+  @Property({ default: "NOW()" })
+  createdAt!: Date;
+
+  @Property({ default: "NOW()" })
+  updatedAt!: Date;
 
   @Property()
   content!: string;
