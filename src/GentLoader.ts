@@ -85,10 +85,10 @@ export abstract class GentLoader<Model extends GentModel> {
    * returns undefined.
    */
   async getOne(): Promise<Model | undefined> {
+    await this.applyGraphViewRestrictions();
     if (this.ids.length === 0) {
       return undefined;
     }
-    await this.applyGraphViewRestrictions();
     return this.vc.beltalowdas
       .beltalowdaForModel(
         this.entityClass,
