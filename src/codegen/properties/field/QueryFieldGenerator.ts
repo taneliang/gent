@@ -92,7 +92,7 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
           .addLine(
             `const finalQb = this.queryBuilder.clone().clearSelect().select("${columnName}");`
           )
-          .addLine("const results: GentModelData<")
+          .addLine("const results: EntityData<")
           .addLine(`${this.parentEntityType}`)
           .addLine(">[] = await this.vc.entityManager")
           .addLine('.getConnection("read")')
@@ -135,6 +135,6 @@ export class QueryFieldGenerator extends FieldBasedGenerator {
   }
 
   importsRequired(): ImportMap {
-    return { "@elg/gent": ["GentModelData"] };
+    return { "mikro-orm": ["EntityData"] };
   }
 }

@@ -1,7 +1,8 @@
-import { ViewerContext } from "./ViewerContext";
+import { EntityData } from "mikro-orm";
 import { QueryBuilder } from "knex";
-import { GentModel, GentModelClass, GentModelData } from "./GentModel";
+import { GentModel, GentModelClass } from "./GentModel";
 import { GentMutator } from "./GentMutator";
+import { ViewerContext } from "./ViewerContext";
 
 /**
  * A callback function that restricts the the query to a subset of the data.
@@ -111,7 +112,7 @@ export abstract class GentQuery<Model extends GentModel> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder.clone().first();
     const result:
-      | GentModelData<Model>
+      | EntityData<Model>
       | undefined = await this.vc.entityManager
       .getConnection("read")
       .execute(finalQb as never);
@@ -126,7 +127,7 @@ export abstract class GentQuery<Model extends GentModel> {
   async getAll(): Promise<Model[]> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder;
-    const results: GentModelData<
+    const results: EntityData<
       Model
     >[] = await this.vc.entityManager
       .getConnection("read")

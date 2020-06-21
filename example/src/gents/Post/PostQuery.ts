@@ -4,11 +4,10 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Post/PostSchema.ts
  *
- * @generated Codelock<<CNJ4ZDqKAVk49CZluN1xZKsJslNVcCaH>>
+ * @generated Codelock<<2ycbuOGJD0tJIk65ifPrypChfVhoqSnY>>
  */
 
 import {
-  GentModelData,
   GentQuery,
   GentQueryGraphViewRestricter,
   Police,
@@ -17,6 +16,7 @@ import {
 import { Post } from "./Post";
 import { PostMutator } from "./PostMutator";
 import PostSchema from "./PostSchema";
+import { EntityData } from "mikro-orm";
 import { CommentQuery } from "../Comment/CommentQuery";
 
 export class PostQuery extends GentQuery<Post> {
@@ -75,7 +75,7 @@ export class PostQuery extends GentQuery<Post> {
   async getIds(): Promise<number[]> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder.clone().clearSelect().select("id");
-    const results: GentModelData<
+    const results: EntityData<
       Post
     >[] = await this.vc.entityManager
       .getConnection("read")
@@ -104,7 +104,7 @@ export class PostQuery extends GentQuery<Post> {
   async getTitles(): Promise<string[]> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder.clone().clearSelect().select("title");
-    const results: GentModelData<
+    const results: EntityData<
       Post
     >[] = await this.vc.entityManager
       .getConnection("read")
@@ -146,7 +146,7 @@ export class PostQuery extends GentQuery<Post> {
       .clone()
       .clearSelect()
       .select("description");
-    const results: GentModelData<
+    const results: EntityData<
       Post
     >[] = await this.vc.entityManager
       .getConnection("read")

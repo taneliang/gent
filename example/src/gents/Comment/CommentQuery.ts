@@ -4,11 +4,10 @@
  * Regenerate this file by running:
  * gentgen generate src/gents/Comment/CommentSchema.ts
  *
- * @generated Codelock<<VHE+S6bNtpEFsXRTdnMXY8R/0lRLGxPy>>
+ * @generated Codelock<<v+gOuE+dWitGRHpfIh1RzecHOnXHa7Gb>>
  */
 
 import {
-  GentModelData,
   GentQuery,
   GentQueryGraphViewRestricter,
   Police,
@@ -17,6 +16,7 @@ import {
 import { Comment } from "./Comment";
 import { CommentMutator } from "./CommentMutator";
 import CommentSchema from "./CommentSchema";
+import { EntityData } from "mikro-orm";
 import { uniq } from "lodash";
 import { PostQuery } from "../Post/PostQuery";
 
@@ -79,7 +79,7 @@ export class CommentQuery extends GentQuery<Comment> {
   async getIds(): Promise<number[]> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder.clone().clearSelect().select("id");
-    const results: GentModelData<
+    const results: EntityData<
       Comment
     >[] = await this.vc.entityManager
       .getConnection("read")
@@ -106,7 +106,7 @@ export class CommentQuery extends GentQuery<Comment> {
       .clone()
       .clearSelect()
       .select("created_at");
-    const results: GentModelData<
+    const results: EntityData<
       Comment
     >[] = await this.vc.entityManager
       .getConnection("read")
@@ -133,7 +133,7 @@ export class CommentQuery extends GentQuery<Comment> {
       .clone()
       .clearSelect()
       .select("updated_at");
-    const results: GentModelData<
+    const results: EntityData<
       Comment
     >[] = await this.vc.entityManager
       .getConnection("read")
@@ -162,7 +162,7 @@ export class CommentQuery extends GentQuery<Comment> {
   async getContents(): Promise<string[]> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder.clone().clearSelect().select("content");
-    const results: GentModelData<
+    const results: EntityData<
       Comment
     >[] = await this.vc.entityManager
       .getConnection("read")
@@ -202,7 +202,7 @@ export class CommentQuery extends GentQuery<Comment> {
       .clone()
       .clearSelect()
       .select("id", "post_id");
-    const results: GentModelData<
+    const results: EntityData<
       Comment
     >[] = await this.vc.entityManager
       .getConnection("read")
