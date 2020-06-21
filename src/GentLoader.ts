@@ -1,6 +1,5 @@
 import { ViewerContext } from ".";
-import { GentModel } from "./GentModel";
-import { EntityClass } from "mikro-orm/dist/typings";
+import { GentModel, GentModelClass } from "./GentModel";
 import { Beltalowda } from "./Beltalowda";
 
 /**
@@ -50,7 +49,7 @@ export abstract class GentLoader<Model extends GentModel> {
   /**
    * The database entity class that this loader will query.
    */
-  protected abstract get entityClass(): EntityClass<Model>;
+  protected abstract get entityClass(): GentModelClass<Model>;
 
   /**
    * Sets the IDs this loader is operating on to `ids`.

@@ -1,9 +1,8 @@
-import { ViewerContext } from "./ViewerContext";
-import { QueryBuilder } from "knex";
 import { EntityData } from "mikro-orm";
-import { EntityClass } from "mikro-orm/dist/typings";
-import { GentModel } from "./GentModel";
+import { QueryBuilder } from "knex";
+import { GentModel, GentModelClass } from "./GentModel";
 import { GentMutator } from "./GentMutator";
+import { ViewerContext } from "./ViewerContext";
 
 /**
  * A callback function that restricts the the query to a subset of the data.
@@ -26,7 +25,7 @@ export type GentQueryGraphViewRestricter<GentQuerySubclass> = (
 export abstract class GentQuery<Model extends GentModel> {
   readonly vc: ViewerContext;
 
-  protected entityClass: EntityClass<Model>;
+  protected entityClass: GentModelClass<Model>;
 
   /**
    * A Knex query builder that contains the current state of the query.
@@ -50,7 +49,7 @@ export abstract class GentQuery<Model extends GentModel> {
    */
   constructor(
     vc: ViewerContext,
-    entityClass: EntityClass<Model>,
+    entityClass: GentModelClass<Model>,
     graphViewRestrictor:
       | GentQueryGraphViewRestricter<any> // eslint-disable-line @typescript-eslint/no-explicit-any
       | undefined = undefined,
