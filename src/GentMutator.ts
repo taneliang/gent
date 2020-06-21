@@ -134,7 +134,7 @@ export abstract class GentMutator<Model extends GentModel> {
       .getConnection("write")
       .execute(finalKnexQb as never);
     const resultEntities = results.map((result) =>
-      this.vc.entityManager.map<Model>(this.entityClass, result)
+      this.vc.entityManager.map(this.entityClass, result)
     );
     const resultEntity = resultEntities[0];
 
@@ -197,7 +197,7 @@ export abstract class GentMutator<Model extends GentModel> {
       .getConnection()
       .execute(finalKnexQb as never);
     const resultEntities = results.map((result) =>
-      this.vc.entityManager.map<Model>(this.entityClass, result)
+      this.vc.entityManager.map(this.entityClass, result)
     );
 
     if (this.lifecycleObservers) {
@@ -247,7 +247,7 @@ export abstract class GentMutator<Model extends GentModel> {
       .getConnection("write")
       .execute(finalKnexQb as never);
     const resultEntities = results.map((result) =>
-      this.vc.entityManager.map<Model>(this.entityClass, result)
+      this.vc.entityManager.map(this.entityClass, result)
     );
 
     if (this.lifecycleObservers) {
