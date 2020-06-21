@@ -31,9 +31,6 @@
     "ts-node": ">=8",
     "typescript": ">=3.9.0"
   },
-  "resolutions": {
-    "typescript": ">=3.9.0"
-  },
   "dependencies": {
     "@elg/tscodegen": "^0.2.0",
     "commander": "^5.1.0",
