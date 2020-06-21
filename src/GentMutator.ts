@@ -1,10 +1,15 @@
-import { QueryBuilder, EntityData } from "mikro-orm";
-import { EntityClass } from "mikro-orm/dist/typings";
+import { QueryBuilder } from "mikro-orm";
 import {
   QueryBuilder as KnexQueryBuilder,
   Transaction as KnexTransaction,
 } from "knex";
-import { GentModel, LifecycleObserver, ViewerContext } from ".";
+import {
+  GentModel,
+  GentModelClass,
+  GentModelData,
+  LifecycleObserver,
+  ViewerContext,
+} from ".";
 
 export const mutationActions = ["create", "update", "delete"] as const;
 export type MutationAction = typeof mutationActions[number];
@@ -30,7 +35,7 @@ export type GentMutatorGraphViewRestricter<GentMutatorSubclass> = (
 export abstract class GentMutator<Model extends GentModel> {
   readonly vc: ViewerContext;
 
-  protected readonly entityClass: EntityClass<Model>;
+  protected readonly entityClass: GentModelClass<Model>;
   protected readonly lifecycleObservers?: LifecycleObserver<Model>[];
 
   /**
@@ -54,7 +59,7 @@ export abstract class GentMutator<Model extends GentModel> {
    */
   constructor(
     vc: ViewerContext,
-    entityClass: EntityClass<Model>,
+    entityClass: GentModelClass<Model>,
     graphViewRestrictor:
       | GentMutatorGraphViewRestricter<any> // eslint-disable-line @typescript-eslint/no-explicit-any
       | undefined = undefined
@@ -93,7 +98,7 @@ export abstract class GentMutator<Model extends GentModel> {
    * entity.
    * @returns A promise that resolves to the created entity object.
    */
-  async create(inputData: EntityData<Model>): Promise<Model> {
+  async create(inputData: GentModelData<Model>): Promise<Model> {
     let data = inputData;
     if (this.lifecycleObservers) {
       for (const observer of this.lifecycleObservers) {
@@ -123,7 +128,7 @@ export abstract class GentMutator<Model extends GentModel> {
       );
     }
 
-    const results: EntityData<
+    const results: GentModelData<
       Model
     >[] = await this.vc.entityManager
       .getConnection("write")
@@ -156,7 +161,7 @@ export abstract class GentMutator<Model extends GentModel> {
    * entities.
    * @returns A promise that resolves to all the updated entity objects.
    */
-  async update(inputData: EntityData<Model>): Promise<Model[]> {
+  async update(inputData: GentModelData<Model>): Promise<Model[]> {
     let data = inputData;
     if (this.lifecycleObservers) {
       for (const observer of this.lifecycleObservers) {
@@ -186,7 +191,7 @@ export abstract class GentMutator<Model extends GentModel> {
       );
     }
 
-    const results: EntityData<
+    const results: GentModelData<
       Model
     >[] = await this.vc.entityManager
       .getConnection()
@@ -236,7 +241,7 @@ export abstract class GentMutator<Model extends GentModel> {
       );
     }
 
-    const results: EntityData<
+    const results: GentModelData<
       Model
     >[] = await this.vc.entityManager
       .getConnection("write")

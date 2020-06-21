@@ -94,7 +94,7 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
           .addLine(".clearSelect()")
           .addLine(`.select('id', '${relationIdColumnName}');`)
           .addLine(
-            `const results: EntityData<${this.parentEntityType}>[] = await this.vc.entityManager`
+            `const results: GentModelData<${this.parentEntityType}>[] = await this.vc.entityManager`
           )
           .addLine(".getConnection('read')")
           .addLine(".execute(finalQb as never);")
@@ -118,7 +118,7 @@ export class QueryManyToOneRelationGenerator extends ManyToOneRelationBasedGener
   importsRequired(): ImportMap {
     const { type } = this.processedSpecification;
     return {
-      "mikro-orm": ["EntityData"],
+      "@elg/gent": ["GentModelData"],
       lodash: ["uniq"],
       [`../${type}/${type}Query`]: [`${type}Query`],
     };

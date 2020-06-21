@@ -1,5 +1,4 @@
-import { EntityData } from "mikro-orm";
-import { GentModel } from "./GentModel";
+import { GentModel, GentModelData } from "./GentModel";
 import { ViewerContext } from "./ViewerContext";
 
 // TODO: Fix all these disgusting leaky abstractions
@@ -15,8 +14,8 @@ export type CreateObserver<Model extends GentModel> = {
    */
   transformDataBeforeCreate?: (
     vc: ViewerContext,
-    data: EntityData<Model>
-  ) => EntityData<Model> | Promise<EntityData<Model>>;
+    data: GentModelData<Model>
+  ) => GentModelData<Model> | Promise<GentModelData<Model>>;
 
   /**
    * Hook executed before the create query is executed. May throw an error to
@@ -24,7 +23,7 @@ export type CreateObserver<Model extends GentModel> = {
    */
   beforeCreate?: (
     vc: ViewerContext,
-    data: EntityData<Model>
+    data: GentModelData<Model>
   ) => void | Promise<void>;
 
   /**
@@ -32,7 +31,7 @@ export type CreateObserver<Model extends GentModel> = {
    */
   afterCreate?: (
     vc: ViewerContext,
-    data: EntityData<Model>,
+    data: GentModelData<Model>,
     createdEntity: Model
   ) => void | Promise<void>;
 };
@@ -48,8 +47,8 @@ export type UpdateObserver<Model extends GentModel> = {
    */
   transformDataBeforeUpdate?: (
     vc: ViewerContext,
-    data: EntityData<Model>
-  ) => EntityData<Model> | Promise<EntityData<Model>>;
+    data: GentModelData<Model>
+  ) => GentModelData<Model> | Promise<GentModelData<Model>>;
 
   /**
    * Hook executed before the update query is executed. May throw an error to
@@ -57,7 +56,7 @@ export type UpdateObserver<Model extends GentModel> = {
    */
   beforeUpdate?: (
     vc: ViewerContext,
-    data: EntityData<Model>
+    data: GentModelData<Model>
   ) => void | Promise<void>;
 
   /**
@@ -65,7 +64,7 @@ export type UpdateObserver<Model extends GentModel> = {
    */
   afterUpdate?: (
     vc: ViewerContext,
-    data: EntityData<Model>,
+    data: GentModelData<Model>,
     updatedEntities: Model[]
   ) => void | Promise<void>;
 };
@@ -112,8 +111,8 @@ export function makeUpdateTimestampUpdater<Model extends GentModel>(
   return {
     transformDataBeforeUpdate(
       _vc: ViewerContext,
-      data: EntityData<Model>
-    ): EntityData<Model> {
+      data: GentModelData<Model>
+    ): GentModelData<Model> {
       return {
         ...data,
         [updatedAtFieldName]: new Date(),

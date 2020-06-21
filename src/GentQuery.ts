@@ -1,8 +1,6 @@
 import { ViewerContext } from "./ViewerContext";
 import { QueryBuilder } from "knex";
-import { EntityData } from "mikro-orm";
-import { EntityClass } from "mikro-orm/dist/typings";
-import { GentModel } from "./GentModel";
+import { GentModel, GentModelClass, GentModelData } from "./GentModel";
 import { GentMutator } from "./GentMutator";
 
 /**
@@ -26,7 +24,7 @@ export type GentQueryGraphViewRestricter<GentQuerySubclass> = (
 export abstract class GentQuery<Model extends GentModel> {
   readonly vc: ViewerContext;
 
-  protected entityClass: EntityClass<Model>;
+  protected entityClass: GentModelClass<Model>;
 
   /**
    * A Knex query builder that contains the current state of the query.
@@ -50,7 +48,7 @@ export abstract class GentQuery<Model extends GentModel> {
    */
   constructor(
     vc: ViewerContext,
-    entityClass: EntityClass<Model>,
+    entityClass: GentModelClass<Model>,
     graphViewRestrictor:
       | GentQueryGraphViewRestricter<any> // eslint-disable-line @typescript-eslint/no-explicit-any
       | undefined = undefined,
@@ -113,7 +111,7 @@ export abstract class GentQuery<Model extends GentModel> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder.clone().first();
     const result:
-      | EntityData<Model>
+      | GentModelData<Model>
       | undefined = await this.vc.entityManager
       .getConnection("read")
       .execute(finalQb as never);
@@ -128,7 +126,7 @@ export abstract class GentQuery<Model extends GentModel> {
   async getAll(): Promise<Model[]> {
     await this.applyGraphViewRestrictions();
     const finalQb = this.queryBuilder;
-    const results: EntityData<
+    const results: GentModelData<
       Model
     >[] = await this.vc.entityManager
       .getConnection("read")
