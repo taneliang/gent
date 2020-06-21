@@ -1,4 +1,4 @@
-import { QueryBuilder } from "mikro-orm";
+import { QueryBuilder, EntityData } from "mikro-orm";
 import {
   QueryBuilder as KnexQueryBuilder,
   Transaction as KnexTransaction,
@@ -128,13 +128,13 @@ export abstract class GentMutator<Model extends GentModel> {
       );
     }
 
-    const results: GentModelData<
+    const results: EntityData<
       Model
     >[] = await this.vc.entityManager
       .getConnection("write")
       .execute(finalKnexQb as never);
     const resultEntities = results.map((result) =>
-      this.vc.entityManager.map(this.entityClass, result)
+      this.vc.entityManager.map<Model>(this.entityClass, result)
     );
     const resultEntity = resultEntities[0];
 
@@ -191,13 +191,13 @@ export abstract class GentMutator<Model extends GentModel> {
       );
     }
 
-    const results: GentModelData<
+    const results: EntityData<
       Model
     >[] = await this.vc.entityManager
       .getConnection()
       .execute(finalKnexQb as never);
     const resultEntities = results.map((result) =>
-      this.vc.entityManager.map(this.entityClass, result)
+      this.vc.entityManager.map<Model>(this.entityClass, result)
     );
 
     if (this.lifecycleObservers) {
@@ -241,13 +241,13 @@ export abstract class GentMutator<Model extends GentModel> {
       );
     }
 
-    const results: GentModelData<
+    const results: EntityData<
       Model
     >[] = await this.vc.entityManager
       .getConnection("write")
       .execute(finalKnexQb as never);
     const resultEntities = results.map((result) =>
-      this.vc.entityManager.map(this.entityClass, result)
+      this.vc.entityManager.map<Model>(this.entityClass, result)
     );
 
     if (this.lifecycleObservers) {
