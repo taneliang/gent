@@ -31,6 +31,9 @@
     "ts-node": ">=8",
     "typescript": ">=3.9.0"
   },
+  "resolutions": {
+    "typescript": ">=3.9.0"
+  },
   "dependencies": {
     "@elg/tscodegen": "^0.2.0",
     "commander": "^5.1.0",
@@ -43,7 +46,7 @@
     "@types/lodash": "^4.14.155",
     "@types/mock-fs": "^4.10.0",
     "@typescript-eslint/eslint-plugin": "^3.3.0",
-    "@typescript-eslint/parser": "^3.1.0",
+    "@typescript-eslint/parser": "^3.3.0",
     "codecov": "^3.7.0",
     "eslint": "^7.3.0",
     "eslint-config-prettier": "^6.11.0",
